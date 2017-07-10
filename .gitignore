@@ -1,2 +1,9 @@
-tmp/
 .idea/
+*.pyc
+**/.DS_Store
+doc/notes.md
+tmp/
+config/config.json
+.python-version
+.cache/
+.testdb/

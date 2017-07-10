@@ -1,0 +1,57 @@
+---
+payment_methods:
+  defaults:
+    currency: USD
+    type: credit_card
+  objects:
+    -
+      description: "American cash transactions"
+      name: "USD Cash"
+      type: cash
+    -
+      currency: CAD
+      description: "Canadian cash transactions"
+      name: "CAD Cash"
+      type: cash
+    -
+      description: "Preferred card with cash back"
+      name: "Chase Freedom Visa"
+      safe_numeric_id: '0001'
+    -
+      description: "First secured card"
+      name: "Wells Fargo Visa Platinum"
+      safe_numeric_id: '0002'
+    -
+      description: "Alternative card"
+      name: "CapitalOne Platinum Mastercard"
+      safe_numeric_id: '0003'
+    -
+      currency: CAD
+      description: "Canadian card for Canadian purchases"
+      name: "BMO Paypass Mastercard"
+      safe_numeric_id: '0004'
+    -
+      currency: CAD
+      name: "BMO Savings"
+      description: "BMO Debit card and Savings account"
+      safe_numeric_id: '0066'
+    -
+      description: "Line of credit backed by property"
+      name: "BMO Readiline"
+      currency: CAD
+      safe_numeric_id: '0067'
+    -
+      currency: CAD
+      description: 'Additional card for Canadian purchases'
+      name: 'MBNA Mastercard'
+      safe_numeric_id: '0068'
+    -
+      currency: USD
+      description: 'US checking account'
+      name: 'Wells Fargo Checking'
+      safe_numeric_id: '0069'
+    -
+      name: "Wells Fargo Visa Card"
+      description: "Secured credit card"
+      safe_numeric_id: '0070'
+      currency: USD

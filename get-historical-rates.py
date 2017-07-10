@@ -1,6 +1,6 @@
-#!/usr/bin/python
 import argparse
 import datetime
+from decimal import Decimal
 import logging
 import math
 import requests
@@ -17,14 +17,23 @@ def get_rates(start_date, end_date):
         'end_date': end_date.isoformat(),
         'period': 'daily',
         'price': 'mid',
+        'source': 'OANDA',
+        'display': 'absolute',
+        'view': 'graph',
+        'adjustment': 0,
         'base_currency_1': '',
         'base_currency_2': '',
         'base_currency_3': '',
         'base_currency_4': '',
+        'base_currency_5': '',
+        'base_currency_6': '',
+        'base_currency_7': '',
+        'base_currency_8': '',
+        'base_currency_9': '',
     }
 
     response = requests.get(
-        'https://www.oanda.com/solutions-for-business/historical-rates-beta/api/update/',
+        'https://www.oanda.com/fx-for-business/historical-rates/api/update/',
         params
     )
     response.raise_for_status()
@@ -36,15 +45,16 @@ def get_rates(start_date, end_date):
 
     rates = {}
     for row in data:
-        date_key = datetime.date.fromtimestamp(
+        date_key = datetime.datetime.utcfromtimestamp(
             math.floor(int(row[0]) / 1000)
-        )
-        rates[date_key] = row[1]
+        ).date()
+        rates[date_key] = Decimal(row[1]).quantize(Decimal('1.0000'))
 
     # output the results
     sorted_dates = sorted(rates.keys())
     for d in sorted_dates:
-        print '{date_str},{rate:.4f}'.format(date_str=d, rate=rates[d])
+        print('{date_str},{rate}'.format(date_str=d, rate=str(rates[d])))
+
 
 def date_argument(value):
     try:
@@ -61,11 +71,10 @@ def main():
     args = parser.parse_args()
     get_rates(args.start_date, args.end_date)
 
+
 if __name__ == '__main__':
     try:
         main()
     except Exception:
         logging.exception('Retrieving rates failed')
         sys.exit(1)
-
-

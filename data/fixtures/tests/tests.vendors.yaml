@@ -1,0 +1,802 @@
+vendors:
+  -
+    name: Crepevine
+    type: meals
+    sites:
+      -
+        address:
+          city: Oakland
+          state: CA
+          street_1: "5600 College Ave."
+          zip: "94618-1541"
+        contact_info:
+          phone: "510.658.2026"
+          web: www.crepevine.com
+    aliases:
+      - "CREPEVINE OAKLAND OAKLAND CA"
+  -
+    name: "Gyro King"
+    type: meals
+    sites:
+      -
+        address:
+          street_1: "25 Grove St."
+          city: "San Francisco"
+          state: CA
+          zip: "94102"
+        contact_info:
+          phone: "415.621.8313"
+    aliases:
+      - 'GYRO KING'
+  -
+    name: "We Be Sushi"
+    type: meals
+    aliases:
+      - "WE BE SUSHI 5"
+    sites:
+      -
+        address:
+          street_1: "538 Valencia St."
+          city: "San Francisco"
+          state: CA
+          zip: "94110"
+        contact_info:
+          phone: "415.565.0749"
+
+  -
+    name: "The Market"
+    type: meals
+    sites:
+    -
+      address:
+        street_1: "1355 Market St."
+        city: "San Francisco"
+        state: CA
+        zip: "94103"
+      contact_info:
+        phone: "415.767.5130"
+    aliases:
+      - 'MARKET ON MARKET LLC'
+      - "AZALINA'S"
+  -
+    name: CVS/pharmacy
+    type: meals
+    sites:
+    -
+      address:
+        street_1: "351 California St."
+        city: "San Francisco"
+        state: CA
+        zip: "94104"
+      contact_info:
+        phone: "415.398.2578"
+        web: "cvs.com"
+  -
+    name: IHOP
+    type: meals
+    sites:
+    -
+      address:
+        street_1: "2299 Lombard St."
+        city: "San Francisco"
+        state: CA
+        zip: "94123"
+      contact_info:
+        phone: "415.921.4004"
+    aliases:
+      -
+        pattern: 'IHOP%'
+        match_operation: like
+  -
+    name: "Mike's Bikes"
+    type: ignore
+    sites:
+    -
+      address:
+        location_id: "05 San Francisco"
+        street_1: "1233 Howard Street"
+        city: "San Francisco"
+        state: "CA"
+        zip: "94103"
+      contact_info:
+        phone: "415.241.2453"
+  -
+    name: "Barney's Burgers"
+    type: meals
+    aliases:
+      - "BARNEY'S MARINA"
+    sites:
+      -
+        address:
+          street_1: "3344 Steiner St."
+          city: "San Francisco"
+          state: "CA"
+          zip: "94123"
+        contact_info:
+          phone: "415.563.0307"
+  -
+    name: Guaymas
+    type: meals
+    aliases:
+      - "GUAYMAS RESTAURANT TIBURON CA"
+    sites:
+    -
+      address:
+        street_1: "5 Main St."
+        city: "Tiburon"
+        state: CA
+        zip: "94920"
+      contact_info:
+        phone: "415.435.6300"
+  -
+    name: "The Gap"
+    type: ignore
+    sites:
+    -
+      address:
+        location_id: 139
+        street_1: "2159 Chestnut St."
+        city: "San Francisco"
+        state: CA
+        zip: "94123"
+      contact_info:
+        phone: "415.929.1744"
+  -
+    name: FedEx
+    type: administrative
+    aliases:
+      -
+        pattern: "FEDEXOFFICE%"
+        match_operation: like
+    sites:
+      -
+        address:
+          street_1: "3225 Fillmore St."
+          city: "San Francisco"
+          state: CA
+          zip: "94123"
+        contact_info:
+          phone: "415.441.2995"
+          web: "www.FedExOffice.com"
+  -
+    name: "Duc Loi Supermarket"
+    type: meals
+    sites:
+    -
+      address:
+        street_1: "2200 Mission St."
+        city: "San Francisco"
+        state: CA
+        zip: "94123"
+      contact_info:
+        phone: 415.551.1772"
+        web: "www.ducloimarket.com"
+  -
+    name: "Yum Yum Hunan"
+    type: meals
+    aliases:
+      - "GRUBHUBYUMYUMHUNAN"
+  -
+    name: Jacks
+    type: ignore
+    sites:
+    -
+      address:
+        street_1: "2260 Chestnut St."
+        city: "San Francisco"
+        state: CA
+        zip: 94123
+      contact_info:
+        phone: "415.409.6114"
+  -
+    name: "Warren Smooth"
+    type: rent
+    regular_payments:
+      -
+        name: "1001-25 Wellesley monthly rent"
+        amount: 160000
+        currency: CAD
+  -
+    name: "FootBlind Finance Analytic"
+    type: rent
+    regular_payments:
+      -
+        name: "5-699 Amber monthly rent"
+        amount: 30890
+        currency: CAD
+  -
+    name: "City of Toronto"
+    type: property_tax
+    aliases:
+      - "TORONTO TAX     TAX/TAX"
+  -
+    name: "City of Markham"
+    type: property_tax
+    aliases:
+      -
+        pattern: "MARKHAM TOWN OF TAX%"
+        match_operation: like
+  -
+    name: "MTCC 452"
+    type: administrative
+    aliases:
+      - "MTCC 452        FEE/FRA"
+  -
+    name: "YRCC 994"
+    type: administrative
+    aliases:
+      - "YRCC994         FEE/FRA"
+  -
+    name: "Senior Sisig"
+    type: meals
+    aliases:
+      - "SQ *SENOR SISIG"
+  -
+    name: "Saiwalks"
+    type: meals
+    aliases:
+      - "SAIWALKS"
+  -
+    name: "Golden Kim Tar"
+    type: meals
+    aliases:
+      - "GRUBHUBGOLDENKIMTARRE"
+  -
+    name: "Modern Thai"
+    type: meals
+    aliases:
+      - "GRUBHUBMODERNTHAI"
+  -
+    name: "Bonita Taqueria"
+    type: meals
+    aliases:
+      -
+        pattern: "BONITA TAQUERIA Y ROTI%"
+        match_operation: like
+  -
+    name: "Relay"
+    type: meals
+    aliases:
+      - "RELAY 4753 TORONTO ON"
+  -
+    name: "Boccone Trattoria"
+    type: meals
+    aliases:
+      - 'YYZ BOCCONE PRONTO MISSISSAUGA ON'
+  -
+    name: 'Air Canada'
+    type: travel
+    aliases:
+      -
+       pattern: 'AIR CAN%'
+       match_operation: like
+  -
+    name: 'Aroma'
+    type: meals
+    aliases:
+      -
+        pattern: 'AROMA%TORONTO ON'
+        match_operation: like
+  -
+    name: "Pizza Libretto"
+    type: meals
+    aliases:
+      - "PIZZERIA LIBRETTO - DA TORONTO ON"
+  -
+    name: "Joe's Hamburgers"
+    type: meals
+    aliases:
+      - "JOE'S HAMBURGERS RICHMOND HILLON"
+  -
+    name: "Real Mo-Mo's"
+    type: meals
+    aliases:
+      - "REAL MO MOS TORONTO ON"
+  -
+    name: "Tim Horton's"
+    type: meals
+    aliases:
+      -
+        pattern: "TIM HORTONS%"
+        match_operation: like
+  -
+    name: "Wine Rack"
+    type: meals
+    aliases:
+      - "WINE RACK 303 TORONTO ON"
+  -
+    name: "Panera Bread"
+    type: meals
+    aliases:
+      - "PANERA BREAD CAFE# 620 NORTH YORK ON"
+  -
+    name: 'Intuit'
+    type: administrative
+    aliases:
+      -
+        pattern: "INTUIT%"
+        match_operation: like
+  -
+    name: 'Liars'
+    type: foreign_income
+    aliases:
+      -
+        pattern: 'GUSTO PAY%'
+        match_operation: like
+      -
+        pattern: 'ATM CHECK DEPOSIT ON 09/09%'
+        match_operation: like
+  -
+    name: 'Uber'
+    type: travel
+    aliases:
+      -
+        pattern: 'UBER%'
+        match_operation: like
+  -
+    name: 'Freshbooks'
+    type: 'administrative'
+    aliases:
+      - 'FRESHBOOKS'
+  -
+    name: 'Taqueria El Buen Sabor'
+    type: meals
+    aliases:
+      - 'TAQUERIA EL BUEN SABOR'
+  -
+    name: 'Glaze Teriyaki'
+    type: meals
+    aliases:
+      -
+        pattern: '%GLAZE TERIYAKI%'
+        match_operation: like
+  -
+    name: 'Pacific Catch'
+    type: meals
+    aliases:
+      -
+        pattern: 'PACIFIC CATCH%'
+        match_operation: like
+  -
+    name: 'Zipcar'
+    type: travel
+    aliases:
+      - 'ZIPCAR INC.'
+  -
+    name: 'The Sandwich Spot'
+    type: meals
+    aliases:
+      -
+        pattern: '%THE SANDWICH SP%'
+        match_operation: like
+      -
+        pattern: 'SQU%THE SANDWICH S%'
+        match_operation: like
+  -
+    name: 'Il Fornaio Caffe Del Mondo'
+    type: meals
+    aliases:
+      - 'CAFFE DEL MONDO'
+  -
+    name: 'Squat and Gobble'
+    type: meals
+    aliases:
+      -
+        pattern: 'SQUAT AND GOBBLE%'
+        match_operation: like
+  -
+    name: 'Expedia'
+    type: travel
+    aliases:
+      - 'EXPEDIA'
+  -
+    name: 'Blackwood'
+    type: meals
+    aliases:
+      - 'BLACKWOOD THAI CUISINE'
+      - 'GRUBHUBBLACKWOODTHAI'
+  -
+    name: 'Github'
+    type: administrative
+    aliases:
+      -
+        pattern: 'GITHUB%'
+        match_operation: like
+  -
+    name: "Shopper's Drug Mart"
+    type: supplies
+    aliases:
+      -
+        pattern: 'SHOPPERSDRUGMART%'
+        match_operation: like
+  -
+    name: 'Shatter Abbas'
+    type: meals
+    aliases:
+      - 'SHATTER ABBAS THORNHILL ON'
+  -
+    name: 'Duke of Kent'
+    type: meals
+    aliases:
+      - 'DUKE OF KENT TORONTO ON'
+  -
+    name: 'Sip Wine Bar'
+    type: meals
+    aliases:
+      - 'SIP WINE BAR TORONTO ON'
+  -
+    name: "Jack Astor's"
+    type: meals
+    aliases:
+      -
+        pattern: "JACK ASTOR%"
+        match_operation: like
+  -
+    name: 'Toronto Duty Free'
+    type: meals
+    aliases:
+      -
+        pattern: 'TORONTO DUTY FREE%'
+        match_operation: like
+  -
+    name: 'The Hearth'
+    type: meals
+    aliases:
+      - 'HEARTH T1 US POST SECU MISSISSAUGA ON'
+  -
+    name: 'University of Toronto'
+    type: administrative
+    aliases:
+      - 'TRANSCRIPT CENTRE - UO TORONTO ON'
+  -
+    name: 'Xoom'
+    type: administrative
+    fixed_amount: -499
+    aliases:
+      -
+        pattern: 'XOOM.COM DEBIT%'
+        match_operation: like
+  -
+    name: 'Chariot'
+    type: travel
+    aliases:
+      -
+        pattern: 'CHARIOT TRANSIT INC%'
+        match_operation: like
+  -
+    name: 'BMO'
+    type: interest
+    aliases:
+      -
+        pattern: 'INTEREST ADVANCES  @%'
+        match_operation: like
+  -
+    name: 'Oasis Grill'
+    type: meals
+    aliases:
+      -
+        pattern: 'OASIS GRILL - %'
+        match_operation: like
+  -
+    name: Marina Deli
+    type: meals
+    aliases:
+      -
+        pattern: 'MARINA DELI%'
+        match_operation: like
+  -
+    name: The Dorian
+    type: meals
+    aliases:
+      - "THE DORIAN"
+  -
+    name: The Fly Trap
+    type: meals
+    aliases:
+      - "THE FLY TRAP RESTAURANT"
+  -
+    name: El Toro Taqueria
+    type: meals
+    aliases:
+      - "EL TORO TAQUERIA"
+  -
+    name: Mel's Drive In
+    type: meals
+    aliases:
+      -
+        pattern: "MELS DRIVE-IN%"
+        match_operation: like
+  -
+    name: Mona Lisa San Francisco
+    type: meals
+    aliases:
+      - "MONA LISA"
+    address:
+      street_1: "353 Columbus Ave."
+      city: "San Francisco"
+      state: CA
+      zip: "94133"
+    contact_info:
+      phone: 415.986.6662
+      web: "www.monalisasf.com"
+  -
+    name: "Gus's Community Market"
+    type: meals
+    aliases:
+      -
+        pattern: "GUS'S COMMUNITY MAR%"
+        match_operation: like
+  -
+    name: The Square Restaurant & Bar
+    type: meals
+    aliases:
+      - "THE SQUARE RESTAURANT"
+  -
+    name: Mau Restaurant
+    type: meals
+    aliases:
+    -
+      pattern: "MAU RESTAURANT%"
+      match_operation: like
+  -
+    name: Starbucks
+    type: meals
+    aliases:
+      -
+        pattern: "STARBUCKS STORE%"
+        match_operation: like
+  -
+    name: "Rose's Cafe"
+    type: meals
+    aliases:
+      - "ROSES CAFE"
+  -
+    name: Divisadero Touchless
+    type: travel
+    aliases:
+      -
+        pattern: "DIVISADERO TOUCHLESS%"
+        match_operation: like
+  -
+    name: Hillstone
+    type: meals
+    aliases:
+      -
+        pattern: "HILLSTONE (415)%"
+        match_operation: like
+  -
+    name: San Francisco International Airport
+    type: travel
+    aliases:
+      -
+        pattern: "%SFO PARKING IT%"
+        match_operation: like
+  -
+    name: Poki Time
+    type: meals
+    aliases:
+      -
+        pattern: "%POKI TIME%"
+        match_operation: like
+  -
+    name: Lolo
+    type: meals
+    aliases:
+      - "LOLOS"
+  -
+    name: Park Gyros
+    type: meals
+    aliases:
+      - "PARK GYROS SAN FRANCISCOCA"
+  -
+    name: Safeway
+    type: meals
+    aliases:
+      -
+        pattern: "SAFEWAY%"
+        match_operation: like
+  -
+    name: Walgreens
+    type: meals
+    aliases:
+      -
+        pattern: "WALGREENS%"
+        match_operation: like
+  -
+    name: "76"
+    type: travel
+    aliases:
+      -
+        pattern: "76 - GAWFCO ENTERPRISE%"
+        match_operation: like
+  -
+    name: "Lee's Deli"
+    type: meals
+    aliases:
+      -
+        pattern: "LEE'S DELI%"
+        match_operation: like
+  -
+    name: United Liquor
+    type: meals
+    aliases:
+      - "UNITED LIQUOR"
+  -
+    name: Beach Chalet
+    type: meals
+    aliases:
+      -
+        pattern: "BEACH CHALET%"
+        match_operation: like
+  -
+    name: Bay Area Fasttrak
+    type: travel
+    aliases:
+      -
+        pattern: "FASTRAK%"
+        match_operation: like
+  -
+    name: Alamo Drafthouse
+    type: meals
+    aliases:
+      -
+        pattern: 'ALAMO NEW MISSION%'
+        match_operation: like
+  -
+    name: The Willows
+    type: meals
+    aliases:
+      - 'THE WILLOWS'
+  -
+    name: The Beer Hall
+    type: meals
+    aliases:
+      -
+        pattern: '%THE BEER HALL'
+        match_operation: like
+  -
+    name: Burger House
+    type: meals
+    aliases:
+      - BURGER HOUSE
+  -
+    name: Cask
+    type: meals
+    aliases:
+      - "CASK 3RD STREET"
+  -
+    name: USPS
+    type: administrative
+    aliases:
+      -
+        pattern: "USPS KIOSK%"
+        match_operation: like
+  -
+    name: Babu Ji
+    type: meals
+    aliases:
+      - BABU JI
+  -
+    name: Pizzeria Avellino
+    type: meals
+    aliases:
+      - PIZZERIA AVELLINO
+  -
+    name: AAA
+    type: travel
+    aliases:
+      - AAA MEMBERSHIP
+  -
+    name: Arco
+    type: travel
+    aliases:
+      -
+        pattern: 'ARCO%'
+        match_operation: like
+  -
+    name: Jetbrains
+    type: administrative
+    aliases:
+      -
+        pattern: 'JETBRAINS AMERICAS%'
+        match_operation: like
+  -
+    name: Metreon
+    type: meals
+    aliases:
+      - SORABOL METREON LLC
+  -
+    name: Country Sky Chinese
+    type: meals
+    aliases:
+      -
+        pattern: "%COUNTRY SKY CHINE%"
+        match_operation: like
+  -
+    name: Maykadeh
+    type: meals
+    aliases:
+      - MAYKADEH
+  -
+    name: Fandango
+    type: meals
+    aliases:
+      - FANDANGO.COM
+  -
+    name: California Academy of Sciences
+    type: meals
+    aliases:
+      -
+        pattern: 'CALIFORNIA ACADEMY OF%'
+        match_operation: like
+  -
+    name: Eureka Berkeley
+    type: meals
+    aliases:
+      -
+        pattern: 'EUREKA BERKELEY%'
+        match_operation: like
+  -
+    name: Sharetea
+    type: meals
+    aliases:
+      - "SQ *SHARETEA METREON"
+  -
+    name: Marina Supermarket
+    type: meals
+    aliases:
+      - "MARINA SUPERMARKET"
+  -
+    name: 21st Century Insurance
+    type: insurance
+    aliases:
+      -
+        pattern: 'AUTOINSURANCE PNOT.DED.%'
+        match_operation: like
+
+exclusions:
+- SAFEWAY
+- WALGREENS
+- "LEE'S DELI"
+- "BART-CLIPPER"
+-
+  amount: 42.19
+  on_date: '2016-09-15'
+- 'AMAZON'
+- 'APL* ITUNES.COM'
+- 'BANANAREPUBLIC'
+- "BANANA REPUBLIC"
+- 'FELLOW BARBER'
+- 'MARINA THEATRE'
+- 'MARINA DELI & LIQUORS'
+- 'NORDSTROM'
+- 'SQ *ALLSTAR CAFE'
+- 'SMITTEN ICE CREAM'
+- "PEET'S"
+- 'MUIR WOODS'
+- 'NETFLIX'
+- 'CHESTNUT ST COFFEE'
+- 'REDBOX'
+- 'SQ *HAPPY DUMPLINGS'
+- 'VENMO'
+- 'PGANDE'
+- 'SPORTS BASEMENT'
+- 'SQ *COUNTER OFFER'
+- 'SQ *OVER THE MOON'
+- 'SQ *BLUE BOTTLE COFFEE'
+- 'RINCON MARKET'
+-
+  prefix: 'MAVEN'
+  on_date: '2016-09-21'
+- 'ATT*BILL PAYMENT'
+- 'AT&AMP;T'
+- 'DON PABLO'
+- "ESC             CMS/GES"
+- "VIAGOGO EVENT TICKETS"
+- "PRESIDIO THEATRE"
+- "SQ *FK FROZEN CUSTARD"
+- "BED BATH &AMP; BEYOND"
+- "SPORTS4GOOD"
+- "UNIQLO"
+- "LUCKY BRAND"
+- "24HOUR FITNESS USA"

@@ -1,0 +1,31 @@
+{
+  "DATABASE_URI": "postgresql://localhost:5432/receipts_prod",
+  "DEBUG": false,
+  "VENDOR_EXCLUSION_FILTERS": [
+    "taxes.receipts.filters.ExclusionConditionFilter",
+    "taxes.discrete.exclusion_filters.June2017Filter"
+  ],
+  "LOGGING": {
+    "version": 1,
+    "disable_existing_loggers": true,
+    "formatters": {
+        "default": {
+            "format": "%(levelname)s %(message)s"
+        }
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "default"
+        }
+    },
+    "loggers": {
+        "taxes.receipts": {
+            "level": "INFO",
+            "handlers": ["console"],
+            "formatter": "default"
+        }
+    }
+  }
+}

@@ -1,11 +1,96 @@
+# Tax Itemizer
 
-## Instructions
+### Introduction
 
-    python get-historical-rates <start-date> <end-date>
+Python code used to itemize transaction records into tax categories.
+
+Includes a small script to scrape FX rates.
+
+### Requirements
+
+* python 3.x
+* Packages in `requirements.txt`
+
+### Setup
+
+Choose an environment slug name (e.g. `dev`) by setting it in the `RECEIPTS_DEV` environment variable:
+
+    export RECEIPTS_ENV=dev
+
+Edit the appropriate JSON configuration file in the `config` folder.
+(e.g. `config/config.dev.json`)
+
+If you wish to use a different configuration folder, you can set it via the `RECEIPTS_CONFIG_DIR` environment variable.
+
+Finally, run the following to initialize the database and create an initial administrative user.
+
+    ./run.sh init_receipts
+
+### Administration
+
+Start up the server:
+
+    ./run.sh runserver
+
+Open the admin site in your web browser:
+
+    open http://localhost:8000/admin/
+
+To add more administrative users:
+
+    ./run.sh createsuperuser
+
+To load a payment methods YAML file (e.g. `data/fixtures/payment_methods.yaml`):
+
+    ./run.sh import payment_methods
+
+To load a vendor YAML file (e.g. `data/fixtures/vendors.yaml`):
+
+    ./run.sh import vendors
+
+
+### Tax receipt processing
+
+    ./run.sh itemize path/to/transaction_XXX.csv
+    ./run.sh itemize path/to/transaction_YYY.csv
+    ...
+    ./run.sh dump_receipts output.csv YYYY-MM-DD YYYY-MM-DD
+
+### Testing
+
+Install packages in `test_requirements.txt`:
+
+    pip install -r test_requirements.txt
+
+Setup git pre-commit hooks (e.g. linter):
+
+    pre-commit install
+
+For normal execution:
+
+    ./run.sh test
+
+NOTE: `run.sh` will force test runs to always use the `RECEIPTS_ENV=test` environment.
+
+For repeated execution, you can reuse the same test database with models using the `--reuse-db` option.
+
+    ./run.sh test --reuse-db
+    ./run.sh test --reuse-db
+    ...
+    # when finished or if models changed, run the following
+    rm -rf .testdb
+
+To run code linter:
+
+    ./run.sh lint
+
+### FX Rates
+
+    python get-historical-rates.py <start-date> <end-date>
      
 `start-date` = 'YYYY-MM-DD'
 `end-date` = 'YYYY-MM-DD'
 
-## References
+### References
 
 * [OANDA Historical Rates](https://www.oanda.com/solutions-for-business/historical-rates-beta/hcc.html) (OANDA Solutions for Business)

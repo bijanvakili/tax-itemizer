@@ -1,0 +1,35 @@
+{
+  "DATABASE_URI": "sqlite://:memory:",
+  "DEBUG": false,
+  "VENDOR_EXCLUSION_FILTERS": [
+    "taxes.receipts.filters.ExclusionConditionFilter"
+  ],
+  "LOGGING": {
+    "version": 1,
+    "disable_existing_loggers": true,
+    "formatters": {
+        "default": {
+            "format": "%(levelname)s %(message)s"
+        }
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "default"
+        }
+    },
+    "loggers": {
+        "taxes.receipts": {
+            "level": "DEBUG",
+            "handlers": ["console"],
+            "formatter": "default"
+        },
+        "django.db.backends": {
+            "level": "DEBUG",
+            "handlers": ["console"],
+            "formatter": "default"
+        }
+    }
+  }
+}
