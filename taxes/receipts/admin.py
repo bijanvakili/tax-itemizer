@@ -1,4 +1,5 @@
 from django.contrib import admin
+from enumfields.admin import EnumFieldListFilter
 from . import models
 
 
@@ -22,10 +23,15 @@ class VendorAliasPatternInline(admin.StackedInline):
 
 @admin.register(models.Vendor)
 class VendorAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type', )
+    list_display = ('name', 'type', 'assigned_asset', )
     ordering = ('name',)
     search_fields = ('name', )
+    list_filter = (
+        ('type', EnumFieldListFilter,),
+        'assigned_asset',
+    )
     inlines = [VendorAliasPatternInline]
+    raw_id_fields = ('assigned_asset', )
 
 
 @admin.register(models.PeriodicPayment)
@@ -40,3 +46,9 @@ class ReceiptAdmin(admin.ModelAdmin):
     list_display = ('purchased_at', 'vendor', 'total_amount', 'currency')
     ordering = ('purchased_at', 'vendor', 'total_amount', )
     raw_id_fields = ('vendor', 'payment_method', )
+
+
+@admin.register(models.FinancialAsset)
+class FinancialAssetAdmin(admin.ModelAdmin):
+    ordering = ('name', )
+    list_display = ('name', 'type', )

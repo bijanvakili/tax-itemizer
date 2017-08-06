@@ -278,12 +278,13 @@ class USDateFormatMixin(object):
     DATE_FORMAT = '%m/%d/%Y'
 
 
-class CapitalOneParser(BaseParser, USDateFormatMixin):
-    CSV_FIELDS = ['stage', 'transaction_date', 'posted_date', 'card_number', 'description',
+class CapitalOneParser(BaseParser):
+    DATE_FORMAT = '%Y-%m-%d'
+    CSV_FIELDS = ['transaction_date', 'posted_date', 'card_number', 'description',
                   'category', 'debit', 'credit']
 
     def parse_row(self, row, line_number):
-        if row['category'] == 'Payment':
+        if row['category'] == 'Payment/Credit':
             LOGGER.info(
                 'Skipping payment {transaction_date} {card_number} {description}'.format(**row)
             )

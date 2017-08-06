@@ -16,7 +16,6 @@ def uuid_primary_key_field(**kwargs):
     kwargs['editable'] = False
     kwargs['blank'] = True
     kwargs['serialize'] = False
-    # TODO refactor to use Postgresql database generated values using uuid_generate_v4()
     kwargs['default'] = uuid.uuid4
     return models.UUIDField(**kwargs)
 

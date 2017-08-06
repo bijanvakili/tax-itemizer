@@ -155,38 +155,28 @@ def test_parse_readiline(run_parser, mock_logger):
 
 
 def test_parse_capitalone(run_parser, mock_logger):
-    run_parser('capitalone-09-10-2016.csv')
+    run_parser('capitalone_2017-07.csv')
 
     # collect skip warnings
     actual_skipped_vendors = _skipped_vendors_from_log(mock_logger)
     expected_skipped_vendors = {
-        'Amazon.com',
-        'CHESTNUT ST COFFEE ROA',
-        'NORDSTROM #0427',
-        'FELLOW BARBER - VALENC',
-        'MARINA THEATRE',
-        'MARINA DELI & LIQUORS',
-        'SQ *ALLSTAR CAFE',
+        'FELLOW BARBER',
         'AMAZON MKTPLACE PMTS',
-        'SMITTEN ICE CREAM - 00',
-        "PEET'S #21302",
-        'MUIR WOODS',
     }
     assert expected_skipped_vendors == actual_skipped_vendors
 
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
         # (purchased_at, vendor.name, total_amount)
-        ('2016-08-09', 'We Be Sushi', -2642),
-        ('2016-08-10', "Barney's Burgers", -3082),
-        ('2016-08-11', 'Marina Supermarket', -428),
-        ('2016-08-12', 'Bonita Taqueria', -2001),
-        ('2016-08-13', 'FedEx', -525),
-        ('2016-08-15', 'Golden Kim Tar', -2334),
-        ('2016-08-18', 'Saiwalks', -2382),
-        ('2016-08-19', 'Marina Supermarket', -3445),
-        ('2016-08-24', 'Senior Sisig', -1496),
-        ('2016-08-24', 'Yum Yum Hunan', -3483)
+        ('2017-07-02', 'FedEx', -326),
+        ('2017-07-11', 'Glaze Teriyaki', -1698),
+        ('2017-07-12', "L'acajou Bakery", -400),
+        ('2017-07-16', 'Yum Yum Hunan', -2982),
+        ('2017-07-27', '83 Proof', -1800),
+        ('2017-07-27', 'Blackwood', -3627),
+        ('2017-07-28', "Lee's Deli", -1209),
+
+
     ]
     _verify_receipts(actual_receipts, expected_receipt_values)
 
@@ -290,7 +280,6 @@ def test_parse_chase_visa(run_parser, mock_logger):
         'BANANAREPUBLIC US 8035',
         'CHESTNUT ST COFFEE ROASTE',
         'DON PABLO',
-        "LEE'S DELI-2ND ST",
         'MAVEN',
         'RINCON MARKET',
         'SPORTS BASEMENT',
@@ -308,6 +297,7 @@ def test_parse_chase_visa(run_parser, mock_logger):
         # (purchased_at, vendor.name, total_amount)
         ('2016-09-01', 'Blackwood', -7315),
         ('2016-09-01', 'The Market', -1487),
+        ('2016-09-02', "Lee's Deli", -1009),
         ('2016-09-02', 'Squat and Gobble', -1477),
         ('2016-09-03', 'IHOP', -1812),
         ('2016-09-04', "Barney's Burgers", -2529),

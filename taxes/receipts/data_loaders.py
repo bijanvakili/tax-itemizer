@@ -41,6 +41,16 @@ class PaymentMethodYamlLoader(BaseYamlLoader):
 
 class CustomVendorYamlLoader(BaseYamlLoader):
     def load_data(self, data):
+        # NOTE: assumes all assets can fit into memory
+        asset_map = {}
+
+        all_assets = data['assets'] or []
+        for financial_asset in all_assets:
+            new_asset_params = {}
+            new_asset_params['name'] = financial_asset['name']
+            new_asset_params['type'] = constants.FinancialAssetType(financial_asset['type'])
+            asset_map[new_asset_params['name']] = models.FinancialAsset.objects.create(**new_asset_params)
+
         all_vendors = data['vendors'] or []
         for vendor in all_vendors:
             new_vendor_params = {}
@@ -50,14 +60,12 @@ class CustomVendorYamlLoader(BaseYamlLoader):
                 new_vendor_params['merchant_id'] = vendor['merchant_id']
             if vendor.get('fixed_amount'):
                 new_vendor_params['fixed_amount'] = vendor['fixed_amount']
+            if vendor.get('assigned_asset'):
+                try:
+                    new_vendor_params['assigned_asset'] = asset_map[vendor['assigned_asset']]
+                except KeyError:
+                    raise ValueError('Unable to locate financial asset: {}'.format(vendor['assigned_asset']))
             new_vendor = models.Vendor.objects.create(**new_vendor_params)
-
-            for site in vendor.get('sites', []):
-                models.VendorSite.objects.create(
-                    vendor=new_vendor,
-                    address=site['address'],
-                    contact_info=site['contact_info']
-                )
 
             for alias in vendor.get('aliases', []):
                 if type(alias) == str:

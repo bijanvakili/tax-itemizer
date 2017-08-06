@@ -20,8 +20,8 @@ def dump_receipts(fileobj, start_timestamp, end_timestamp, output_header=False):
         row = {}
         row['Date'] = receipt.purchased_at.isoformat()
 
-        # TODO update to include associated asset
-        row['Source'] = ''
+        financial_asset = receipt.vendor.assigned_asset
+        row['Source'] = financial_asset.name if financial_asset else ''
 
         amount_in_cents = '{0:.2f}'.format(receipt.total_amount * 0.01)
         if receipt.currency == constants.Currency.CAD:

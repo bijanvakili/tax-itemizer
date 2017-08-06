@@ -27,6 +27,12 @@ def test_payment_method_yaml_load():
 
 @pytest.mark.usefixtures('vendors_and_exclusions')
 def test_custom_yaml_load():
+    # verify sample financial assets
+    result = models.FinancialAsset.objects.get(name='1001-25 Wellesley St')
+
+    assert result.name == '1001-25 Wellesley St'
+    assert result.type == constants.FinancialAssetType.RENTAL
+
     # verify sample vendors and aliases
     result = models.Vendor.objects.get(name='Xoom')
 
@@ -34,6 +40,7 @@ def test_custom_yaml_load():
     assert result.name == 'Xoom'
     assert result.type == constants.VendorType.ADMINISTRATIVE
     assert result.fixed_amount == -499
+    assert result.assigned_asset.name == '1001-25 Wellesley St'
 
     alias_patterns = result.alias_patterns.all()
     assert len(alias_patterns) == 1
@@ -47,6 +54,7 @@ def test_custom_yaml_load():
     assert result.name == 'We Be Sushi'
     assert result.type == constants.VendorType.MEALS_AND_ENTERTAINMENT
     assert result.fixed_amount is None
+    assert result.assigned_asset.name == 'Sole Proprietorship'
 
     alias_patterns = result.alias_patterns.all()
     assert len(alias_patterns) == 1
@@ -54,22 +62,9 @@ def test_custom_yaml_load():
     assert alias.pattern == 'WE BE SUSHI 5'
     assert alias.match_operation == constants.AliasMatchOperation.EQUAL
 
-    # verify sample vendor's sites
-    sites = result.sites.all()
-    assert len(sites) == 1
-    site = sites[0]
-    assert site.address == {
-        "street_1": "538 Valencia St.",
-        "city": "San Francisco",
-        "state": "CA",
-        "zip": "94110"
-    }
-    assert site.contact_info == {
-        "phone": "415.565.0749"
-    }
-
     # verify a regular payment method and its associated vendor
     result = models.PeriodicPayment.objects.get(name='1001-25 Wellesley monthly rent')
+
     assert result
     assert result.name == '1001-25 Wellesley monthly rent'
     assert result.amount == 160000

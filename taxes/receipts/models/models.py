@@ -1,13 +1,12 @@
 from django.db import models
 from django.db.models import fields as django_fields
-import django.contrib.postgres.fields as pg_fields
 
 from taxes.receipts import constants
 from . import fields, lookups
 
 
 __all__ = [
-    'VendorSite',
+    'FinancialAsset',
     'Vendor',
     'VendorAliasPattern',
     'ExclusionCondition',
@@ -17,17 +16,19 @@ __all__ = [
 ]
 
 
-class VendorSite(models.Model):
+class FinancialAsset(models.Model):
     class Meta:
-        db_table = 'vendor_site'
+        db_table = 'financial_asset'
 
     id = fields.uuid_primary_key_field()
-    vendor = models.ForeignKey('Vendor', db_index=True, related_name='sites')
-    address = pg_fields.JSONField()
-    contact_info = pg_fields.JSONField()
+    name = models.CharField(max_length=200, unique=True, db_index=True)
+    type = fields.enum_field(constants.FinancialAssetType)
+
+    def __str__(self):
+        return self.name
 
     def __repr__(self):
-        return '<VendorSite({id}, {vendor})>'.format(id=self.id, vendor=self.vendor.name)
+        return '<FinancialAsset({id}, {name})>'.format(**self.__dict__)
 
 
 class Vendor(models.Model):
@@ -38,15 +39,14 @@ class Vendor(models.Model):
     name = models.CharField(max_length=200, unique=True, db_index=True)
     type = fields.enum_field(constants.VendorType, db_index=True)
     fixed_amount = models.IntegerField(null=True, default=None, blank=True)
+    assigned_asset = models.ForeignKey('FinancialAsset', db_index=True, related_name='assigned_vendors',
+                                       null=True, default=None, blank=True)
 
     def __str__(self):
         return self.name
 
     def __repr__(self):
         return '<Vendor({id}, {name})>'.format(**self.__dict__)
-
-    def site_summary(self):
-        return self.sites.values_list('id', flat=True)
 
 
 class VendorAliasPattern(models.Model):

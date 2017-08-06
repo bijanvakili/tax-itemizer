@@ -1,146 +1,74 @@
+assets:
+  -
+    name: 1001-25 Wellesley St
+    type: rental
+  -
+    name: 5-699 Amber St
+    type: rental
+  -
+    name: Sole Proprietorship
+    type: proprietorship
+  -
+    name: U.S. Employment
+    type: employment
+
 vendors:
   -
     name: Crepevine
     type: meals
-    sites:
-      -
-        address:
-          city: Oakland
-          state: CA
-          street_1: "5600 College Ave."
-          zip: "94618-1541"
-        contact_info:
-          phone: "510.658.2026"
-          web: www.crepevine.com
     aliases:
       - "CREPEVINE OAKLAND OAKLAND CA"
+    assigned_asset: Sole Proprietorship
   -
     name: "Gyro King"
     type: meals
-    sites:
-      -
-        address:
-          street_1: "25 Grove St."
-          city: "San Francisco"
-          state: CA
-          zip: "94102"
-        contact_info:
-          phone: "415.621.8313"
     aliases:
       - 'GYRO KING'
+    assigned_asset: Sole Proprietorship
   -
     name: "We Be Sushi"
     type: meals
     aliases:
       - "WE BE SUSHI 5"
-    sites:
-      -
-        address:
-          street_1: "538 Valencia St."
-          city: "San Francisco"
-          state: CA
-          zip: "94110"
-        contact_info:
-          phone: "415.565.0749"
-
+    assigned_asset: Sole Proprietorship
   -
     name: "The Market"
     type: meals
-    sites:
-    -
-      address:
-        street_1: "1355 Market St."
-        city: "San Francisco"
-        state: CA
-        zip: "94103"
-      contact_info:
-        phone: "415.767.5130"
     aliases:
       - 'MARKET ON MARKET LLC'
       - "AZALINA'S"
+    assigned_asset: Sole Proprietorship
   -
     name: CVS/pharmacy
     type: meals
-    sites:
-    -
-      address:
-        street_1: "351 California St."
-        city: "San Francisco"
-        state: CA
-        zip: "94104"
-      contact_info:
-        phone: "415.398.2578"
-        web: "cvs.com"
+    assigned_asset: Sole Proprietorship
   -
     name: IHOP
     type: meals
-    sites:
-    -
-      address:
-        street_1: "2299 Lombard St."
-        city: "San Francisco"
-        state: CA
-        zip: "94123"
-      contact_info:
-        phone: "415.921.4004"
     aliases:
       -
         pattern: 'IHOP%'
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: "Mike's Bikes"
     type: ignore
-    sites:
-    -
-      address:
-        location_id: "05 San Francisco"
-        street_1: "1233 Howard Street"
-        city: "San Francisco"
-        state: "CA"
-        zip: "94103"
-      contact_info:
-        phone: "415.241.2453"
+    assigned_asset: Sole Proprietorship
   -
     name: "Barney's Burgers"
     type: meals
     aliases:
       - "BARNEY'S MARINA"
-    sites:
-      -
-        address:
-          street_1: "3344 Steiner St."
-          city: "San Francisco"
-          state: "CA"
-          zip: "94123"
-        contact_info:
-          phone: "415.563.0307"
+    assigned_asset: Sole Proprietorship
   -
     name: Guaymas
     type: meals
     aliases:
       - "GUAYMAS RESTAURANT TIBURON CA"
-    sites:
-    -
-      address:
-        street_1: "5 Main St."
-        city: "Tiburon"
-        state: CA
-        zip: "94920"
-      contact_info:
-        phone: "415.435.6300"
+    assigned_asset: Sole Proprietorship
   -
     name: "The Gap"
     type: ignore
-    sites:
-    -
-      address:
-        location_id: 139
-        street_1: "2159 Chestnut St."
-        city: "San Francisco"
-        state: CA
-        zip: "94123"
-      contact_info:
-        phone: "415.929.1744"
   -
     name: FedEx
     type: administrative
@@ -148,46 +76,20 @@ vendors:
       -
         pattern: "FEDEXOFFICE%"
         match_operation: like
-    sites:
-      -
-        address:
-          street_1: "3225 Fillmore St."
-          city: "San Francisco"
-          state: CA
-          zip: "94123"
-        contact_info:
-          phone: "415.441.2995"
-          web: "www.FedExOffice.com"
+    assigned_asset: 1001-25 Wellesley St
   -
     name: "Duc Loi Supermarket"
     type: meals
-    sites:
-    -
-      address:
-        street_1: "2200 Mission St."
-        city: "San Francisco"
-        state: CA
-        zip: "94123"
-      contact_info:
-        phone: 415.551.1772"
-        web: "www.ducloimarket.com"
+    assigned_asset: Sole Proprietorship
   -
     name: "Yum Yum Hunan"
     type: meals
     aliases:
       - "GRUBHUBYUMYUMHUNAN"
+    assigned_asset: Sole Proprietorship
   -
     name: Jacks
     type: ignore
-    sites:
-    -
-      address:
-        street_1: "2260 Chestnut St."
-        city: "San Francisco"
-        state: CA
-        zip: 94123
-      contact_info:
-        phone: "415.409.6114"
   -
     name: "Warren Smooth"
     type: rent
@@ -196,19 +98,22 @@ vendors:
         name: "1001-25 Wellesley monthly rent"
         amount: 160000
         currency: CAD
+    assigned_asset: 1001-25 Wellesley St
   -
     name: "FootBlind Finance Analytic"
     type: rent
     regular_payments:
       -
-        name: "5-699 Amber monthly rent"
+        name: "5-699 Amber St monthly rent"
         amount: 30890
         currency: CAD
+    assigned_asset: 5-699 Amber St
   -
     name: "City of Toronto"
     type: property_tax
     aliases:
       - "TORONTO TAX     TAX/TAX"
+    assigned_asset: 1001-25 Wellesley St
   -
     name: "City of Markham"
     type: property_tax
@@ -216,36 +121,43 @@ vendors:
       -
         pattern: "MARKHAM TOWN OF TAX%"
         match_operation: like
+    assigned_asset: 5-699 Amber St
   -
     name: "MTCC 452"
     type: administrative
     aliases:
       - "MTCC 452        FEE/FRA"
+    assigned_asset: 1001-25 Wellesley St
   -
     name: "YRCC 994"
     type: administrative
     aliases:
       - "YRCC994         FEE/FRA"
+    assigned_asset: 5-699 Amber St
   -
     name: "Senior Sisig"
     type: meals
     aliases:
       - "SQ *SENOR SISIG"
+    assigned_asset: Sole Proprietorship
   -
     name: "Saiwalks"
     type: meals
     aliases:
       - "SAIWALKS"
+    assigned_asset: Sole Proprietorship
   -
     name: "Golden Kim Tar"
     type: meals
     aliases:
       - "GRUBHUBGOLDENKIMTARRE"
+    assigned_asset: Sole Proprietorship
   -
     name: "Modern Thai"
     type: meals
     aliases:
       - "GRUBHUBMODERNTHAI"
+    assigned_asset: Sole Proprietorship
   -
     name: "Bonita Taqueria"
     type: meals
@@ -253,16 +165,19 @@ vendors:
       -
         pattern: "BONITA TAQUERIA Y ROTI%"
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: "Relay"
     type: meals
     aliases:
       - "RELAY 4753 TORONTO ON"
+    assigned_asset: Sole Proprietorship
   -
     name: "Boccone Trattoria"
     type: meals
     aliases:
       - 'YYZ BOCCONE PRONTO MISSISSAUGA ON'
+    assigned_asset: Sole Proprietorship
   -
     name: 'Air Canada'
     type: travel
@@ -270,6 +185,7 @@ vendors:
       -
        pattern: 'AIR CAN%'
        match_operation: like
+    assigned_asset: 1001-25 Wellesley St
   -
     name: 'Aroma'
     type: meals
@@ -277,21 +193,25 @@ vendors:
       -
         pattern: 'AROMA%TORONTO ON'
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: "Pizza Libretto"
     type: meals
     aliases:
       - "PIZZERIA LIBRETTO - DA TORONTO ON"
+    assigned_asset: Sole Proprietorship
   -
     name: "Joe's Hamburgers"
     type: meals
     aliases:
       - "JOE'S HAMBURGERS RICHMOND HILLON"
+    assigned_asset: Sole Proprietorship
   -
     name: "Real Mo-Mo's"
     type: meals
     aliases:
       - "REAL MO MOS TORONTO ON"
+    assigned_asset: Sole Proprietorship
   -
     name: "Tim Horton's"
     type: meals
@@ -299,16 +219,19 @@ vendors:
       -
         pattern: "TIM HORTONS%"
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: "Wine Rack"
     type: meals
     aliases:
       - "WINE RACK 303 TORONTO ON"
+    assigned_asset: Sole Proprietorship
   -
     name: "Panera Bread"
     type: meals
     aliases:
       - "PANERA BREAD CAFE# 620 NORTH YORK ON"
+    assigned_asset: Sole Proprietorship
   -
     name: 'Intuit'
     type: administrative
@@ -316,6 +239,7 @@ vendors:
       -
         pattern: "INTUIT%"
         match_operation: like
+    assigned_asset: 1001-25 Wellesley St
   -
     name: 'Liars'
     type: foreign_income
@@ -326,6 +250,7 @@ vendors:
       -
         pattern: 'ATM CHECK DEPOSIT ON 09/09%'
         match_operation: like
+    assigned_asset: U.S. Employment
   -
     name: 'Uber'
     type: travel
@@ -333,16 +258,19 @@ vendors:
       -
         pattern: 'UBER%'
         match_operation: like
+    assigned_asset: 1001-25 Wellesley St
   -
     name: 'Freshbooks'
     type: 'administrative'
     aliases:
       - 'FRESHBOOKS'
+    assigned_asset: 1001-25 Wellesley St
   -
     name: 'Taqueria El Buen Sabor'
     type: meals
     aliases:
       - 'TAQUERIA EL BUEN SABOR'
+    assigned_asset: Sole Proprietorship
   -
     name: 'Glaze Teriyaki'
     type: meals
@@ -350,6 +278,7 @@ vendors:
       -
         pattern: '%GLAZE TERIYAKI%'
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: 'Pacific Catch'
     type: meals
@@ -357,11 +286,13 @@ vendors:
       -
         pattern: 'PACIFIC CATCH%'
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: 'Zipcar'
     type: travel
     aliases:
       - 'ZIPCAR INC.'
+    assigned_asset: 1001-25 Wellesley St
   -
     name: 'The Sandwich Spot'
     type: meals
@@ -372,11 +303,13 @@ vendors:
       -
         pattern: 'SQU%THE SANDWICH S%'
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: 'Il Fornaio Caffe Del Mondo'
     type: meals
     aliases:
       - 'CAFFE DEL MONDO'
+    assigned_asset: Sole Proprietorship
   -
     name: 'Squat and Gobble'
     type: meals
@@ -384,17 +317,20 @@ vendors:
       -
         pattern: 'SQUAT AND GOBBLE%'
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: 'Expedia'
     type: travel
     aliases:
       - 'EXPEDIA'
+    assigned_asset: 1001-25 Wellesley St
   -
     name: 'Blackwood'
     type: meals
     aliases:
       - 'BLACKWOOD THAI CUISINE'
       - 'GRUBHUBBLACKWOODTHAI'
+    assigned_asset: Sole Proprietorship
   -
     name: 'Github'
     type: administrative
@@ -402,6 +338,7 @@ vendors:
       -
         pattern: 'GITHUB%'
         match_operation: like
+    assigned_asset: 1001-25 Wellesley St
   -
     name: "Shopper's Drug Mart"
     type: supplies
@@ -409,21 +346,25 @@ vendors:
       -
         pattern: 'SHOPPERSDRUGMART%'
         match_operation: like
+    assigned_asset: 1001-25 Wellesley St
   -
     name: 'Shatter Abbas'
     type: meals
     aliases:
       - 'SHATTER ABBAS THORNHILL ON'
+    assigned_asset: Sole Proprietorship
   -
     name: 'Duke of Kent'
     type: meals
     aliases:
       - 'DUKE OF KENT TORONTO ON'
+    assigned_asset: Sole Proprietorship
   -
     name: 'Sip Wine Bar'
     type: meals
     aliases:
       - 'SIP WINE BAR TORONTO ON'
+    assigned_asset: Sole Proprietorship
   -
     name: "Jack Astor's"
     type: meals
@@ -431,6 +372,7 @@ vendors:
       -
         pattern: "JACK ASTOR%"
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: 'Toronto Duty Free'
     type: meals
@@ -438,16 +380,19 @@ vendors:
       -
         pattern: 'TORONTO DUTY FREE%'
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: 'The Hearth'
     type: meals
     aliases:
       - 'HEARTH T1 US POST SECU MISSISSAUGA ON'
+    assigned_asset: Sole Proprietorship
   -
     name: 'University of Toronto'
     type: administrative
     aliases:
       - 'TRANSCRIPT CENTRE - UO TORONTO ON'
+    assigned_asset: 1001-25 Wellesley St
   -
     name: 'Xoom'
     type: administrative
@@ -456,6 +401,7 @@ vendors:
       -
         pattern: 'XOOM.COM DEBIT%'
         match_operation: like
+    assigned_asset: 1001-25 Wellesley St
   -
     name: 'Chariot'
     type: travel
@@ -463,6 +409,7 @@ vendors:
       -
         pattern: 'CHARIOT TRANSIT INC%'
         match_operation: like
+    assigned_asset: 1001-25 Wellesley St
   -
     name: 'BMO'
     type: interest
@@ -470,6 +417,7 @@ vendors:
       -
         pattern: 'INTEREST ADVANCES  @%'
         match_operation: like
+    assigned_asset: 1001-25 Wellesley St
   -
     name: 'Oasis Grill'
     type: meals
@@ -477,6 +425,7 @@ vendors:
       -
         pattern: 'OASIS GRILL - %'
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: Marina Deli
     type: meals
@@ -484,21 +433,25 @@ vendors:
       -
         pattern: 'MARINA DELI%'
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: The Dorian
     type: meals
     aliases:
       - "THE DORIAN"
+    assigned_asset: Sole Proprietorship
   -
     name: The Fly Trap
     type: meals
     aliases:
       - "THE FLY TRAP RESTAURANT"
+    assigned_asset: Sole Proprietorship
   -
     name: El Toro Taqueria
     type: meals
     aliases:
       - "EL TORO TAQUERIA"
+    assigned_asset: Sole Proprietorship
   -
     name: Mel's Drive In
     type: meals
@@ -506,19 +459,13 @@ vendors:
       -
         pattern: "MELS DRIVE-IN%"
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: Mona Lisa San Francisco
     type: meals
     aliases:
       - "MONA LISA"
-    address:
-      street_1: "353 Columbus Ave."
-      city: "San Francisco"
-      state: CA
-      zip: "94133"
-    contact_info:
-      phone: 415.986.6662
-      web: "www.monalisasf.com"
+    assigned_asset: Sole Proprietorship
   -
     name: "Gus's Community Market"
     type: meals
@@ -526,11 +473,13 @@ vendors:
       -
         pattern: "GUS'S COMMUNITY MAR%"
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: The Square Restaurant & Bar
     type: meals
     aliases:
       - "THE SQUARE RESTAURANT"
+    assigned_asset: Sole Proprietorship
   -
     name: Mau Restaurant
     type: meals
@@ -538,6 +487,7 @@ vendors:
     -
       pattern: "MAU RESTAURANT%"
       match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: Starbucks
     type: meals
@@ -545,11 +495,13 @@ vendors:
       -
         pattern: "STARBUCKS STORE%"
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: "Rose's Cafe"
     type: meals
     aliases:
       - "ROSES CAFE"
+    assigned_asset: Sole Proprietorship
   -
     name: Divisadero Touchless
     type: travel
@@ -557,6 +509,7 @@ vendors:
       -
         pattern: "DIVISADERO TOUCHLESS%"
         match_operation: like
+    assigned_asset: 1001-25 Wellesley St
   -
     name: Hillstone
     type: meals
@@ -564,6 +517,7 @@ vendors:
       -
         pattern: "HILLSTONE (415)%"
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: San Francisco International Airport
     type: travel
@@ -571,6 +525,7 @@ vendors:
       -
         pattern: "%SFO PARKING IT%"
         match_operation: like
+    assigned_asset: 1001-25 Wellesley St
   -
     name: Poki Time
     type: meals
@@ -578,16 +533,19 @@ vendors:
       -
         pattern: "%POKI TIME%"
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: Lolo
     type: meals
     aliases:
       - "LOLOS"
+    assigned_asset: Sole Proprietorship
   -
     name: Park Gyros
     type: meals
     aliases:
       - "PARK GYROS SAN FRANCISCOCA"
+    assigned_asset: Sole Proprietorship
   -
     name: Safeway
     type: meals
@@ -595,6 +553,7 @@ vendors:
       -
         pattern: "SAFEWAY%"
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: Walgreens
     type: meals
@@ -602,6 +561,7 @@ vendors:
       -
         pattern: "WALGREENS%"
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: "76"
     type: travel
@@ -609,6 +569,7 @@ vendors:
       -
         pattern: "76 - GAWFCO ENTERPRISE%"
         match_operation: like
+    assigned_asset: 1001-25 Wellesley St
   -
     name: "Lee's Deli"
     type: meals
@@ -616,11 +577,16 @@ vendors:
       -
         pattern: "LEE'S DELI%"
         match_operation: like
+      -
+        pattern: "LEES DELI%"
+        match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: United Liquor
     type: meals
     aliases:
       - "UNITED LIQUOR"
+    assigned_asset: Sole Proprietorship
   -
     name: Beach Chalet
     type: meals
@@ -628,6 +594,7 @@ vendors:
       -
         pattern: "BEACH CHALET%"
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: Bay Area Fasttrak
     type: travel
@@ -635,6 +602,7 @@ vendors:
       -
         pattern: "FASTRAK%"
         match_operation: like
+    assigned_asset: 1001-25 Wellesley St
   -
     name: Alamo Drafthouse
     type: meals
@@ -642,11 +610,13 @@ vendors:
       -
         pattern: 'ALAMO NEW MISSION%'
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: The Willows
     type: meals
     aliases:
       - 'THE WILLOWS'
+    assigned_asset: Sole Proprietorship
   -
     name: The Beer Hall
     type: meals
@@ -654,16 +624,19 @@ vendors:
       -
         pattern: '%THE BEER HALL'
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: Burger House
     type: meals
     aliases:
       - BURGER HOUSE
+    assigned_asset: Sole Proprietorship
   -
     name: Cask
     type: meals
     aliases:
       - "CASK 3RD STREET"
+    assigned_asset: Sole Proprietorship
   -
     name: USPS
     type: administrative
@@ -671,21 +644,25 @@ vendors:
       -
         pattern: "USPS KIOSK%"
         match_operation: like
+    assigned_asset: 1001-25 Wellesley St
   -
     name: Babu Ji
     type: meals
     aliases:
       - BABU JI
+    assigned_asset: Sole Proprietorship
   -
     name: Pizzeria Avellino
     type: meals
     aliases:
       - PIZZERIA AVELLINO
+    assigned_asset: Sole Proprietorship
   -
     name: AAA
     type: travel
     aliases:
       - AAA MEMBERSHIP
+    assigned_asset: 1001-25 Wellesley St
   -
     name: Arco
     type: travel
@@ -693,6 +670,7 @@ vendors:
       -
         pattern: 'ARCO%'
         match_operation: like
+    assigned_asset: 1001-25 Wellesley St
   -
     name: Jetbrains
     type: administrative
@@ -700,11 +678,13 @@ vendors:
       -
         pattern: 'JETBRAINS AMERICAS%'
         match_operation: like
+    assigned_asset: 1001-25 Wellesley St
   -
     name: Metreon
     type: meals
     aliases:
       - SORABOL METREON LLC
+    assigned_asset: Sole Proprietorship
   -
     name: Country Sky Chinese
     type: meals
@@ -712,16 +692,19 @@ vendors:
       -
         pattern: "%COUNTRY SKY CHINE%"
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: Maykadeh
     type: meals
     aliases:
       - MAYKADEH
+    assigned_asset: Sole Proprietorship
   -
     name: Fandango
     type: meals
     aliases:
       - FANDANGO.COM
+    assigned_asset: Sole Proprietorship
   -
     name: California Academy of Sciences
     type: meals
@@ -729,6 +712,7 @@ vendors:
       -
         pattern: 'CALIFORNIA ACADEMY OF%'
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: Eureka Berkeley
     type: meals
@@ -736,16 +720,19 @@ vendors:
       -
         pattern: 'EUREKA BERKELEY%'
         match_operation: like
+    assigned_asset: Sole Proprietorship
   -
     name: Sharetea
     type: meals
     aliases:
       - "SQ *SHARETEA METREON"
+    assigned_asset: Sole Proprietorship
   -
     name: Marina Supermarket
     type: meals
     aliases:
       - "MARINA SUPERMARKET"
+    assigned_asset: Sole Proprietorship
   -
     name: 21st Century Insurance
     type: insurance
@@ -753,11 +740,23 @@ vendors:
       -
         pattern: 'AUTOINSURANCE PNOT.DED.%'
         match_operation: like
+    assigned_asset: 1001-25 Wellesley St
+  -
+    name: "L'acajou Bakery"
+    type: meals
+    aliases:
+      - "SQUARE *SQ *L'ACAJOU"
+    assigned_asset: Sole Proprietorship
+  -
+    name: 83 Proof
+    type: meals
+    aliases:
+      - "83 PROOF"
+    assigned_asset: Sole Proprietorship
 
 exclusions:
 - SAFEWAY
 - WALGREENS
-- "LEE'S DELI"
 - "BART-CLIPPER"
 -
   amount: 42.19

@@ -31,19 +31,18 @@ def test_receipt_dump(t_file, transaction_fixture_dir):
                   parse_iso_datestring('2016-09-01'),
                   output_header=True)
 
-    # TODO update to include associated asset
     expected_rows = [
         ['Date', 'Source', 'Amount (CAD)', 'Transaction Party', 'Notes', 'CAD/USD rate', 'Amount (USD)',
             'HST Amount (CAD)', 'Tax Category', 'Payment Method'],
-        ['2016-08-02', '', '-11.33', 'MTCC 452', '', '', '', '',
+        ['2016-08-02', '1001-25 Wellesley St', '-11.33', 'MTCC 452', '', '', '', '',
             'Management and Administrative', 'BMO Savings'],
-        ['2016-08-02', '', '1600.00', 'Warren Smooth', '', '', '', '',
+        ['2016-08-02', '1001-25 Wellesley St', '1600.00', 'Warren Smooth', '', '', '', '',
             'Gross Rent', 'BMO Savings'],
-        ['2016-08-02', '', '-2008.39', 'YRCC 994', '', '', '', '',
+        ['2016-08-02', '5-699 Amber St', '-2008.39', 'YRCC 994', '', '', '', '',
             'Management and Administrative', 'BMO Savings'],
-        ['2016-08-03', '', '308.90', 'FootBlind Finance Analytic', '', '', '', '',
+        ['2016-08-03', '5-699 Amber St', '308.90', 'FootBlind Finance Analytic', '', '', '', '',
             'Gross Rent', 'BMO Savings'],
-        ['2016-08-15', '', '-733.00', 'City of Toronto', '', '', '', '',
+        ['2016-08-15', '1001-25 Wellesley St', '-733.00', 'City of Toronto', '', '', '', '',
             'Property Tax', 'BMO Savings'],
     ]
     output_file.seek(0)

@@ -59,3 +59,15 @@ class VendorType(enumfields.Enum):
 class AliasMatchOperation(Enum):
     EQUAL = 'equal'
     LIKE = 'like'
+
+
+@unique
+class FinancialAssetType(enumfields.Enum):
+    RENTAL = 'rental'
+    EMPLOYMENT = 'employment'
+    PROPRIETORSHIP = 'proprietorship'
+
+    class Labels:
+        RENTAL = 'Rental'
+        EMPLOYMENT = 'Employment'
+        PROPRIETORSHIP = 'Proprietorship'
