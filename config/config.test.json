@@ -1,7 +1,7 @@
 {
   "TESTING": true,
   "DEBUG": false,
-  "VENDOR_EXCLUSION_FILTERS": [
-    "taxes.receipts.filters.ExclusionConditionFilter"
+  "EXCLUSION_FILTER_MODULES": [
+    "taxes.receipts.filters"
   ]
 }

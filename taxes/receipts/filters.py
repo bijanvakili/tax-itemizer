@@ -1,5 +1,8 @@
 import abc
+from importlib import import_module
+import inspect
 from datetime import date
+import typing
 
 from django.db.models import Q
 
@@ -34,3 +37,15 @@ class ExclusionConditionFilter(BaseVendorExclusionFilter):
                 ) |
                 Q(prefix__isnull=True, on_date=for_date, amount=amount)
             ).exists()
+
+
+def load_filters_from_modules(module_paths: typing.Iterable[str]) -> typing.List[BaseVendorExclusionFilter]:
+    filters = []
+
+    for module_path in module_paths:
+        filter_module = import_module(module_path)
+        for name, clz in inspect.getmembers(filter_module):
+            if inspect.isclass(clz) and not inspect.isabstract(clz) and issubclass(clz, BaseVendorExclusionFilter):
+                filters.append(clz())
+
+    return filters

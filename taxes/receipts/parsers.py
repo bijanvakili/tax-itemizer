@@ -5,7 +5,6 @@ import os
 import re
 from enum import Enum
 from functools import lru_cache
-from importlib import import_module
 
 from django.conf import settings
 from django.db.models.query import Q
@@ -14,7 +13,7 @@ import django.core.exceptions as django_exc
 from taxes.receipts import models, constants
 from taxes.receipts.util.datetime import parse_date
 from taxes.receipts.util.currency import parse_amount, cents_to_dollars
-
+from taxes.receipts.filters import load_filters_from_modules
 
 LOGGER = logging.getLogger(__name__)
 
@@ -72,12 +71,7 @@ class BaseParser(metaclass=abc.ABCMeta):
     def __init__(self):
         self.failures = 0
         self.fixed_payment_method = None
-        self.exclusion_filters = []
-        for filter_class in settings.VENDOR_EXCLUSION_FILTERS:
-            module_path, class_name = filter_class.rsplit('.', maxsplit=1)
-            filter_module = import_module(module_path)
-            filter_class = getattr(filter_module, class_name)
-            self.exclusion_filters.append(filter_class())
+        self.exclusion_filters = load_filters_from_modules(settings.EXCLUSION_FILTER_MODULES)
 
     def parse(self, filename):
         # set the fixed card number if the class specifies it
@@ -97,7 +91,11 @@ class BaseParser(metaclass=abc.ABCMeta):
                 if self.SKIP_HEADER and line_number == 0:
                     continue
                 LOGGER.debug('CSV Line - {}'.format(line_number))
-                self.parse_row(row, line_number)
+                try:
+                    self.parse_row(row, line_number)
+                except:
+                    LOGGER.error('FAILURE on line {} of file {}'.format(line_number + 1, filename))
+                    raise
 
     @property
     def filters(self):
@@ -184,6 +182,8 @@ class BMOTransactionCode(Enum):
     MULTI_BRANCH_BANKING = 'MB'
     RETURNED_ITEM = 'RT'
     TRANSFER_OF_FUNDS = 'TF'
+    FOREIGN_EXCHANGE = 'FX'
+    WITHDRAWAL = 'WD'
 
 
 class BMOBankAccountParser(BaseBMOCSVParser):
@@ -192,7 +192,8 @@ class BMOBankAccountParser(BaseBMOCSVParser):
         BMOTransactionCode.SERVICE_CHARGEABLE,
         BMOTransactionCode.NOT_SERVICE_CHARGEABLE,
         BMOTransactionCode.ONLINE_DEBIT_PURCHASE,
-        BMOTransactionCode.MULTI_BRANCH_BANKING
+        BMOTransactionCode.MULTI_BRANCH_BANKING,
+        BMOTransactionCode.FOREIGN_EXCHANGE,
     }
 
     def __init__(self):

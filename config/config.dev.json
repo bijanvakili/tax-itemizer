@@ -1,9 +1,9 @@
 {
   "DATABASE_URI": "postgresql://localhost:5432/receipts_dev",
   "DEBUG": true,
-  "VENDOR_EXCLUSION_FILTERS": [
-    "taxes.receipts.filters.ExclusionConditionFilter",
-    "taxes.discrete.exclusion_filters.April2017Filter"
+  "EXCLUSION_FILTER_MODULES": [
+    "taxes.receipts.filters",
+    "taxes.discrete.filters"
   ],
   "LOGGING": {
     "version": 1,

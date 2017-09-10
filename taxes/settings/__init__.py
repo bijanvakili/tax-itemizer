@@ -29,7 +29,7 @@ with open(RECEIPTS_CONFIG_PATH, 'r') as receipt_config_file:
 DEBUG = True
 
 LOGGING = RECEIPTS_CONFIG.get('LOGGING')
-VENDOR_EXCLUSION_FILTERS = RECEIPTS_CONFIG.get('VENDOR_EXCLUSION_FILTERS', [])
+EXCLUSION_FILTER_MODULES = RECEIPTS_CONFIG.get('EXCLUSION_FILTER_MODULES', [])
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
