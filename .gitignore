@@ -7,3 +7,6 @@ config/config.json
 .python-version
 .cache/
 .testdb/
+config/secrets/*
+config/config.dev.json
+config/config.prod.json

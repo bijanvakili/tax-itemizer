@@ -17,8 +17,10 @@ Choose an environment slug name (e.g. `dev`) by setting it in the `RECEIPTS_DEV`
 
     export RECEIPTS_ENV=dev
 
-Edit the appropriate JSON configuration file in the `config` folder.
-(e.g. `config/config.dev.json`)
+Copy the `example` JSON configuration template and edit as appropriate:
+
+    cp config/config.example.json config/config.dev.json
+    vi config.dev.json
 
 If you wish to use a different configuration folder, you can set it via the `RECEIPTS_CONFIG_DIR` environment variable.
 
@@ -54,7 +56,62 @@ To load a vendor YAML file (e.g. `data/fixtures/vendors.yaml`):
     ./run.sh itemize path/to/transaction_XXX.csv
     ./run.sh itemize path/to/transaction_YYY.csv
     ...
-    ./run.sh dump_receipts output.csv YYYY-MM-DD YYYY-MM-DD
+    ./run.sh dump_receipts output.csv <start-date> <end-date> [output_filename]
+
+
+`start-date` = 'YYYY-MM-DD'
+`end-date` = 'YYYY-MM-DD'
+
+### FX Rates
+
+To download the currency rates.
+
+    ./run.sh download_forex <start-date> <end-date> [output_filename]
+
+`start-date` = 'YYYY-MM-DD'
+`end-date` = 'YYYY-MM-DD'
+
+### Google Spreadsheet Uploads
+
+You first need to set up access.
+
+#### Authentication
+
+In the Google Developer's console
+* Create a Service Account via the [IAM](https://console.developers.google.com/iam-admin/iam) admin page
+    * Ensure at least `Editor` access
+    * Download the `.json` file to `config/secrets`
+
+#### Authorization
+
+In the API & Services [Library](https://console.developers.google.com/apis/library) page
+* Enable the `Google Drive API`
+* Enable the `Google Sheets API`
+
+In Google Drive:
+* Extend your sheet's permissions to allow `Write` access to your service account.
+    * This should be identified by a `iam.gserviceaccount.com` email.
+
+#### Client Credentials
+
+Edit the you `config/config.ENV.json` to set the `SPREADSHEET` entry as follows:
+
+```json
+"SPREADSHEET": {
+    "id": "<Google spreadsheet id goes here>",
+    "credentials_file": "path/to/secrets/gdrive.json"
+}
+```
+
+#### Running the Upload
+
+You can then upload receipt `.csv` dumps as follows:
+
+    ./run.sh gsheet_upload receipts MYRECEIPTS.csv
+
+You can also upload forex `.csv` dumps as follows:
+
+    ./run.sh gsheet_upload forex MYFOREX.csv
 
 ### Testing
 
@@ -83,13 +140,6 @@ For repeated execution, you can reuse the same test database with models using t
 To run code linter:
 
     ./run.sh lint
-
-### FX Rates
-
-    python get-historical-rates.py <start-date> <end-date>
-     
-`start-date` = 'YYYY-MM-DD'
-`end-date` = 'YYYY-MM-DD'
 
 ### References
 

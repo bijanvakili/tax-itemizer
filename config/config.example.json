@@ -31,5 +31,9 @@
             "formatter": "default"
         }
     }
+  },
+  "SPREADSHEET": {
+    "id": "<Google spreadsheet id goes here>",
+    "credentials_file": "path/to/secrets/gdrive.json"
   }
 }

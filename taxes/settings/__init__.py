@@ -47,3 +47,5 @@ if RECEIPTS_ENV == 'test':
     }
 else:
     DATABASES['default'] = dj_database_url.parse(RECEIPTS_CONFIG['DATABASE_URI'])
+
+SPREADSHEET = RECEIPTS_CONFIG.get('SPREADSHEET')
