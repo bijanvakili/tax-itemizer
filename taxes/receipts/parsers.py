@@ -184,6 +184,8 @@ class BMOTransactionCode(Enum):
     TRANSFER_OF_FUNDS = 'TF'
     FOREIGN_EXCHANGE = 'FX'
     WITHDRAWAL = 'WD'
+    CREDIT_MEMO = 'CM'
+    DEBIT_MEMO = 'DM'
 
 
 class BMOBankAccountParser(BaseBMOCSVParser):
@@ -280,12 +282,13 @@ class USDateFormatMixin(object):
 
 
 class CapitalOneParser(BaseParser):
-    DATE_FORMAT = '%Y-%m-%d'
-    CSV_FIELDS = ['transaction_date', 'posted_date', 'card_number', 'description',
+    DATE_FORMAT = '%m/%d/%Y'
+    CSV_FIELDS = ['stage', 'transaction_date', 'posted_date', 'card_number', 'description',
                   'category', 'debit', 'credit']
+    PAYMENT_DESCRIPTIONS = {'Payment', 'Payment/Credit'}
 
     def parse_row(self, row, line_number):
-        if row['category'] == 'Payment/Credit':
+        if row['category'] in self.PAYMENT_DESCRIPTIONS:
             LOGGER.info(
                 'Skipping payment {transaction_date} {card_number} {description}'.format(**row)
             )

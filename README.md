@@ -107,7 +107,7 @@ Edit the you `config/config.ENV.json` to set the `SPREADSHEET` entry as follows:
 
 You can then upload receipt `.csv` dumps as follows:
 
-    ./run.sh gsheet_upload receipts MYRECEIPTS.csv
+    ./run.sh gsheet_upload items MYRECEIPTS.csv
 
 You can also upload forex `.csv` dumps as follows:
 

@@ -155,28 +155,25 @@ def test_parse_readiline(run_parser, mock_logger):
 
 
 def test_parse_capitalone(run_parser, mock_logger):
-    run_parser('capitalone_2017-07.csv')
+    run_parser('capitalone_2017-09.csv')
 
     # collect skip warnings
     actual_skipped_vendors = _skipped_vendors_from_log(mock_logger)
     expected_skipped_vendors = {
-        'FELLOW BARBER',
-        'AMAZON MKTPLACE PMTS',
+        'BOOKS INC     80700131',
+        'SAFEWAY  STORE00009670'
     }
     assert expected_skipped_vendors == actual_skipped_vendors
 
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
         # (purchased_at, vendor.name, total_amount)
-        ('2017-07-02', 'FedEx', -326),
-        ('2017-07-11', 'Glaze Teriyaki', -1698),
-        ('2017-07-12', "L'acajou Bakery", -400),
-        ('2017-07-16', 'Yum Yum Hunan', -2982),
-        ('2017-07-27', '83 Proof', -1800),
-        ('2017-07-27', 'Blackwood', -3627),
-        ('2017-07-28', "Lee's Deli", -1209),
-
-
+        ('2017-09-04', 'Embarcadero Cinemas', -2600),
+        ('2017-09-09', 'Marina Supermarket', -2520),
+        ('2017-09-17', 'Yum Yum Hunan', -3054),
+        ('2017-09-20', "Lee's Deli", -1481),
+        ('2017-09-21', 'We Be Sushi', -2474),
+        ('2017-09-25', 'Glaze Teriyaki', -1462),
     ]
     _verify_receipts(actual_receipts, expected_receipt_values)
 

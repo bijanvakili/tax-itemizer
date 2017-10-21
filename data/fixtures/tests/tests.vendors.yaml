@@ -753,6 +753,12 @@ vendors:
     aliases:
       - "83 PROOF"
     assigned_asset: Sole Proprietorship
+  -
+    name: Embarcadero Cinemas
+    type: meals
+    aliases:
+      - "EMBARCADERO CINEMA 224"
+    assigned_asset: Sole Proprietorship
 
 exclusions:
 - SAFEWAY
@@ -799,3 +805,4 @@ exclusions:
 - "UNIQLO"
 - "LUCKY BRAND"
 - "24HOUR FITNESS USA"
+- "BOOKS INC"

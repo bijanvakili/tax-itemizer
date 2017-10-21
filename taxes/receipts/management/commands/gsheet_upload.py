@@ -68,6 +68,7 @@ class Command(BaseCommand):
                 csv_file
             )
 
+    # TODO move spreadsheet code to a separate module
     def _upload_to_gsheet(self, config: GoogleSheetConfig, worksheet_type: WorksheetType, csv_file: typing.io):
         # connect to spreadsheet
         gdrive_credentials = self._load_credentials(config.credentials_file)
@@ -80,7 +81,7 @@ class Command(BaseCommand):
         num_rows = len(all_data)
 
         # look for the first row containing any empty rows in the spreadsheet
-        first_empty_row = len(worksheet.get_col(1, include_empty=False)) + 1
+        first_empty_row = self._get_first_empty_row(spreadsheet, worksheet)
         if first_empty_row + num_rows > worksheet.rows:
             worksheet.add_rows(num_rows)
 
@@ -89,6 +90,8 @@ class Command(BaseCommand):
             crange=(first_empty_row, 1),
             values=all_data
         )
+
+        # TODO make common wrapper method for batch updates
 
         # format the columns
         format_requests = []
@@ -115,7 +118,34 @@ class Command(BaseCommand):
             })
         gsheet_client.sh_batch_update(spreadsheet.id, format_requests)
 
-        # TODO add missing formulas
+        if worksheet_type == WorksheetType.items:
+            last_fx_rate_row = self._get_first_empty_row(spreadsheet, WorksheetType.forex)
+            formula = '=VLOOKUP($A{},FX!$A$2:$B${},2,TRUE)'.format(
+                first_empty_row,
+                last_fx_rate_row - 1,
+            )
+            col_range = {
+                "sheetId": worksheet.id,
+                "startRowIndex": first_empty_row - 1,
+                "endRowIndex": first_empty_row + num_rows - 1,
+                "startColumnIndex": 5,
+                "endColumnIndex": 6,
+            }
+            formula_request = {
+                'repeatCell': {
+                    'range': col_range,
+                    'cell': {
+                        'userEnteredValue': {
+                            'formulaValue': formula
+                        }
+                    },
+                    'fields': "userEnteredValue.formulaValue"
+                }
+            }
+            gsheet_client.sh_batch_update(spreadsheet.id, formula_request)
+
+        # TODO add formulas for missing USD/CAD amounts
+        # TODO add formulas for HST
 
     @staticmethod
     def _load_credentials(credentials_filename):
@@ -123,3 +153,9 @@ class Command(BaseCommand):
             credentials_filename,
             PYGSHEETS_SCOPES
         )
+
+    @staticmethod
+    def _get_first_empty_row(spreadsheet, worksheet):
+        if type(worksheet) == WorksheetType:
+            worksheet = spreadsheet.worksheet_by_title(worksheet.value)
+        return len(worksheet.get_col(1, include_empty=False)) + 1
