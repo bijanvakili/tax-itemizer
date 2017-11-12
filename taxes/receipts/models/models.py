@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import fields as django_fields
 
 from taxes.receipts import constants
-from . import fields, lookups
+from . import fields, lookups, managers
 
 
 __all__ = [
@@ -13,6 +13,7 @@ __all__ = [
     'PaymentMethod',
     'PeriodicPayment',
     'Receipt',
+    'ForexRate',
 ]
 
 
@@ -60,10 +61,7 @@ class VendorAliasPattern(models.Model):
                                         default=constants.AliasMatchOperation.LIKE)
 
     def __str__(self):
-        return '{match_operation}("{pattern}")'.format(
-            match_operation=self.match_operation.name,
-            pattern=self.pattern
-        )
+        return f'{self.match_operation.name}("{self.pattern}")'
 
     def __repr__(self):
         return '<VendorAliasPattern({id}, {vendor}, {pattern}, {match_operation})>'.format(
@@ -106,6 +104,8 @@ class PaymentMethod(models.Model):
 
 
 class Receipt(models.Model):
+    objects = managers.ReceiptManager()
+
     class Meta:
         db_table = 'receipt'
 
@@ -118,11 +118,7 @@ class Receipt(models.Model):
     currency = fields.enum_field(constants.Currency)
 
     def __repr__(self):
-        return '<Receipt({id}, {vendor}, {amount})>'.format(
-            id=self.id,
-            vendor=self.vendor.name,
-            amount=self.total_amount
-        )
+        return f'<Receipt({self.id}, {self.vendor.name}, {self.total_amount})>'
 
 
 class PeriodicPayment(models.Model):
@@ -137,14 +133,29 @@ class PeriodicPayment(models.Model):
     amount = models.IntegerField()
 
     def __str__(self):
-        return '{vendor} ({amount})'.format(vendor=self.vendor.name, amount=self.amount)
+        return f'{self.vendor.name} ({self.amount})'
 
     def __repr__(self):
-        return '<PeriodicPayment({id}, {vendor}, {amount})>'.format(
-            id=self.id,
-            vendor=self.vendor.name,
-            amount=self.amount
-        )
+        return f'<PeriodicPayment({self.id}, {self.vendor.name}, {self.amount})>'
+
+
+class ForexRate(models.Model):
+    objects = managers.ForexRateManager()
+
+    class Meta:
+        db_table = 'forex_rate'
+        unique_together = ('pair', 'effective_at', )
+
+    id = fields.uuid_primary_key_field()
+    pair = models.CharField(max_length=8)  # e.g. CAD/USD
+    effective_at = models.DateField(db_index=True)
+    rate = models.DecimalField(max_digits=10, decimal_places=4)
+
+    def __str__(self):
+        return f'{self.pair},{self.effective_at:%Y-%m-%d}={self.rate:0.4f}'
+
+    def __repr__(self):
+        return f'<ForexRate({self.id}, {self.pair}, {self.effective_at})>'
 
 
 django_fields.CharField.register_lookup(lookups.AliasMatchLookup)

@@ -3,10 +3,10 @@
 **/.DS_Store
 doc/notes.md
 tmp/
-config/config.json
+config/config.yaml
 .python-version
 .cache/
 .testdb/
 config/secrets/*
-config/config.dev.json
-config/config.prod.json
+config/config.dev.yaml
+config/config.prod.yaml

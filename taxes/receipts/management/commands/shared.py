@@ -11,18 +11,21 @@ class ParseDateAction(argparse.Action):
         try:
             date_str = parse_iso_datestring(values)
         except ValueError:
-            raise ValueError(
-                '{} needs to be an ISO 8061 date string (YYYY-MM-DD)'.format(self.dest)
-            )
+            raise ValueError(f'{self.dest} needs to be an ISO 8061 date string (YYYY-MM-DD)')
 
         setattr(namespace, self.dest, date_str)
 
 
-class DateRangeOutputMixin():
+class DateRangeMixin():
     def add_arguments(self, parser):
-        parser.add_argument('--with-header', action='store_true', help='Include column headers in CSV output')
         parser.add_argument('start_date', action=ParseDateAction, help='Purchased at start date (inclusive)')
         parser.add_argument('end_date', action=ParseDateAction, help='Purchased at start date (inclusive)')
+
+
+class DateRangeOutputMixin(DateRangeMixin):
+    def add_arguments(self, parser):
+        parser.add_argument('--with-header', action='store_true', help='Include column headers in CSV output')
+        super().add_arguments(parser)
         parser.add_argument('output_filename', nargs='?', default=None, help='Output filename')
 
     @contextlib.contextmanager

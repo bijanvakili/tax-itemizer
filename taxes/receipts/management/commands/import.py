@@ -36,6 +36,6 @@ class Command(BaseCommand):
 
     def _load_fixtures(self, fixtures):
         for fixture_name in fixtures:
-            LOGGER.info('Loading fixture: {}...'.format(fixture_name))
+            LOGGER.info(f'Loading fixture: {fixture_name}...')
             load_fixture(fixture_name)
-            LOGGER.info('Finished load for: {}'.format(fixture_name))
+            LOGGER.info(f'Finished load for: {fixture_name}')

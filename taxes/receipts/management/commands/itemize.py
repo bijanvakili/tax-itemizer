@@ -59,19 +59,13 @@ class Command(BaseCommand):
     def _import_files(self, transaction_filenames):
         total_failures = 0
         for tx_filename in transaction_filenames:
-            LOGGER.info(
-                'Starting to process: {filename}...'.format(filename=tx_filename)
-            )
+            LOGGER.info(f'Starting to process: {tx_filename}...')
 
             parser_class = get_parser_class(tx_filename)
             parser = parser_class()
             parser.parse(tx_filename)
 
             total_failures += parser.failures
-            LOGGER.info(
-                'Finished processing: {filename} {error_summary}'.format(
-                    filename=tx_filename,
-                    error_summary='({} errors)'.format(parser.failures) if parser.failures else ''
-                )
-            )
+            error_summary = f'({parser.failures} errors)' if parser.failures else ''
+            LOGGER.info(f'Finished processing: {tx_filename} {error_summary}')
         return total_failures

@@ -24,7 +24,7 @@ class ParseException(Exception):
         super().__init__(*args, **kwargs)
 
     def __repr__(self):
-        prefix = '{} '.format(self.line_number) if self.line_number else ''
+        prefix = f'{self.line_number} ' if self.line_number else ''
         return prefix + super().__repr__()
 
 
@@ -90,11 +90,11 @@ class BaseParser(metaclass=abc.ABCMeta):
                 # skip header
                 if self.SKIP_HEADER and line_number == 0:
                     continue
-                LOGGER.debug('CSV Line - {}'.format(line_number))
+                LOGGER.debug(f'CSV Line - {line_number}')
                 try:
                     self.parse_row(row, line_number)
                 except:
-                    LOGGER.error('FAILURE on line {} of file {}'.format(line_number + 1, filename))
+                    LOGGER.error(f'FAILURE on line {line_number + 1} of file {filename}')
                     raise
 
     @property
@@ -118,9 +118,7 @@ class BaseParser(metaclass=abc.ABCMeta):
     def _add_new_receipt(self, vendor, purchased_at, payment_method, total_amount, currency):
         if vendor.fixed_amount:
             total_amount = vendor.fixed_amount
-            LOGGER.info(
-                'Using fixed amount {} for vendor {}'.format(vendor.fixed_amount, vendor.name)
-            )
+            LOGGER.info(f'Using fixed amount {vendor.fixed_amount} for vendor {vendor.name}')
 
         models.Receipt.objects.create(
             vendor=vendor,
@@ -136,7 +134,7 @@ class BaseParser(metaclass=abc.ABCMeta):
     def _find_vendor(self, pattern, for_date, amount):
         # check exclusion conditions
         if self._is_exclusion(pattern, for_date, amount):
-            LOGGER.warning('Skipped vendor {}'.format(pattern))
+            LOGGER.warning(f'Skipped vendor {pattern}')
             return None
 
         # locate the vendor by alias
@@ -149,7 +147,7 @@ class BaseParser(metaclass=abc.ABCMeta):
             )
         except django_exc.ObjectDoesNotExist:
             self.failures += 1
-            LOGGER.error('Pattern not found: {}'.format(pattern))
+            LOGGER.error(f'Pattern not found: {pattern}')
             return None
         return vendor_alias.vendor
 
@@ -204,7 +202,7 @@ class BMOBankAccountParser(BaseBMOCSVParser):
 
     def _find_vendor_from_amount(self, for_date, amount):
         if self._is_exclusion('', for_date, amount):
-            LOGGER.warn('Skipping amount: {}'.format(amount))
+            LOGGER.warn(f'Skipping amount: {amount}')
             return None
 
         # TODO determine how to handle regular payments with the same amount and currency
@@ -215,7 +213,7 @@ class BMOBankAccountParser(BaseBMOCSVParser):
             )
         except django_exc.ObjectDoesNotExist:
             self.failures += 1
-            LOGGER.error('Pattern not for amount: {}'.format(cents_to_dollars(amount)))
+            LOGGER.error(f'Pattern not for amount: {cents_to_dollars(amount)}')
             return None
 
         return periodic_payment.vendor
@@ -244,12 +242,7 @@ class BMOBankAccountParser(BaseBMOCSVParser):
             if not vendor:
                 return
         else:
-            LOGGER.info(
-                'Skipping {} transaction for {}...'.format(
-                    tx_code,
-                    merchant_description
-                )
-            )
+            LOGGER.info(f'Skipping {tx_code} transaction for {merchant_description}...')
             return
 
         self._add_new_receipt(vendor, receipt_date, payment_method, amount, constants.Currency.CAD)

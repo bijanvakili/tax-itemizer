@@ -4,11 +4,11 @@
 
 Python code used to itemize transaction records into tax categories.
 
-Includes a small script to scrape FX rates.
+Includes a command to scrape FX rates.
 
 ### Requirements
 
-* python 3.x
+* python 3.6.x
 * Packages in `requirements.txt`
 
 ### Setup
@@ -17,10 +17,10 @@ Choose an environment slug name (e.g. `dev`) by setting it in the `RECEIPTS_DEV`
 
     export RECEIPTS_ENV=dev
 
-Copy the `example` JSON configuration template and edit as appropriate:
+Copy the `example` YAML configuration template and edit as appropriate:
 
-    cp config/config.example.json config/config.dev.json
-    vi config.dev.json
+    cp config/config.example.yaml config/config.dev.yaml
+    vi config.dev.yaml
 
 If you wish to use a different configuration folder, you can set it via the `RECEIPTS_CONFIG_DIR` environment variable.
 
@@ -56,7 +56,7 @@ To load a vendor YAML file (e.g. `data/fixtures/vendors.yaml`):
     ./run.sh itemize path/to/transaction_XXX.csv
     ./run.sh itemize path/to/transaction_YYY.csv
     ...
-    ./run.sh dump_receipts output.csv <start-date> <end-date> [output_filename]
+    ./run.sh export receipts <start-date> <end-date> [output_filename]
 
 
 `start-date` = 'YYYY-MM-DD'
@@ -66,7 +66,9 @@ To load a vendor YAML file (e.g. `data/fixtures/vendors.yaml`):
 
 To download the currency rates.
 
-    ./run.sh download_forex <start-date> <end-date> [output_filename]
+    ./run.sh download_forex <start-date> <end-date>
+    ...
+    ./run.sh export forex <start-date> <end-date> [output_filename]
 
 `start-date` = 'YYYY-MM-DD'
 `end-date` = 'YYYY-MM-DD'
@@ -94,24 +96,23 @@ In Google Drive:
 
 #### Client Credentials
 
-Edit the you `config/config.ENV.json` to set the `SPREADSHEET` entry as follows:
+Edit the you `config/config.ENV.yaml` to set the `SPREADSHEET` entry as follows:
 
-```json
-"SPREADSHEET": {
-    "id": "<Google spreadsheet id goes here>",
-    "credentials_file": "path/to/secrets/gdrive.json"
-}
+```yaml
+SPREADSHEET:
+    id: "<Google spreadsheet id goes here>",
+    credentials_file: "path/to/secrets/gdrive.yaml"
 ```
 
 #### Running the Upload
 
-You can then upload receipt `.csv` dumps as follows:
+You can then upload receipts as follows:
 
-    ./run.sh gsheet_upload items MYRECEIPTS.csv
+    ./run.sh gsheet_upload items <start-date> <end-date>
 
-You can also upload forex `.csv` dumps as follows:
+You can also upload forex rates as follows:
 
-    ./run.sh gsheet_upload forex MYFOREX.csv
+    ./run.sh gsheet_upload forex <start-date> <end-date>
 
 ### Testing
 

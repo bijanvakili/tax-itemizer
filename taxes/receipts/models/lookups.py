@@ -22,7 +22,7 @@ class AliasMatchLookup(VendorAliasPatternLookupBase):
         prefix, lhs_params = self.process_lhs(compiler, connection)
         val, rhs_params = self.process_rhs(compiler, connection)
         params = rhs_params + lhs_params
-        return '%s LIKE %s' % (val, prefix), params
+        return f'{val} LIKE {prefix}', params
 
 
 class PrefixMatchLookup(VendorAliasPatternLookupBase):
@@ -36,4 +36,4 @@ class PrefixMatchLookup(VendorAliasPatternLookupBase):
         val, rhs_params = self.process_rhs(compiler, connection)
         params = rhs_params + lhs_params
 
-        return "{} LIKE {} || '%%'".format(val, prefix), params
+        return f"{val} LIKE {prefix} || '%%'", params

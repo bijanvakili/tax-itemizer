@@ -1,4 +1,4 @@
-import json
+import yaml
 
 import dj_database_url
 
@@ -15,12 +15,12 @@ if not RECEIPTS_ENV:
 # load file config
 DEFAULT_CONFIG_DIR = os.path.join(os.getcwd(), 'config')
 RECEIPTS_CONFIG_DIR = os.environ.get('RECEIPTS_CONFIG_DIR', DEFAULT_CONFIG_DIR)
-RECEIPTS_CONFIG_PATH = os.path.join(RECEIPTS_CONFIG_DIR, 'config.{}.json'.format(RECEIPTS_ENV))
+RECEIPTS_CONFIG_PATH = os.path.join(RECEIPTS_CONFIG_DIR, f'config.{RECEIPTS_ENV}.yaml')
 
 DATA_FIXTURE_DIR = os.path.join(os.getcwd(), 'data', 'fixtures')
 
 with open(RECEIPTS_CONFIG_PATH, 'r') as receipt_config_file:
-    RECEIPTS_CONFIG = json.load(receipt_config_file)
+    RECEIPTS_CONFIG = yaml.load(receipt_config_file)
 
 # TODO find out why DEBUG = False is crashing the admin panel
 #

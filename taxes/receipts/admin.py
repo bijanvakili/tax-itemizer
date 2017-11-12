@@ -52,3 +52,9 @@ class ReceiptAdmin(admin.ModelAdmin):
 class FinancialAssetAdmin(admin.ModelAdmin):
     ordering = ('name', )
     list_display = ('name', 'type', )
+
+
+@admin.register(models.ForexRate)
+class ForexRateAdmin(admin.ModelAdmin):
+    ordering = ('pair', 'effective_at')
+    list_display = ('pair', 'effective_at', 'rate')

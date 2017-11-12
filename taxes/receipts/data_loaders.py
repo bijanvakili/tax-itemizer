@@ -14,7 +14,7 @@ class BaseYamlLoader(metaclass=abc.ABCMeta):
         self.fixture_path = settings.DATA_FIXTURE_DIR
 
     def load_fixture(self, fixture_name: str):
-        yaml_filename = os.path.join(self.fixture_path, '{}.yaml'.format(fixture_name))
+        yaml_filename = os.path.join(self.fixture_path, f'{fixture_name}.yaml')
         if not os.path.exists(yaml_filename):
             raise FileNotFoundError(yaml_filename)
 
@@ -64,7 +64,7 @@ class CustomVendorYamlLoader(BaseYamlLoader):
                 try:
                     new_vendor_params['assigned_asset'] = asset_map[vendor['assigned_asset']]
                 except KeyError:
-                    raise ValueError('Unable to locate financial asset: {}'.format(vendor['assigned_asset']))
+                    raise ValueError(f"Unable to locate financial asset: {vendor['assigned_asset']}")
             new_vendor = models.Vendor.objects.create(**new_vendor_params)
 
             for alias in vendor.get('aliases', []):
@@ -75,7 +75,7 @@ class CustomVendorYamlLoader(BaseYamlLoader):
                     pattern = alias['pattern']
                     match_operation = alias['match_operation']
                 else:
-                    raise ValueError('Unable to parse alias: {}'.format(alias))
+                    raise ValueError(f'Unable to parse alias: {alias}')
                 models.VendorAliasPattern.objects.create(
                     vendor=new_vendor,
                     pattern=pattern,

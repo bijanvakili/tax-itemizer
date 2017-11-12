@@ -1,0 +1,3 @@
+TESTING: true
+DEBUG: false
+EXCLUSION_FILTER_MODULES: ["taxes.receipts.filters"]
