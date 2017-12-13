@@ -46,6 +46,7 @@ class ReceiptAdmin(admin.ModelAdmin):
     list_display = ('purchased_at', 'vendor', 'total_amount', 'currency')
     ordering = ('purchased_at', 'vendor', 'total_amount', )
     raw_id_fields = ('vendor', 'payment_method', )
+    search_fields = ('purchased_at', 'vendor__name',)
 
 
 @admin.register(models.FinancialAsset)
