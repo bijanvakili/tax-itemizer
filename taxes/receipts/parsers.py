@@ -93,7 +93,7 @@ class BaseParser(metaclass=abc.ABCMeta):
                 LOGGER.debug(f'CSV Line - {line_number}')
                 try:
                     self.parse_row(row, line_number)
-                except:
+                except Exception:
                     LOGGER.error(f'FAILURE on line {line_number + 1} of file {filename}')
                     raise
 

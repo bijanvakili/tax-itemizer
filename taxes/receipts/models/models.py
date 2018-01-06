@@ -40,7 +40,8 @@ class Vendor(models.Model):
     name = models.CharField(max_length=200, unique=True, db_index=True)
     type = fields.enum_field(constants.VendorType, db_index=True)
     fixed_amount = models.IntegerField(null=True, default=None, blank=True)
-    assigned_asset = models.ForeignKey('FinancialAsset', db_index=True, related_name='assigned_vendors',
+    assigned_asset = models.ForeignKey('FinancialAsset', on_delete=models.SET_NULL,
+                                       db_index=True, related_name='assigned_vendors',
                                        null=True, default=None, blank=True)
 
     def __str__(self):
@@ -55,7 +56,8 @@ class VendorAliasPattern(models.Model):
         db_table = 'vendor_alias_pattern'
 
     id = fields.uuid_primary_key_field()
-    vendor = models.ForeignKey('Vendor', db_index=True, related_name='alias_patterns')
+    vendor = models.ForeignKey('Vendor', on_delete=models.CASCADE,
+                               db_index=True, related_name='alias_patterns')
     pattern = models.CharField(max_length=200, unique=True, db_index=True)
     match_operation = fields.enum_field(constants.AliasMatchOperation, db_index=True, blank=False,
                                         default=constants.AliasMatchOperation.LIKE)
@@ -110,9 +112,11 @@ class Receipt(models.Model):
         db_table = 'receipt'
 
     id = fields.uuid_primary_key_field()
-    vendor = models.ForeignKey('Vendor', db_index=True, related_name='client_receipts')
+    vendor = models.ForeignKey('Vendor', on_delete=models.PROTECT,
+                               db_index=True, related_name='client_receipts')
     purchased_at = models.DateField(db_index=True)
-    payment_method = models.ForeignKey('PaymentMethod', db_index=True)
+    payment_method = models.ForeignKey('PaymentMethod', on_delete=models.PROTECT,
+                                       db_index=True)
     # TODO should this be a DecimalField?
     total_amount = models.IntegerField()  # in cents
     currency = fields.enum_field(constants.Currency)
@@ -128,7 +132,7 @@ class PeriodicPayment(models.Model):
 
     id = fields.uuid_primary_key_field()
     name = models.CharField(max_length=200, null=True)
-    vendor = models.OneToOneField('Vendor', db_index=True)
+    vendor = models.OneToOneField('Vendor', on_delete=models.PROTECT, db_index=True)
     currency = fields.enum_field(constants.Currency)
     amount = models.IntegerField()
 

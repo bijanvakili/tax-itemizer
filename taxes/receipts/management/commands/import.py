@@ -23,7 +23,7 @@ class Command(BaseCommand):
         transaction.set_autocommit(False)
         try:
             self._load_fixtures(fixtures)
-        except:
+        except Exception:
             transaction.rollback()
             LOGGER.exception('Unhandled exception')
             sys.exit(1)

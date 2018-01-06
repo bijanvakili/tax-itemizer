@@ -42,7 +42,7 @@ class Command(BaseCommand):
 
         try:
             total_failures = self._import_files(transaction_filenames)
-        except:
+        except Exception:
             transaction.rollback()
             LOGGER.exception('Unhandled exception')
             sys.exit(1)
