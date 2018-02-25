@@ -10,7 +10,9 @@ from django.conf import settings
 from django.db.models.query import Q
 import django.core.exceptions as django_exc
 
-from taxes.receipts import models, constants
+from taxes.receipts import (
+    models, constants, tax
+)
 from taxes.receipts.util.datetime import parse_date
 from taxes.receipts.util.currency import parse_amount, cents_to_dollars
 from taxes.receipts.filters import load_filters_from_modules
@@ -120,7 +122,7 @@ class BaseParser(metaclass=abc.ABCMeta):
             total_amount = vendor.fixed_amount
             LOGGER.info(f'Using fixed amount {vendor.fixed_amount} for vendor {vendor.name}')
 
-        models.Receipt.objects.create(
+        return models.Receipt.objects.create(
             vendor=vendor,
             purchased_at=purchased_at,
             payment_method=payment_method,
@@ -129,7 +131,10 @@ class BaseParser(metaclass=abc.ABCMeta):
         )
 
     def _is_exclusion(self, pattern, for_date, amount):
-        return any(f.is_exclusion(pattern, for_date, amount) for f in self.exclusion_filters)
+        return any(
+            f.is_exclusion(pattern, for_date, amount, self.fixed_payment_method)
+            for f in self.exclusion_filters
+        )
 
     def _find_vendor(self, pattern, for_date, amount):
         # check exclusion conditions
@@ -202,7 +207,7 @@ class BMOBankAccountParser(BaseBMOCSVParser):
 
     def _find_vendor_from_amount(self, for_date, amount):
         if self._is_exclusion('', for_date, amount):
-            LOGGER.warn(f'Skipping amount: {amount}')
+            LOGGER.warning(f'Skipping amount: {amount}')
             return None
 
         # TODO determine how to handle regular payments with the same amount and currency
@@ -245,7 +250,11 @@ class BMOBankAccountParser(BaseBMOCSVParser):
             LOGGER.info(f'Skipping {tx_code} transaction for {merchant_description}...')
             return
 
-        self._add_new_receipt(vendor, receipt_date, payment_method, amount, constants.Currency.CAD)
+        receipt = self._add_new_receipt(vendor, receipt_date, payment_method, amount, constants.Currency.CAD)
+        if tx_code == BMOTransactionCode.CHECK_DEPOSIT and vendor.periodic_payment and \
+                vendor.periodic_payment.tax_adjustment_type:
+            # add a tax adjustment if required
+            tax.add_tax_adjustment(receipt)
 
 
 class BMOCreditParser(BaseBMOCSVParser):

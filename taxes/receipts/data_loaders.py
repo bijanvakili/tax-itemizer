@@ -83,12 +83,15 @@ class CustomVendorYamlLoader(BaseYamlLoader):
                 )
 
             for payment in vendor.get('regular_payments', []):
-                models.PeriodicPayment.objects.create(
+                new_periodic_payment = models.PeriodicPayment(
                     vendor=new_vendor,
                     amount=payment['amount'],
                     name=payment.get('name'),
-                    currency=constants.Currency(payment['currency'])
+                    currency=constants.Currency(payment['currency']),
                 )
+                if payment.get('tax_adjustment_type'):
+                    new_periodic_payment.tax_adjustment_type = constants.TaxType(payment['tax_adjustment_type'])
+                new_periodic_payment.save()
 
         for exclusion in data['exclusions']:
             exclusion_kwargs = {'on_date': None, 'amount': None}

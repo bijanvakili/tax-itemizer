@@ -9,15 +9,20 @@ from django.db.models import Q
 from taxes.receipts import models
 
 
+OPTIONAL_PAYMENT_METHOD = typing.Optional[models.PaymentMethod]
+
+
 class BaseVendorExclusionFilter(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def is_exclusion(self, transaction_description: str, for_date: date, amount: int) -> bool:
+    def is_exclusion(self, transaction_description: str, for_date: date, amount: int,
+                     payment_method: OPTIONAL_PAYMENT_METHOD) -> bool:
         """
         Determine if a transaction should be excluded
 
         :param transaction_description: string load from the transaction source
         :param for_date: date of transaction
         :param amount: transaction amount in cents
+        :param payment_method: (optional) payment method instance (if known)
         :return: true to exclude, false otherwise
         """
         pass
@@ -27,7 +32,9 @@ class ExclusionConditionFilter(BaseVendorExclusionFilter):
     """
     Filters based on loaded exclusions in the database
     """
-    def is_exclusion(self, transaction_description: str, for_date: date, amount: int) -> bool:
+    def is_exclusion(self, transaction_description: str, for_date: date, amount: int,
+                     payment_method: OPTIONAL_PAYMENT_METHOD) -> bool:
+        # TODO future support to filter on payment_method
         q_pattern = transaction_description.upper()
         return models.ExclusionCondition.objects \
             .filter(

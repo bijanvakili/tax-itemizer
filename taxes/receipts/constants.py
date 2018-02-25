@@ -71,3 +71,8 @@ class FinancialAssetType(enumfields.Enum):
         RENTAL = 'Rental'
         EMPLOYMENT = 'Employment'
         PROPRIETORSHIP = 'Proprietorship'
+
+
+@unique
+class TaxType(enumfields.Enum):
+    HST = 'hst'

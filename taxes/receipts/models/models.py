@@ -14,14 +14,24 @@ __all__ = [
     'PeriodicPayment',
     'Receipt',
     'ForexRate',
+    'TaxAdjustment',
 ]
 
 
-class FinancialAsset(models.Model):
+class SurrogateIdMixin(models.Model):
+    """
+    Base class for any model that requires a standard UUID surrogate primary key
+    """
+    class Meta:
+        abstract = True
+
+    id = fields.uuid_primary_key_field()
+
+
+class FinancialAsset(SurrogateIdMixin):
     class Meta:
         db_table = 'financial_asset'
 
-    id = fields.uuid_primary_key_field()
     name = models.CharField(max_length=200, unique=True, db_index=True)
     type = fields.enum_field(constants.FinancialAssetType)
 
@@ -32,11 +42,10 @@ class FinancialAsset(models.Model):
         return '<FinancialAsset({id}, {name})>'.format(**self.__dict__)
 
 
-class Vendor(models.Model):
+class Vendor(SurrogateIdMixin):
     class Meta:
         db_table = 'vendor'
 
-    id = fields.uuid_primary_key_field()
     name = models.CharField(max_length=200, unique=True, db_index=True)
     type = fields.enum_field(constants.VendorType, db_index=True)
     fixed_amount = models.IntegerField(null=True, default=None, blank=True)
@@ -51,11 +60,10 @@ class Vendor(models.Model):
         return '<Vendor({id}, {name})>'.format(**self.__dict__)
 
 
-class VendorAliasPattern(models.Model):
+class VendorAliasPattern(SurrogateIdMixin):
     class Meta:
         db_table = 'vendor_alias_pattern'
 
-    id = fields.uuid_primary_key_field()
     vendor = models.ForeignKey('Vendor', on_delete=models.CASCADE,
                                db_index=True, related_name='alias_patterns')
     pattern = models.CharField(max_length=200, unique=True, db_index=True)
@@ -74,11 +82,10 @@ class VendorAliasPattern(models.Model):
         )
 
 
-class ExclusionCondition(models.Model):
+class ExclusionCondition(SurrogateIdMixin):
     class Meta:
         db_table = 'exclusion_condition'
 
-    id = fields.uuid_primary_key_field()
     # TODO enforce uppercase through validation
     prefix = models.CharField(max_length=200, db_index=True, null=True, blank=True)
     on_date = models.DateField(db_index=True, null=True, blank=True)
@@ -90,11 +97,10 @@ class ExclusionCondition(models.Model):
         )
 
 
-class PaymentMethod(models.Model):
+class PaymentMethod(SurrogateIdMixin):
     class Meta:
         db_table = 'payment_method'
 
-    id = fields.uuid_primary_key_field()
     name = models.CharField(max_length=200, unique=True, db_index=True)
     description = models.TextField()
     type = fields.enum_field(constants.PaymentMethod)
@@ -105,15 +111,15 @@ class PaymentMethod(models.Model):
         return '<PaymentMethod({id}, {name})>'.format(**self.__dict__)
 
 
-class Receipt(models.Model):
+class Receipt(SurrogateIdMixin):
     objects = managers.ReceiptManager()
 
     class Meta:
         db_table = 'receipt'
 
-    id = fields.uuid_primary_key_field()
     vendor = models.ForeignKey('Vendor', on_delete=models.PROTECT,
                                db_index=True, related_name='client_receipts')
+    # TODO rename this to transaction_date
     purchased_at = models.DateField(db_index=True)
     payment_method = models.ForeignKey('PaymentMethod', on_delete=models.PROTECT,
                                        db_index=True)
@@ -125,16 +131,17 @@ class Receipt(models.Model):
         return f'<Receipt({self.id}, {self.vendor.name}, {self.total_amount})>'
 
 
-class PeriodicPayment(models.Model):
+class PeriodicPayment(SurrogateIdMixin):
     class Meta:
         db_table = 'periodic_payment'
         index_together = ('currency', 'amount', )
 
-    id = fields.uuid_primary_key_field()
     name = models.CharField(max_length=200, null=True)
-    vendor = models.OneToOneField('Vendor', on_delete=models.PROTECT, db_index=True)
+    vendor = models.OneToOneField('Vendor', on_delete=models.PROTECT, db_index=True,
+                                  related_name='periodic_payment')
     currency = fields.enum_field(constants.Currency)
     amount = models.IntegerField()
+    tax_adjustment_type = fields.enum_field(constants.TaxType, null=True, blank=True)
 
     def __str__(self):
         return f'{self.vendor.name} ({self.amount})'
@@ -143,14 +150,13 @@ class PeriodicPayment(models.Model):
         return f'<PeriodicPayment({self.id}, {self.vendor.name}, {self.amount})>'
 
 
-class ForexRate(models.Model):
+class ForexRate(SurrogateIdMixin):
     objects = managers.ForexRateManager()
 
     class Meta:
         db_table = 'forex_rate'
         unique_together = ('pair', 'effective_at', )
 
-    id = fields.uuid_primary_key_field()
     pair = models.CharField(max_length=8)  # e.g. CAD/USD
     effective_at = models.DateField(db_index=True)
     rate = models.DecimalField(max_digits=10, decimal_places=4)
@@ -160,6 +166,20 @@ class ForexRate(models.Model):
 
     def __repr__(self):
         return f'<ForexRate({self.id}, {self.pair}, {self.effective_at})>'
+
+
+class TaxAdjustment(SurrogateIdMixin):
+    class Meta:
+        db_table = 'tax_adjustment'
+        ordering = ('receipt__purchased_at', 'receipt__vendor__name', 'tax_type',)
+
+    receipt = models.ForeignKey('Receipt', on_delete=models.CASCADE,
+                                db_index=True, related_name='tax_adjustments')
+    tax_type = fields.enum_field(constants.TaxType)
+    amount = models.IntegerField()  # in cents
+
+    def __repr__(self):
+        return f'<TaxAdjustment({self.tax_type}, {self.amount})>'
 
 
 django_fields.CharField.register_lookup(lookups.AliasMatchLookup)

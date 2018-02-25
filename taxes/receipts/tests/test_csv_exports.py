@@ -41,18 +41,18 @@ def test_receipt_dump(t_file, transaction_fixture_dir):
     dump_receipts(t_file, isodstr('2016-08-01'), isodstr('2016-09-01'), output_header=True)
 
     expected_rows = [
-        ['Date', 'Source', 'Amount (CAD)', 'Transaction Party', 'Notes', 'CAD/USD rate', 'Amount (USD)',
-            'HST Amount (CAD)', 'Tax Category', 'Payment Method'],
-        ['2016-08-02', '1001-25 Wellesley St', '-11.33', 'MTCC 452', '', '', '', '',
-            'Management and Administrative', 'BMO Savings'],
-        ['2016-08-02', '1001-25 Wellesley St', '1600.00', 'Warren Smooth', '', '', '', '',
-            'Gross Rent', 'BMO Savings'],
-        ['2016-08-02', '5-699 Amber St', '-2008.39', 'YRCC 994', '', '', '', '',
-            'Management and Administrative', 'BMO Savings'],
-        ['2016-08-03', '5-699 Amber St', '308.90', 'FootBlind Finance Analytic', '', '', '', '',
-            'Gross Rent', 'BMO Savings'],
-        ['2016-08-15', '1001-25 Wellesley St', '-733.00', 'City of Toronto', '', '', '', '',
-            'Property Tax', 'BMO Savings'],
+        ['Date', 'Asset', 'Currency', 'Amount', 'Transaction Party',
+            'HST Amount (CAD)', 'Tax Category', 'Payment Method', 'Notes'],
+        ['2016-08-02', '1001-25 Wellesley St', 'CAD', '-11.33', 'MTCC 452',
+            '', 'Management and Administrative', 'BMO Savings', ''],
+        ['2016-08-02', '1001-25 Wellesley St', 'CAD', '1600.00', 'Warren Smooth',
+            '', 'Gross Rent', 'BMO Savings', ''],
+        ['2016-08-02', '5-699 Amber St', 'CAD', '-2008.39', 'YRCC 994',
+            '', 'Management and Administrative', 'BMO Savings', ''],
+        ['2016-08-03', '5-699 Amber St', 'CAD', '308.90', 'FootBlind Finance Analytic',
+            '35.54', 'Gross Rent', 'BMO Savings', ''],
+        ['2016-08-15', '1001-25 Wellesley St', 'CAD', '-733.00', 'City of Toronto',
+            '', 'Property Tax', 'BMO Savings', ''],
     ]
     t_file.seek(0)
 

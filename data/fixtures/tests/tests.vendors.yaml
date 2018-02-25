@@ -107,6 +107,7 @@ vendors:
         name: "5-699 Amber St monthly rent"
         amount: 30890
         currency: CAD
+        tax_adjustment_type: hst
     assigned_asset: 5-699 Amber St
   -
     name: "City of Toronto"

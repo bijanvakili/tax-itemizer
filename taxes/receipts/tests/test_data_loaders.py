@@ -64,11 +64,11 @@ def test_custom_yaml_load():
 
     # verify a regular payment method and its associated vendor
     result = models.PeriodicPayment.objects.get(name='1001-25 Wellesley monthly rent')
-
     assert result
     assert result.name == '1001-25 Wellesley monthly rent'
     assert result.amount == 160000
     assert result.currency == constants.Currency.CAD
+    assert result.tax_adjustment_type is None
     assert result.vendor
     assert result.vendor.type == constants.VendorType.RENT
 
@@ -88,3 +88,8 @@ def test_custom_yaml_load():
         amount=4219,
         on_date=date(2016, 9, 15)
     ).exists()
+
+    result = models.PeriodicPayment.objects.get(name='5-699 Amber St monthly rent')
+    assert result
+    assert result.vendor.name == 'FootBlind Finance Analytic'
+    assert result.tax_adjustment_type == constants.TaxType.HST

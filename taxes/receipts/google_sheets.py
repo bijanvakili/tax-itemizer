@@ -25,30 +25,21 @@ class WorksheetType(Enum):
     forex = 'FX'
 
 
-WORKSHEET_COLUMNS = {
-    WorksheetType.items: [
-        'Date', 'Source', 'Amount (CAD)', 'Transaction Party', 'Notes', 'CAD/USD rate', 'Amount (USD)',
-        'HST Amount (CAD)', 'Tax Category', 'Payment Method'
-    ],
-    WorksheetType.forex: ['Date', 'Rate']
-}
-
 WORKSHEET_COLUMN_FORMATS = {
     WorksheetType.items: [
-        {'type': 'DATE', 'pattern': 'yyyy"-"mm"-"dd'},
-        {'type': None, 'pattern': ''},
-        {'type': 'NUMBER', 'pattern': '#,##0.00;(#,##0.00)'},
-        {'type': None, 'pattern': ''},
-        {'type': None, 'pattern': ''},
-        {'type': 'NUMBER', 'pattern': '0.0000'},
-        {'type': 'NUMBER', 'pattern': '#,##0.00;(#,##0.00)'},
-        {'type': 'NUMBER', 'pattern': '#,##0.00;(#,##0.00)'},
-        {'type': 'NUMBER', 'pattern': '0.0000'},
-        {'type': 'NUMBER', 'pattern': '0.0000'},
+        {'type': 'DATE', 'pattern': 'yyyy"-"mm"-"dd'},          # Date
+        {'type': None, 'pattern': ''},                          # Asset
+        {'type': None, 'pattern': ''},                          # Currency
+        {'type': 'NUMBER', 'pattern': '#,##0.00;(#,##0.00)'},   # Amount
+        {'type': None, 'pattern': ''},                          # Transaction Party
+        {'type': 'NUMBER', 'pattern': '#,##0.00;(#,##0.00)'},   # HST Amount (CAD)
+        {'type': None, 'pattern': ''},                          # Tax Category
+        {'type': None, 'pattern': ''},                          # Payment Method
+        {'type': None, 'pattern': ''},                          # Notes
     ],
     WorksheetType.forex: [
-        {'type': 'DATE', 'pattern': 'yyyy"-"mm"-"dd'},
-        {'type': 'NUMBER', 'pattern': '0.0000'}
+        {'type': 'DATE', 'pattern': 'yyyy"-"mm"-"dd'},          # Date
+        {'type': 'NUMBER', 'pattern': '0.0000'}                 # CAD/USD Rate
     ]
 }
 
@@ -77,11 +68,10 @@ def upload_to_gsheet(
     worksheet = spreadsheet.worksheet_by_title(worksheet_type.value)
 
     source_model = WORKSHEET_SOURCE_MODELS[worksheet_type]
-    sorted_columns = WORKSHEET_COLUMNS[worksheet_type]
     source_data = list(source_model.objects.sorted_report(start_timestamp, end_timestamp))
     flattened_data = []
     for row in source_data:
-        flattened_data.append([row[col] for col in sorted_columns])
+        flattened_data.append(list(row))
     num_rows = len(flattened_data)
     if not num_rows:
         LOGGER.warning('Range does not contain any data')
@@ -106,17 +96,6 @@ def upload_to_gsheet(
         col_range = _make_grid_range(worksheet, col, first_empty_row - 1, first_empty_row + num_rows)
         format_requests.append(_make_batch_format_request(col_range, col_format))
     gsheet_client.sh_batch_update(spreadsheet.id, format_requests)
-
-    if worksheet_type == WorksheetType.items:
-        # add formula references for forex rates
-        last_fx_rate_row = _get_first_empty_row(spreadsheet, WorksheetType.forex)
-        formula = f'=VLOOKUP($A{first_empty_row},FX!$A$2:$B${last_fx_rate_row - 1},2,TRUE)'
-        col_range = _make_grid_range(worksheet, 5, first_empty_row - 1, first_empty_row + num_rows - 1)
-        forex_formula_request = _make_batch_formula_request(col_range, formula)
-
-        # TODO add formulas for missing USD/CAD amounts
-        gsheet_client.sh_batch_update(spreadsheet.id, forex_formula_request)
-        # TODO add formulas for HST
 
     LOGGER.info(f'Finished uploading {num_rows} rows to Google Sheet')
 

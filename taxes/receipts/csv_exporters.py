@@ -2,12 +2,7 @@ import csv
 import datetime
 import typing
 
-from . import models
-
-RECEIPT_DUMP_HEADERS = ['Date', 'Source', 'Amount (CAD)', 'Transaction Party', 'Notes', 'CAD/USD rate',
-                        'Amount (USD)', 'HST Amount (CAD)', 'Tax Category', 'Payment Method']
-
-FOREX_DUMP_HEADERS = ['Date', 'Rate']
+from taxes.receipts.models import models, managers
 
 
 def dump_receipts(
@@ -16,12 +11,8 @@ def dump_receipts(
     end_timestamp: datetime.date,
     output_header: bool=False
 ):
-    writer = csv.DictWriter(fileobj, fieldnames=RECEIPT_DUMP_HEADERS)
-    if output_header:
-        writer.writeheader()
-
-    rows = models.Receipt.objects.sorted_report(start_timestamp, end_timestamp)
-    writer.writerows(rows)
+    _dump_as_csv(fileobj, start_timestamp, end_timestamp, models.Receipt.objects,
+                 output_header=output_header)
 
 
 def dump_forex(
@@ -30,9 +21,20 @@ def dump_forex(
     end_timestamp: datetime.date,
     output_header: bool=False
 ):
-    writer = csv.DictWriter(fileobj, fieldnames=FOREX_DUMP_HEADERS)
-    if output_header:
-        writer.writeheader()
+    _dump_as_csv(fileobj, start_timestamp, end_timestamp, models.ForexRate.objects,
+                 output_header=output_header)
 
-    rows = models.ForexRate.objects.sorted_report(start_timestamp, end_timestamp)
-    writer.writerows(rows)
+
+def _dump_as_csv(
+    fileobj: typing.io,
+    start_timestamp: datetime.date,
+    end_timestamp: datetime.date,
+    model_manager: managers.ReportMixinBase,
+    output_header: bool = False
+):
+    writer = csv.writer(fileobj)
+
+    if output_header:
+        writer.writerow(model_manager.headers)
+
+    writer.writerows(model_manager.sorted_report(start_timestamp, end_timestamp))

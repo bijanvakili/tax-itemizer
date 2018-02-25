@@ -59,3 +59,17 @@ class FinancialAssetAdmin(admin.ModelAdmin):
 class ForexRateAdmin(admin.ModelAdmin):
     ordering = ('pair', 'effective_at')
     list_display = ('pair', 'effective_at', 'rate')
+
+
+@admin.register(models.TaxAdjustment)
+class TaxAdjustmentAdmin(admin.ModelAdmin):
+    list_display = ('receipt_purchase_at', 'receipt_vendor_name', 'tax_type', 'amount',)
+    raw_id_fields = ('receipt',)
+
+    def receipt_purchase_at(self, obj):
+        return obj.receipt.purchased_at
+    receipt_purchase_at.short_description = 'Receipt Purchased At'
+
+    def receipt_vendor_name(self, obj):
+        return obj.receipt.vendor.name
+    receipt_vendor_name.short_description = 'Receipt Vendor Name'
