@@ -106,13 +106,9 @@ SPREADSHEET:
 
 #### Running the Upload
 
-You can then upload receipts as follows:
+You can then upload data as follows:
 
-    ./run.sh gsheet_upload items <start-date> <end-date>
-
-You can also upload forex rates as follows:
-
-    ./run.sh gsheet_upload forex <start-date> <end-date>
+    ./run.sh gsheet_upload <start-date> <end-date>
 
 ### Testing
 
