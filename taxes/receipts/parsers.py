@@ -122,13 +122,17 @@ class BaseParser(metaclass=abc.ABCMeta):
             total_amount = vendor.fixed_amount
             LOGGER.info(f'Using fixed amount {vendor.fixed_amount} for vendor {vendor.name}')
 
-        return models.Receipt.objects.create(
+        receipt = models.Receipt.objects.create(
             vendor=vendor,
             purchased_at=purchased_at,
             payment_method=payment_method,
             total_amount=total_amount,
             currency=currency
         )
+        if vendor.tax_adjustment_type:
+            # add a tax adjustment if required
+            tax.add_tax_adjustment(receipt)
+        return receipt
 
     def _is_exclusion(self, pattern, for_date, amount):
         return any(
@@ -250,11 +254,7 @@ class BMOBankAccountParser(BaseBMOCSVParser):
             LOGGER.info(f'Skipping {tx_code} transaction for {merchant_description}...')
             return
 
-        receipt = self._add_new_receipt(vendor, receipt_date, payment_method, amount, constants.Currency.CAD)
-        if tx_code == BMOTransactionCode.CHECK_DEPOSIT and vendor.periodic_payment and \
-                vendor.periodic_payment.tax_adjustment_type:
-            # add a tax adjustment if required
-            tax.add_tax_adjustment(receipt)
+        self._add_new_receipt(vendor, receipt_date, payment_method, amount, constants.Currency.CAD)
 
 
 class BMOCreditParser(BaseBMOCSVParser):
@@ -405,6 +405,14 @@ class ChaseVisaParser(BaseParser, USDateFormatMixin):
 
         self._add_new_receipt(vendor, receipt_date, self.fixed_payment_method,
                               amount, constants.Currency.USD)
+
+    @property
+    def filters(self):
+        # Chase CSV's unfortunately do not output with quotes
+        # TODO avoid hardcoding this specific vendor's string
+        return [
+            SkipPatternsFilter(['^.*,24HOUR FITNESS USA,INC,.*$'])
+        ]
 
 
 PARSER_MAP = [

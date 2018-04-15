@@ -107,8 +107,8 @@ vendors:
         name: "5-699 Amber St monthly rent"
         amount: 30890
         currency: CAD
-        tax_adjustment_type: hst
     assigned_asset: 5-699 Amber St
+    tax_adjustment_type: hst
   -
     name: "City of Toronto"
     type: property_tax
@@ -135,6 +135,7 @@ vendors:
     aliases:
       - "YRCC994         FEE/FRA"
     assigned_asset: 5-699 Amber St
+    tax_adjustment_type: hst
   -
     name: "Senior Sisig"
     type: meals

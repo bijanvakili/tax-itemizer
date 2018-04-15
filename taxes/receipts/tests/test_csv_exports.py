@@ -48,7 +48,7 @@ def test_receipt_dump(t_file, transaction_fixture_dir):
         ['2016-08-02', '1001-25 Wellesley St', 'CAD', '1600.00', 'Warren Smooth',
             '', 'Gross Rent', 'BMO Savings', ''],
         ['2016-08-02', '5-699 Amber St', 'CAD', '-2008.39', 'YRCC 994',
-            '', 'Management and Administrative', 'BMO Savings', ''],
+            '-231.05', 'Management and Administrative', 'BMO Savings', ''],
         ['2016-08-03', '5-699 Amber St', 'CAD', '308.90', 'FootBlind Finance Analytic',
             '35.54', 'Gross Rent', 'BMO Savings', ''],
         ['2016-08-15', '1001-25 Wellesley St', 'CAD', '-733.00', 'City of Toronto',

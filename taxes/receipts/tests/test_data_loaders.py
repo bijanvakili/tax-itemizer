@@ -1,13 +1,28 @@
 from datetime import date
+from decimal import Decimal
+import logging
 
+from django.conf import settings
 import pytest
 
-from taxes.receipts import constants, models
+from taxes.receipts import (
+    constants,
+    data_loaders,
+    models,
+)
+from .logging import log_contains_message, MockLogger
 
 
 @pytest.fixture(autouse=True)
 def data_loaders_setup(transactional_db):
     return
+
+
+@pytest.fixture()
+def mock_logger(monkeypatch):
+    mock = MockLogger()
+    monkeypatch.setattr(data_loaders, 'LOGGER', mock)
+    return mock
 
 
 @pytest.mark.usefixtures('payment_methods')
@@ -26,7 +41,7 @@ def test_payment_method_yaml_load():
 
 
 @pytest.mark.usefixtures('vendors_and_exclusions')
-def test_custom_yaml_load():
+def test_vendor_yaml_load():
     # verify sample financial assets
     result = models.FinancialAsset.objects.get(name='1001-25 Wellesley St')
 
@@ -68,9 +83,9 @@ def test_custom_yaml_load():
     assert result.name == '1001-25 Wellesley monthly rent'
     assert result.amount == 160000
     assert result.currency == constants.Currency.CAD
-    assert result.tax_adjustment_type is None
     assert result.vendor
     assert result.vendor.type == constants.VendorType.RENT
+    assert result.vendor.tax_adjustment_type is None
 
     # verify some sample exclusions
     assert models.ExclusionCondition.objects.filter(
@@ -92,4 +107,27 @@ def test_custom_yaml_load():
     result = models.PeriodicPayment.objects.get(name='5-699 Amber St monthly rent')
     assert result
     assert result.vendor.name == 'FootBlind Finance Analytic'
-    assert result.tax_adjustment_type == constants.TaxType.HST
+    assert result.vendor.tax_adjustment_type == constants.TaxType.HST
+
+
+def test_forex_json_load(mock_logger):
+    forex_json_filename = f'{settings.TEST_DATA_FIXTURE_DIR}/forex.json'
+    data_loaders.load_fixture(data_loaders.DataLoadType.FOREX, forex_json_filename)
+
+    # verify loaded rates
+    all_rates = models.ForexRate.objects.order_by('effective_at').all()
+    assert len(all_rates) == 31
+
+    assert all_rates[0].effective_at.isoformat() == '2018-03-01'
+    assert all_rates[0].pair == 'USD/CAD'
+    assert all_rates[0].rate == Decimal('1.2844')
+
+    assert all_rates[30].effective_at.isoformat() == '2018-03-31'
+    assert all_rates[30].pair == 'USD/CAD'
+    assert all_rates[30].rate == Decimal('1.2898')
+
+    assert log_contains_message(
+        mock_logger,
+        f'Saved {len(all_rates)} new forex rates',
+        level=logging.INFO,
+    )

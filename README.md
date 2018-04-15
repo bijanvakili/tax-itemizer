@@ -4,7 +4,7 @@
 
 Python code used to itemize transaction records into tax categories.
 
-Includes a command to scrape FX rates.
+Includes commands to scrape or import FX rates.
 
 ### Requirements
 
@@ -42,14 +42,17 @@ To add more administrative users:
 
     ./run.sh createsuperuser
 
-To load a payment methods YAML file (e.g. `data/fixtures/payment_methods.yaml`):
+To load a payment methods YAML file:
 
-    ./run.sh import payment_methods
+    ./run.sh import payment_methods path/to/sample.payment_methods.yaml
 
-To load a vendor YAML file (e.g. `data/fixtures/vendors.yaml`):
+To load a vendor YAML file:
 
-    ./run.sh import vendors
+    ./run.sh import vendors path/to/sample.vendors.yaml
 
+To load a OANDA forex JSON file:
+
+    ./run.sh import forex path/to/sample/forex.json
 
 ### Tax receipt processing
 
@@ -57,7 +60,6 @@ To load a vendor YAML file (e.g. `data/fixtures/vendors.yaml`):
     ./run.sh itemize path/to/transaction_YYY.csv
     ...
     ./run.sh export receipts <start-date> <end-date> [output_filename]
-
 
 `start-date` = 'YYYY-MM-DD'
 `end-date` = 'YYYY-MM-DD'

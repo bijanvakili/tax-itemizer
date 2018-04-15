@@ -1,34 +1,66 @@
 import abc
 import datetime
+from decimal import Decimal
+import enum
+import logging
+import math
 import os
 
-from django.conf import settings
+import json
 import yaml
 
 from taxes.receipts import constants, models
 from taxes.receipts.util import currency
 
 
-class BaseYamlLoader(metaclass=abc.ABCMeta):
-    def __init__(self):
-        self.fixture_path = settings.DATA_FIXTURE_DIR
+__all__ = [
+    'DataLoadType',
+    'load_fixture',
+]
 
-    def load_fixture(self, fixture_name: str):
-        yaml_filename = os.path.join(self.fixture_path, f'{fixture_name}.yaml')
-        if not os.path.exists(yaml_filename):
-            raise FileNotFoundError(yaml_filename)
 
-        with open(yaml_filename, 'r') as f:
-            data = yaml.safe_load(f)
-            self.load_data(data)
+LOGGER = logging.getLogger(__name__)
+
+
+@enum.unique
+class DataLoadType(enum.Enum):
+    PAYMENT_METHOD = 'payment_method'
+    VENDOR = 'vendor'
+    FOREX = 'forex'
+
+
+class BaseDataLoader(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def load_fixture(self, filename: str):
+        pass
 
     @abc.abstractmethod
-    def load_data(self, data):
+    def load_data(self, data: dict):
         pass
 
 
-class PaymentMethodYamlLoader(BaseYamlLoader):
-    def load_data(self, data):
+class BaseYamlDataLoader(BaseDataLoader, metaclass=abc.ABCMeta):
+    def load_fixture(self, filename: str):
+        if not os.path.exists(filename):
+            raise FileNotFoundError(filename)
+
+        with open(filename, 'r') as f:
+            data = yaml.safe_load(f)
+            self.load_data(data)
+
+
+class BaseJsonDataLoader(BaseDataLoader, metaclass=abc.ABCMeta):
+    def load_fixture(self, filename: str):
+        if not os.path.exists(filename):
+            raise FileNotFoundError(filename)
+
+        with open(filename, 'r') as f:
+            data = json.load(f)
+            self.load_data(data)
+
+
+class PaymentMethodYamlLoader(BaseYamlDataLoader):
+    def load_data(self, data: dict):
         if not data.get('payment_methods'):
             raise ValueError('payment_methods not found')
         root = data['payment_methods']
@@ -39,8 +71,8 @@ class PaymentMethodYamlLoader(BaseYamlLoader):
             models.PaymentMethod.objects.create(**item)
 
 
-class CustomVendorYamlLoader(BaseYamlLoader):
-    def load_data(self, data):
+class VendorYamlLoader(BaseYamlDataLoader):
+    def load_data(self, data: dict):
         # NOTE: assumes all assets can fit into memory
         asset_map = {}
 
@@ -65,6 +97,8 @@ class CustomVendorYamlLoader(BaseYamlLoader):
                     new_vendor_params['assigned_asset'] = asset_map[vendor['assigned_asset']]
                 except KeyError:
                     raise ValueError(f"Unable to locate financial asset: {vendor['assigned_asset']}")
+            if vendor.get('tax_adjustment_type'):
+                new_vendor_params['tax_adjustment_type'] = constants.TaxType(vendor['tax_adjustment_type'])
             new_vendor = models.Vendor.objects.create(**new_vendor_params)
 
             for alias in vendor.get('aliases', []):
@@ -89,8 +123,6 @@ class CustomVendorYamlLoader(BaseYamlLoader):
                     name=payment.get('name'),
                     currency=constants.Currency(payment['currency']),
                 )
-                if payment.get('tax_adjustment_type'):
-                    new_periodic_payment.tax_adjustment_type = constants.TaxType(payment['tax_adjustment_type'])
                 new_periodic_payment.save()
 
         for exclusion in data['exclusions']:
@@ -112,12 +144,47 @@ class CustomVendorYamlLoader(BaseYamlLoader):
             models.ExclusionCondition.objects.create(**exclusion_kwargs)
 
 
-def load_fixture(fixture_name):
-    if fixture_name.endswith('.vendors'):
-        loader = CustomVendorYamlLoader()
-    elif fixture_name.endswith('.payment_methods'):
-        loader = PaymentMethodYamlLoader()
-    else:
-        raise ValueError('Unsupported fixture name: ' + fixture_name)
+class ForexJsonLoader(BaseJsonDataLoader):
+    def load_data(self, data: dict):
+        rates = []
+        for widget in data['widget']:
+            if not widget:
+                continue
+            currency_pair = f"{widget['baseCurrency']}/{widget['quoteCurrency']}"
+            for row in widget['data']:
+                rates.append(
+                    models.ForexRate(
+                        pair=currency_pair,
+                        effective_at=datetime.datetime.utcfromtimestamp(math.floor(int(row[0]) / 1000)).date(),
+                        rate=Decimal(row[1]).quantize(Decimal('1.0000'))
+                    )
+                )
 
-    loader.load_fixture(fixture_name)
+        # TODO support bulk upsert
+        models.ForexRate.objects.bulk_create(rates, batch_size=100)
+        LOGGER.info(f'Saved {len(rates)} new forex rates')
+
+
+DATALOAD_TYPE_TO_LOADER = {
+    DataLoadType.PAYMENT_METHOD: PaymentMethodYamlLoader,
+    DataLoadType.VENDOR: VendorYamlLoader,
+    DataLoadType.FOREX: ForexJsonLoader,
+}
+
+
+def _make_loader(load_type: DataLoadType) -> BaseDataLoader:
+    try:
+        loader_cls = DATALOAD_TYPE_TO_LOADER[load_type]
+    except KeyError:
+        raise ValueError('Unsupported data load type: ' + load_type.value)
+    return loader_cls()
+
+
+def load_data(load_type: DataLoadType, data: dict):
+    loader = _make_loader(load_type)
+    loader.load_data(data)
+
+
+def load_fixture(load_type: DataLoadType, fixture_path: str):
+    loader = _make_loader(load_type)
+    loader.load_fixture(fixture_path)

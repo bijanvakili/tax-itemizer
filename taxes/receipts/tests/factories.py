@@ -13,6 +13,7 @@ class VendorFactory(factory.DjangoModelFactory):
     name = factory.Faker('company')
     type = factory.LazyFunction(lambda: random.choice(list(constants.VendorType)))
     fixed_amount = None
+    tax_adjustment_type = None
 
 
 class PaymentMethodFactory(factory.DjangoModelFactory):

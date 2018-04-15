@@ -52,6 +52,7 @@ class Vendor(SurrogateIdMixin):
     assigned_asset = models.ForeignKey('FinancialAsset', on_delete=models.SET_NULL,
                                        db_index=True, related_name='assigned_vendors',
                                        null=True, default=None, blank=True)
+    tax_adjustment_type = fields.enum_field(constants.TaxType, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -141,7 +142,6 @@ class PeriodicPayment(SurrogateIdMixin):
                                   related_name='periodic_payment')
     currency = fields.enum_field(constants.Currency)
     amount = models.IntegerField()
-    tax_adjustment_type = fields.enum_field(constants.TaxType, null=True, blank=True)
 
     def __str__(self):
         return f'{self.vendor.name} ({self.amount})'

@@ -10,14 +10,14 @@ def add_tax_adjustment(receipt: models.Receipt):
     :return: new models.TaxAdjustment instance (saved to database)
     """
     vendor = receipt.vendor
-    assert vendor.periodic_payment
-    assert vendor.periodic_payment.tax_adjustment_type
+    tax_adjustment_type = vendor.tax_adjustment_type
+    assert tax_adjustment_type
 
     # apply any tax adjustments
     return models.TaxAdjustment.objects.create(
         receipt=receipt,
-        tax_type=vendor.periodic_payment.tax_adjustment_type,
-        amount=_compute_tax_adjustment_amount(receipt, vendor.periodic_payment.tax_adjustment_type)
+        tax_type=tax_adjustment_type,
+        amount=_compute_tax_adjustment_amount(receipt, tax_adjustment_type)
     )
 
 

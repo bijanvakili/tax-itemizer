@@ -92,11 +92,16 @@ def test_parse_bmo_savings(run_parser):
     assert {r.currency for r in actual_receipts} == {constants.Currency.CAD}
 
     # verify HST adjustment
-    adjustments = models.TaxAdjustment.objects.all()
-    assert len(adjustments) == 1
+    adjustments = models.TaxAdjustment.objects.order_by('receipt__vendor__name').all()
+    assert len(adjustments) == 2
+
     assert adjustments[0].tax_type == constants.TaxType.HST
     assert adjustments[0].receipt.vendor.name == 'FootBlind Finance Analytic'
     assert adjustments[0].amount == 3554  # 13 % of original base amount
+
+    assert adjustments[1].tax_type == constants.TaxType.HST
+    assert adjustments[1].receipt.vendor.name == 'YRCC 994'
+    assert adjustments[1].amount == -23105  # 13 % of original base amount
 
 
 def test_parse_bmo_amount_exclusion(run_parser, mock_logger):

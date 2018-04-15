@@ -22,9 +22,7 @@ class WorksheetType(Enum):
     Value is the tab name in Google Sheets
     """
     forex = 'FX'
-    items_raw = 'Items'
-    items_cad = 'Items (CAD)'
-    items_usd = 'Items (USD)'
+    items = 'Items'
     aggregate_cad = 'Aggregations (CAD)'
     aggregate_usd = 'Aggregations (USD)'
 
@@ -34,7 +32,7 @@ WORKSHEET_COLUMN_FORMATS = {
         {'type': 'DATE', 'pattern': 'yyyy"-"mm"-"dd'},          # Date
         {'type': 'NUMBER', 'pattern': '0.0000'}                 # CAD/USD Rate
     ],
-    WorksheetType.items_raw: [
+    WorksheetType.items: [
         {'type': 'DATE', 'pattern': 'yyyy"-"mm"-"dd'},          # Date
         {'type': None, 'pattern': ''},                          # Asset
         {'type': None, 'pattern': ''},                          # Currency
@@ -45,54 +43,22 @@ WORKSHEET_COLUMN_FORMATS = {
         {'type': None, 'pattern': ''},                          # Payment Method
         {'type': None, 'pattern': ''},                          # Notes
     ],
-    WorksheetType.items_cad: [
-        {'type': 'DATE', 'pattern': 'yyyy"-"mm"-"dd'},  # Date
-        {'type': None, 'pattern': ''},  # Asset
-        {'type': 'NUMBER', 'pattern': '#,##0.00;(#,##0.00)'},  # Amount (CAD)
-        {'type': None, 'pattern': ''},  # Transaction Party
-        {'type': 'NUMBER', 'pattern': '#,##0.00;(#,##0.00)'},  # HST Amount (CAD)
-        {'type': None, 'pattern': ''},  # Tax Category
-    ],
-    WorksheetType.items_usd: [
-        {'type': 'DATE', 'pattern': 'yyyy"-"mm"-"dd'},  # Date
-        {'type': None, 'pattern': ''},  # Asset
-        {'type': 'NUMBER', 'pattern': '#,##0.00;(#,##0.00)'},  # Amount (USD)
-        {'type': None, 'pattern': ''},  # Transaction Party
-        {'type': None, 'pattern': ''},  # Tax Category
-    ],
 }
 
 # templatized formulas
-WORKSHEET_ITEM_COLUMN_FORMULAS = {
-    WorksheetType.items_cad: [
-        '={items}!$A2',  # Date
-        '={items}!$B2',  # Asset
-        # Amount (CAD)
-        '={items}!$D2*IF({items}!C2="CAD",1,VLOOKUP({items}!$A2,{fx}!$A$2:$B${total_rows},2,TRUE))',
-        '={items}!$E2',  # Transaction Party
-        '={items}!$F2',  # HST
-        '={items}!$G2',  # Tax Category
-    ],
-    WorksheetType.items_usd: [
-        '={items}!$A2',  # Date
-        '={items}!$B2',  # Asset
-        # Amount (USD)
-        '={items}!$D2*IF({items}!C2="USD",1,1/VLOOKUP({items}!$A2,{fx}!$A$2:$B${total_rows},2,TRUE))',
-        '={items}!$E2',  # Transaction Party
-        '={items}!$G2',  # Tax Category
-    ],
+CONVERTER_SUBFORMULA = {
+    WorksheetType.aggregate_cad:
+        'IF({items}!$C$2:$C${total_items}="CAD", 1, ' +
+        'ARRAYFORMULA(VLOOKUP({items}!$A$2:$A${total_items},{fx}!$A$2:$B${total_rates},2,TRUE)))',
+    WorksheetType.aggregate_usd:
+        'IF({items}!$C$2:$C${total_items}="USD", 1, ' +
+        'ARRAYFORMULA(1/VLOOKUP({items}!$A$2:$A${total_items},{fx}!$A$2:$B${total_rates},2,TRUE)))'
 }
 
 
-ITEM_AMOUNT_COLUMNS = {
-    WorksheetType.aggregate_cad: 'F',
-    WorksheetType.aggregate_usd: 'E',
-}
-
-AGGREGATE_FORMULA = '=SUMIFS(\'{items_src}\'!$C$2:$C${total_items},' \
-    ' \'{items_src}\'!${col_amount}$2:${col_amount}${total_items},' \
-    '"="&$A2,\'{items_src}\'!$B$2:$B${total_items},"="&{col_asset}$1)'
-
+AGGREGATE_FORMULA = \
+    '=SUM(IFERROR(FILTER(ARRAYFORMULA({items}!$D$2:$D${total_items} * ' + \
+    '{converter}), {items}!$B$2:$B${total_items} = {col_asset}$1, {items}!$G$2:$G${total_items} = $A2),0))'
 
 AGGREGATE_FORMAT = {'type': 'NUMBER', 'pattern': '#,##0.00;(#,##0.00)'}
 
@@ -107,7 +73,7 @@ GoogleSheetConfig = typing.NamedTuple('GoogleSheetConfig', [
 
 
 WORKSHEET_SOURCE_MODELS = {
-    WorksheetType.items_raw: models.Receipt,
+    WorksheetType.items: models.Receipt,
     WorksheetType.forex: models.ForexRate,
 }
 
@@ -125,17 +91,16 @@ def upload_to_gsheet(
     # upload to data worksheets
     _upload_to_worksheet(gsheet_client, spreadsheet, WorksheetType.forex,
                          start_timestamp, end_timestamp)
-    _upload_to_worksheet(gsheet_client, spreadsheet, WorksheetType.items_raw,
+    _upload_to_worksheet(gsheet_client, spreadsheet, WorksheetType.items,
                          start_timestamp, end_timestamp)
 
     # refresh formula worksheets
-    total_items = _get_first_empty_row(spreadsheet, WorksheetType.items_raw)
-    _refresh_items_worksheet(gsheet_client, spreadsheet, WorksheetType.items_cad, total_items)
-    _refresh_items_worksheet(gsheet_client, spreadsheet, WorksheetType.items_usd, total_items)
-    _refresh_aggregate_worksheet(gsheet_client, spreadsheet,
-                                 WorksheetType.aggregate_cad, WorksheetType.items_cad, total_items)
-    _refresh_aggregate_worksheet(gsheet_client, spreadsheet,
-                                 WorksheetType.aggregate_usd, WorksheetType.items_usd, total_items)
+    total_items = _get_first_empty_row(spreadsheet, WorksheetType.items) - 1
+    total_rates = _get_first_empty_row(spreadsheet, WorksheetType.forex) - 1
+    _refresh_aggregate_worksheet(gsheet_client, spreadsheet, WorksheetType.aggregate_cad,
+                                 total_items, total_rates)
+    _refresh_aggregate_worksheet(gsheet_client, spreadsheet, WorksheetType.aggregate_usd,
+                                 total_items, total_rates)
 
 
 def _upload_to_worksheet(
@@ -180,54 +145,29 @@ def _upload_to_worksheet(
     LOGGER.info(f'Finished uploading {num_rows} rows to {worksheet_type.value} worksheet')
 
 
-def _refresh_items_worksheet(
-    gsheet_client,
-    spreadsheet,
-    worksheet_type: WorksheetType,
-    total_items: int,
-):
-    worksheet = spreadsheet.worksheet_by_title(worksheet_type.value)
-    num_columns = len(WORKSHEET_ITEM_COLUMN_FORMULAS[worksheet_type])
-    column_instructions = zip(
-        range(num_columns),
-        WORKSHEET_ITEM_COLUMN_FORMULAS[worksheet_type],
-        WORKSHEET_COLUMN_FORMATS[worksheet_type],
-    )
-    batch_requests = []
-
-    # collect formula and format requests
-    for col, col_formula, col_format in column_instructions:
-        grid_range = _make_grid_range(worksheet, col, 1, total_items - 1)
-        rendered_formula = col_formula.format(
-            items=WorksheetType.items_raw.value,
-            fx=WorksheetType.forex.value,
-            total_rows=total_items
-        )
-        batch_requests += [
-            _make_batch_formula_request(grid_range, rendered_formula),
-            _make_batch_format_request(grid_range, col_format),
-        ]
-
-    gsheet_client.sh_batch_update(spreadsheet.id, batch_requests)
-    LOGGER.info(f'Finished refreshing {worksheet_type.value} worksheet')
-
-
 def _refresh_aggregate_worksheet(
     gsheet_client,
     spreadsheet,
     aggregate_type: WorksheetType,
-    items_src_type: WorksheetType,
-    total_items,
+    total_items: int,
+    total_rates: int,
 ):
     worksheet = spreadsheet.worksheet_by_title(aggregate_type.value)
     batch_requests = []
 
+    converter_formula = CONVERTER_SUBFORMULA[aggregate_type].format(
+        items=WorksheetType.items.value,
+        fx=WorksheetType.forex.value,
+        total_items=total_items,
+        total_rates=total_rates,
+    )
+
     for col in range(NUM_AGGREGATE_ASSETS):
         grid_range = _make_grid_range(worksheet, col + 1, 1, NUM_AGGREGATE_TAX_CATEGORIES + 1)
         rendered_formula = AGGREGATE_FORMULA.format(
-            items_src=items_src_type.value,
+            items=WorksheetType.items.value,
             total_items=total_items,
-            col_amount=ITEM_AMOUNT_COLUMNS[aggregate_type],
+            converter=converter_formula,
             col_asset=chr(ord('B') + col),
         )
         batch_requests += [
