@@ -37,3 +37,12 @@ class February2018Filter(BaseVendorExclusionFilter):
                      payment_method: OPTIONAL_PAYMENT_METHOD):
         return payment_method and payment_method.id in self.filter_payment_method_ids and \
             self.filter_transaction_pattern.fullmatch(transaction_description) is not None
+
+
+class April2018Filter(BaseVendorExclusionFilter):
+    def is_exclusion(self, transaction_description: str, for_date: date, amount: int,
+                     payment_method: OPTIONAL_PAYMENT_METHOD):
+        """ Mis-entered rent check """
+        if amount == 111000 and for_date == date(2018, 4, 9):
+            return True
+        return False

@@ -1,8 +1,7 @@
-import yaml
-
 import dj_database_url
 
 from .base import *  # noqa = F403
+from taxes.receipts.util import yaml
 
 # silences linter due to inherting imported libs
 os = os  # noqa = 405

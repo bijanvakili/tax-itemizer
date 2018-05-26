@@ -193,6 +193,7 @@ class BMOTransactionCode(Enum):
     WITHDRAWAL = 'WD'
     CREDIT_MEMO = 'CM'
     DEBIT_MEMO = 'DM'
+    ADJUSTMENT = 'AD'
 
 
 class BMOBankAccountParser(BaseBMOCSVParser):

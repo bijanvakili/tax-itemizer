@@ -2,4 +2,4 @@
   sha: v0.9.1
   hooks:
   - id: flake8
-    args: ["--config", ".flake8"]
+    args: ["--config", ".flake8", "taxes"]

@@ -6,9 +6,9 @@ import typing
 from oauth2client.service_account import ServiceAccountCredentials
 import pygsheets
 from pygsheets.client import SCOPES as PYGSHEETS_SCOPES
-import yaml
 
 from taxes.receipts import models
+from taxes.receipts.util import yaml
 
 
 LOGGER = logging.getLogger(__name__)
@@ -61,6 +61,12 @@ AGGREGATE_FORMULA = \
     '{converter}), {items}!$B$2:$B${total_items} = {col_asset}$1, {items}!$G$2:$G${total_items} = $A2),0))'
 
 AGGREGATE_FORMAT = {'type': 'NUMBER', 'pattern': '#,##0.00;(#,##0.00)'}
+
+EVEN_ROW_BACKGROUND = {
+    'red': 0.8509804,
+    'green': 0.91764706,
+    'blue': 0.827451
+}
 
 # TODO avoid hardcoding these
 NUM_AGGREGATE_ASSETS = 4
@@ -138,8 +144,22 @@ def _upload_to_worksheet(
     for col, col_format in enumerate(WORKSHEET_COLUMN_FORMATS[worksheet_type]):
         # grid range is half-open [start, end) where 'end' is exclusive
         # indices are zero-based
-        col_range = _make_grid_range(worksheet, col, first_empty_row - 1, first_empty_row + num_rows)
+        col_range = _make_column_range(worksheet, col, first_empty_row - 1, first_empty_row + num_rows)
         format_requests.append(_make_batch_format_request(col_range, col_format))
+
+    # extend the conditional formatting to the new number of rows
+    format_requests.append(
+        _make_conditional_format_request(
+            _make_grid_range(
+                worksheet,
+                0,
+                len(WORKSHEET_COLUMN_FORMATS[worksheet_type]),
+                1,
+                first_empty_row + num_rows - 1,
+            )
+        )
+    )
+
     gsheet_client.sh_batch_update(spreadsheet.id, format_requests)
 
     LOGGER.info(f'Finished uploading {num_rows} rows to {worksheet_type.value} worksheet')
@@ -163,7 +183,7 @@ def _refresh_aggregate_worksheet(
     )
 
     for col in range(NUM_AGGREGATE_ASSETS):
-        grid_range = _make_grid_range(worksheet, col + 1, 1, NUM_AGGREGATE_TAX_CATEGORIES + 1)
+        grid_range = _make_column_range(worksheet, col + 1, 1, NUM_AGGREGATE_TAX_CATEGORIES + 1)
         rendered_formula = AGGREGATE_FORMULA.format(
             items=WorksheetType.items.value,
             total_items=total_items,
@@ -181,7 +201,7 @@ def _refresh_aggregate_worksheet(
 
 def _load_credentials(credentials_filename):
     with open(credentials_filename) as credentials_file:
-        credentials_data = yaml.safe_load(credentials_file)
+        credentials_data = yaml.load(credentials_file)
         return ServiceAccountCredentials.from_json_keyfile_dict(
             credentials_data,
             PYGSHEETS_SCOPES
@@ -196,7 +216,8 @@ def _get_first_empty_row(spreadsheet, worksheet):
 
 def _make_grid_range(
     worksheet,
-    col: int,
+    start_col: int,
+    end_col: int,  # exclusive
     start_row: int,
     end_row: int,  # exclusive
 ):
@@ -204,9 +225,18 @@ def _make_grid_range(
         'sheetId': worksheet.id,
         'startRowIndex': start_row,
         'endRowIndex': end_row,
-        'startColumnIndex': col,
-        'endColumnIndex': col + 1,
+        'startColumnIndex': start_col,
+        'endColumnIndex': end_col,
     }
+
+
+def _make_column_range(
+    worksheet,
+    col: int,
+    start_row: int,
+    end_row: int,  # exclusive
+):
+    return _make_grid_range(worksheet, col, col + 1, start_row, end_row)
 
 
 def _make_batch_format_request(grid_range: dict, format_spec: dict):
@@ -233,5 +263,30 @@ def _make_batch_formula_request(grid_range: dict, formula: str):
                 }
             },
             'fields': 'userEnteredValue.formulaValue'
+        }
+    }
+
+
+def _make_conditional_format_request(grid_range: dict):
+    """
+    Conditional formatting rule to color every other row
+
+    NOTE: This assumes that only 1 rule exists on the worksheep specified in the rnage
+    """
+    return {
+        'updateConditionalFormatRule': {
+            'index': 0,
+            'rule': {
+                'ranges': [grid_range],
+                'booleanRule': {
+                    'condition': {
+                        'type': 'CUSTOM_FORMULA',
+                        'values': [{'userEnteredValue': '=ISEVEN(ROW())'}]
+                    },
+                    'format': {
+                        'backgroundColor': EVEN_ROW_BACKGROUND
+                    }
+                }
+            }
         }
     }

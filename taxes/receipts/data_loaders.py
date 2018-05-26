@@ -7,10 +7,10 @@ import math
 import os
 
 import json
-import yaml
+
 
 from taxes.receipts import constants, models
-from taxes.receipts.util import currency
+from taxes.receipts.util import currency, yaml
 
 
 __all__ = [
@@ -45,7 +45,7 @@ class BaseYamlDataLoader(BaseDataLoader, metaclass=abc.ABCMeta):
             raise FileNotFoundError(filename)
 
         with open(filename, 'r') as f:
-            data = yaml.safe_load(f)
+            data = yaml.load(f)
             self.load_data(data)
 
 
