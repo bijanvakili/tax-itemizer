@@ -47,7 +47,8 @@ class Vendor(SurrogateIdMixin):
         db_table = 'vendor'
 
     name = models.CharField(max_length=200, unique=True, db_index=True)
-    type = fields.enum_field(constants.VendorType, db_index=True)
+    default_expense_type = fields.enum_field(constants.ExpenseType, db_index=True,
+                                             null=True, blank=True)
     fixed_amount = models.IntegerField(null=True, default=None, blank=True)
     assigned_asset = models.ForeignKey('FinancialAsset', on_delete=models.SET_NULL,
                                        db_index=True, related_name='assigned_vendors',
@@ -70,6 +71,8 @@ class VendorAliasPattern(SurrogateIdMixin):
     pattern = models.CharField(max_length=200, unique=True, db_index=True)
     match_operation = fields.enum_field(constants.AliasMatchOperation, db_index=True, blank=False,
                                         default=constants.AliasMatchOperation.LIKE)
+    default_expense_type = fields.enum_field(constants.ExpenseType, db_index=True,
+                                             null=True, blank=True)
 
     def __str__(self):
         return f'{self.match_operation.name}("{self.pattern}")'
@@ -120,6 +123,7 @@ class Receipt(SurrogateIdMixin):
 
     vendor = models.ForeignKey('Vendor', on_delete=models.PROTECT,
                                db_index=True, related_name='client_receipts')
+    expense_type = fields.enum_field(constants.ExpenseType)
     # TODO rename this to transaction_date
     purchased_at = models.DateField(db_index=True)
     payment_method = models.ForeignKey('PaymentMethod', on_delete=models.PROTECT,

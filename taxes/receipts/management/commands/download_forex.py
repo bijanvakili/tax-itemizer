@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from .shared import DateRangeMixin
+from taxes.receipts.management.shared import DateRangeMixin
 from taxes.receipts.forex import download_rates, CURRENCY_PAIR
 
 

@@ -58,20 +58,22 @@ def _all_sorted_receipts():
     return list(
         models.Receipt.objects
         .select_related('vendor', 'payment_method')
-        .order_by('purchased_at', 'vendor__name', 'total_amount')
+        .order_by('purchased_at', 'vendor__name', 'expense_type', 'total_amount')
     )
 
 
 def _verify_receipts(actual_receipts, expected_receipt_values):
     """
     :param actual_receipts: array of models.Receipt
-    :param expected_receipt_values: array of tuples (purchased_at, vendor.name, total_amount)
+    :param expected_receipt_values: array of tuples
+        (purchased_at, vendor.name, total_amount, expense_type)
     """
     assert len(actual_receipts) == len(expected_receipt_values)
     for i, r in enumerate(actual_receipts):
         assert r.purchased_at.isoformat() == expected_receipt_values[i][0]
         assert r.vendor.name == expected_receipt_values[i][1]
         assert r.total_amount == expected_receipt_values[i][2]
+        assert r.expense_type == expected_receipt_values[i][3]
 
 
 def test_parse_bmo_savings(run_parser):
@@ -80,11 +82,11 @@ def test_parse_bmo_savings(run_parser):
     actual_receipts = _all_sorted_receipts()
 
     expected_receipt_values = [
-        ('2016-08-02', 'MTCC 452', -1133),
-        ('2016-08-02', 'Warren Smooth', 160000),
-        ('2016-08-02', 'YRCC 994', -200839),
-        ('2016-08-03', 'FootBlind Finance Analytic', 30890),
-        ('2016-08-15', 'City of Toronto', -73300),
+        ('2016-08-02', 'MTCC 452', -1133, constants.ExpenseType.ADMINISTRATIVE),
+        ('2016-08-02', 'Warren Smooth', 160000, constants.ExpenseType.RENT),
+        ('2016-08-02', 'YRCC 994', -200839, constants.ExpenseType.ADMINISTRATIVE),
+        ('2016-08-03', 'FootBlind Finance Analytic', 30890, constants.ExpenseType.RENT),
+        ('2016-08-15', 'City of Toronto', -73300, constants.ExpenseType.PROPERTY_TAX),
     ]
     _verify_receipts(actual_receipts, expected_receipt_values)
 
@@ -110,10 +112,10 @@ def test_parse_bmo_amount_exclusion(run_parser, mock_logger):
     actual_receipts = _all_sorted_receipts()
 
     expected_receipt_values = [
-        ('2016-09-01', 'MTCC 452', -1133),
-        ('2016-09-01', 'Warren Smooth', 160000),
-        ('2016-09-01', 'YRCC 994', -200839),
-        ('2016-09-06', 'FootBlind Finance Analytic', 30890),
+        ('2016-09-01', 'MTCC 452', -1133, constants.ExpenseType.ADMINISTRATIVE),
+        ('2016-09-01', 'Warren Smooth', 160000, constants.ExpenseType.RENT),
+        ('2016-09-01', 'YRCC 994', -200839, constants.ExpenseType.ADMINISTRATIVE),
+        ('2016-09-06', 'FootBlind Finance Analytic', 30890, constants.ExpenseType.RENT),
     ]
     _verify_receipts(actual_receipts, expected_receipt_values)
 
@@ -132,17 +134,17 @@ def test_parse_bmo_mastercard(run_parser, mock_logger):
 
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
-        ('2016-02-18', 'Intuit', -4999),
-        ('2016-04-22', 'Air Canada', -85276),
-        ('2016-05-07', 'Aroma', -961),
-        ('2016-05-07', "Joe's Hamburgers", -4028),
-        ('2016-05-07', 'Pizza Libretto', -13300),
-        ('2016-05-08', "Real Mo-Mo's", -6734),
-        ('2016-05-08', "Tim Horton's", -369),
-        ('2016-05-09', 'Wine Rack', -3295),
-        ('2016-05-10', 'Panera Bread', -2108),
-        ('2016-05-10', "Tim Horton's", -150),
-        ('2016-05-11', 'Boccone Trattoria', -2066),
+        ('2016-02-18', 'Intuit', -4999, constants.ExpenseType.ADMINISTRATIVE),
+        ('2016-04-22', 'Air Canada', -85276, constants.ExpenseType.TRAVEL),
+        ('2016-05-07', 'Aroma', -961, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-05-07', "Joe's Hamburgers", -4028, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-05-07', 'Pizza Libretto', -13300, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-05-08', "Real Mo-Mo's", -6734, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-05-08', "Tim Horton's", -369, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-05-09', 'Wine Rack', -3295, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-05-10', 'Panera Bread', -2108, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-05-10', "Tim Horton's", -150, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-05-11', 'Boccone Trattoria', -2066, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
     ]
     _verify_receipts(actual_receipts, expected_receipt_values)
 
@@ -158,7 +160,7 @@ def test_parse_readiline(run_parser, mock_logger):
 
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
-        ('2016-09-09', 'BMO', -45377),
+        ('2016-09-09', 'BMO', -45377, constants.ExpenseType.INTEREST),
     ]
     _verify_receipts(actual_receipts, expected_receipt_values)
 
@@ -180,12 +182,12 @@ def test_parse_capitalone(run_parser, mock_logger):
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
         # (purchased_at, vendor.name, total_amount)
-        ('2017-09-04', 'Embarcadero Cinemas', -2600),
-        ('2017-09-09', 'Marina Supermarket', -2520),
-        ('2017-09-17', 'Yum Yum Hunan', -3054),
-        ('2017-09-20', "Lee's Deli", -1481),
-        ('2017-09-21', 'We Be Sushi', -2474),
-        ('2017-09-25', 'Glaze Teriyaki', -1462),
+        ('2017-09-04', 'Embarcadero Cinemas', -2600, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2017-09-09', 'Marina Supermarket', -2520, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2017-09-17', 'Yum Yum Hunan', -3054, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2017-09-20', "Lee's Deli", -1481, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2017-09-21', 'We Be Sushi', -2474, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2017-09-25', 'Glaze Teriyaki', -1462, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
     ]
     _verify_receipts(actual_receipts, expected_receipt_values)
 
@@ -206,7 +208,7 @@ def test_parse_mbna(run_parser, mock_logger):
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
         # (purchased_at, vendor.name, total_amount)
-        ('2016-09-16', 'Relay', -281),
+        ('2016-09-16', 'Relay', -281, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
     ]
     _verify_receipts(actual_receipts, expected_receipt_values)
 
@@ -230,9 +232,10 @@ def test_parse_checking_account_basic(run_parser, mock_logger):
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
         # (purchased_at, vendor.name, total_amount)
-        ('2016-08-15', 'Liars', 8035),
-        ('2016-08-30', '21st Century Insurance', -7666),
-        ('2016-08-31', 'Liars', 16636),
+        ('2016-08-15', 'Liars', 8035, constants.ExpenseType.FOREIGN_INCOME),
+        ('2016-08-15', 'Wells Fargo', 31, constants.ExpenseType.CAPITAL_GAINS),
+        ('2016-08-30', '21st Century Insurance', -7666, constants.ExpenseType.INSURANCE),
+        ('2016-08-31', 'Liars', 16636, constants.ExpenseType.FOREIGN_INCOME),
     ]
     _verify_receipts(actual_receipts, expected_receipt_values)
 
@@ -246,8 +249,8 @@ def test_parse_checking_account_basic_with_fixed_amount(run_parser, mock_logger)
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
         # (purchased_at, vendor.name, total_amount)
-        ('2016-09-16', 'Xoom', -499),
-        ('2016-09-28', '21st Century Insurance', -7666),
+        ('2016-09-16', 'Xoom', -499, constants.ExpenseType.ADMINISTRATIVE),
+        ('2016-09-28', '21st Century Insurance', -7666, constants.ExpenseType.INSURANCE),
     ]
     _verify_receipts(actual_receipts, expected_receipt_values)
     assert {r.currency for r in actual_receipts} == {constants.Currency.USD}
@@ -269,8 +272,9 @@ def test_parse_wellsfargo_visa(run_parser, mock_logger):
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
         # (purchased_at, vendor.name, total_amount)
-        ('2016-09-01', 'Chariot', -11900),
-        ('2016-09-03', 'Crepevine', -1469),
+        ('2016-09-01', 'Chariot', -11900, constants.ExpenseType.TRAVEL),
+        ('2016-09-01', 'Wells Fargo', -2500, constants.ExpenseType.ADMINISTRATIVE),
+        ('2016-09-03', 'Crepevine', -1469, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
     ]
 
     _verify_receipts(actual_receipts, expected_receipt_values)
@@ -304,50 +308,50 @@ def test_parse_chase_visa(run_parser, mock_logger):
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
         # (purchased_at, vendor.name, total_amount)
-        ('2016-09-01', 'Blackwood', -7315),
-        ('2016-09-01', 'The Market', -1487),
-        ('2016-09-02', "Lee's Deli", -1009),
-        ('2016-09-02', 'Squat and Gobble', -1477),
-        ('2016-09-03', 'IHOP', -1812),
-        ('2016-09-04', "Barney's Burgers", -2529),
-        ('2016-09-04', 'Squat and Gobble', -1771),
-        ('2016-09-06', 'The Market', -1372),
-        ('2016-09-06', 'We Be Sushi', -2349),
-        ('2016-09-07', 'Gyro King', -1617),
-        ('2016-09-08', 'Air Canada', -126433),
-        ('2016-09-08', 'Air Canada', -83409),
-        ('2016-09-08', 'Uber', -598),
-        ('2016-09-09', 'Expedia', -1000),
-        ('2016-09-10', "Barney's Burgers", -2591),
-        ('2016-09-10', 'Squat and Gobble', -1613),
-        ('2016-09-10', 'Uber', -475),
-        ('2016-09-10', 'Uber', -475),
-        ('2016-09-10', 'Uber', -200),
-        ('2016-09-11', 'Il Fornaio Caffe Del Mondo', -1468),
-        ('2016-09-11', 'Uber', -1917),
-        ('2016-09-13', 'Uber', -712),
-        ('2016-09-13', 'Uber', -461),
-        ('2016-09-15', 'Bonita Taqueria', -1170),
-        ('2016-09-15', 'Uber', -1880),
-        ('2016-09-15', 'Uber', -457),
-        ('2016-09-16', 'The Sandwich Spot', -1474),
-        ('2016-09-16', 'Uber', -1999),
-        ('2016-09-18', 'Pacific Catch', -2531),
-        ('2016-09-18', 'Zipcar', -762),
-        ('2016-09-19', 'Glaze Teriyaki', -1578),
-        ('2016-09-19', 'Saiwalks', -1952),
-        ('2016-09-20', 'Uber', -332),
-        ('2016-09-21', 'Taqueria El Buen Sabor', -1115),
-        ('2016-09-22', 'Freshbooks', -995),
-        ('2016-09-24', 'FedEx', -274),
-        ('2016-09-24', 'Uber', -475),
-        ('2016-09-25', 'IHOP', -1894),
-        ('2016-09-25', 'Uber', -1431),
-        ('2016-09-25', 'Uber', -500),
-        ('2016-09-25', 'Uber', -475),
-        ('2016-09-26', 'Github', -700),
-        ('2016-09-30', 'FedEx', -288),
-        ('2016-09-30', 'Glaze Teriyaki', -1588),
-        ('2016-09-30', 'Sharetea', -575)
+        ('2016-09-01', 'Blackwood', -7315, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-01', 'The Market', -1487, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-02', "Lee's Deli", -1009, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-02', 'Squat and Gobble', -1477, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-03', 'IHOP', -1812, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-04', "Barney's Burgers", -2529, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-04', 'Squat and Gobble', -1771, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-06', 'The Market', -1372, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-06', 'We Be Sushi', -2349, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-07', 'Gyro King', -1617, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-08', 'Air Canada', -126433, constants.ExpenseType.TRAVEL),
+        ('2016-09-08', 'Air Canada', -83409, constants.ExpenseType.TRAVEL),
+        ('2016-09-08', 'Uber', -598, constants.ExpenseType.TRAVEL),
+        ('2016-09-09', 'Expedia', -1000, constants.ExpenseType.TRAVEL),
+        ('2016-09-10', "Barney's Burgers", -2591, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-10', 'Squat and Gobble', -1613, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-10', 'Uber', -475, constants.ExpenseType.TRAVEL),
+        ('2016-09-10', 'Uber', -475, constants.ExpenseType.TRAVEL),
+        ('2016-09-10', 'Uber', -200, constants.ExpenseType.TRAVEL),
+        ('2016-09-11', 'Il Fornaio Caffe Del Mondo', -1468, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-11', 'Uber', -1917, constants.ExpenseType.TRAVEL),
+        ('2016-09-13', 'Uber', -712, constants.ExpenseType.TRAVEL),
+        ('2016-09-13', 'Uber', -461, constants.ExpenseType.TRAVEL),
+        ('2016-09-15', 'Bonita Taqueria', -1170, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-15', 'Uber', -1880, constants.ExpenseType.TRAVEL),
+        ('2016-09-15', 'Uber', -457, constants.ExpenseType.TRAVEL),
+        ('2016-09-16', 'The Sandwich Spot', -1474, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-16', 'Uber', -1999, constants.ExpenseType.TRAVEL),
+        ('2016-09-18', 'Pacific Catch', -2531, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-18', 'Zipcar', -762, constants.ExpenseType.TRAVEL),
+        ('2016-09-19', 'Glaze Teriyaki', -1578, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-19', 'Saiwalks', -1952, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-20', 'Uber', -332, constants.ExpenseType.TRAVEL),
+        ('2016-09-21', 'Taqueria El Buen Sabor', -1115, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-22', 'Freshbooks', -995, constants.ExpenseType.ADMINISTRATIVE),
+        ('2016-09-24', 'FedEx', -274, constants.ExpenseType.ADMINISTRATIVE),
+        ('2016-09-24', 'Uber', -475, constants.ExpenseType.TRAVEL),
+        ('2016-09-25', 'IHOP', -1894, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-25', 'Uber', -1431, constants.ExpenseType.TRAVEL),
+        ('2016-09-25', 'Uber', -500, constants.ExpenseType.TRAVEL),
+        ('2016-09-25', 'Uber', -475, constants.ExpenseType.TRAVEL),
+        ('2016-09-26', 'Github', -700, constants.ExpenseType.ADMINISTRATIVE),
+        ('2016-09-30', 'FedEx', -288, constants.ExpenseType.ADMINISTRATIVE),
+        ('2016-09-30', 'Glaze Teriyaki', -1588, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-30', 'Sharetea', -575, constants.ExpenseType.MEALS_AND_ENTERTAINMENT)
     ]
     _verify_receipts(actual_receipts, expected_receipt_values)

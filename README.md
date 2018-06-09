@@ -118,7 +118,15 @@ Install packages in `test_requirements.txt`:
 
     pip install -r test_requirements.txt
 
-Setup git pre-commit hooks (e.g. linter):
+To set up git pre-commit hooks (e.g. linter), do this on OS X:
+
+    brew install pre-commit
+
+or just:
+
+    pip install pre-commit
+
+Then run:
 
     pre-commit install
 

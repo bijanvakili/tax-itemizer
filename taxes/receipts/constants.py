@@ -21,10 +21,9 @@ class Currency(Enum):
 CASH_UNIQUE_IDENTIFIER = 'CASH'
 
 
-# TODO refactor into separate M2M model
-# currently set to tax aggregation type
+# taxable expense aggregation type
 @unique
-class VendorType(enumfields.Enum):
+class ExpenseType(enumfields.Enum):
     IGNORE = 'ignore'
     PROPERTY_TAX = 'property_tax'
     INTEREST = 'interest'
@@ -38,6 +37,7 @@ class VendorType(enumfields.Enum):
     RENT = 'rent'
     FOREIGN_INCOME = 'foreign_income'
     CAPITAL_GAINS = 'capital_gains'
+    ADVERTISING = 'advertising'
 
     class Labels:
         IGNORE = '*IGNORE*'
@@ -53,6 +53,7 @@ class VendorType(enumfields.Enum):
         RENT = 'Gross Rent'
         FOREIGN_INCOME = 'Foreign Income'
         CAPITAL_GAINS = 'Capital Gains'
+        ADVERTISING = 'Advertising'
 
 
 @unique
@@ -66,11 +67,13 @@ class FinancialAssetType(enumfields.Enum):
     RENTAL = 'rental'
     EMPLOYMENT = 'employment'
     PROPRIETORSHIP = 'proprietorship'
+    PRIMARY_RESIDENCE = 'primary_residence'
 
     class Labels:
         RENTAL = 'Rental'
         EMPLOYMENT = 'Employment'
         PROPRIETORSHIP = 'Proprietorship'
+        PRIMARY_RESIDENCE = 'Primary Residence'
 
 
 @unique

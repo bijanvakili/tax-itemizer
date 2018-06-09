@@ -23,11 +23,11 @@ class VendorAliasPatternInline(admin.StackedInline):
 
 @admin.register(models.Vendor)
 class VendorAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type', 'assigned_asset', )
+    list_display = ('name', 'assigned_asset', 'default_expense_type', )
     ordering = ('name',)
     search_fields = ('name', )
     list_filter = (
-        ('type', EnumFieldListFilter,),
+        ('default_expense_type', EnumFieldListFilter,),
         'assigned_asset',
     )
     inlines = [VendorAliasPatternInline]
@@ -43,8 +43,8 @@ class PeriodicPaymentAdmin(admin.ModelAdmin):
 
 @admin.register(models.Receipt)
 class ReceiptAdmin(admin.ModelAdmin):
-    list_display = ('purchased_at', 'vendor', 'total_amount', 'currency')
-    ordering = ('purchased_at', 'vendor', 'total_amount', )
+    list_display = ('purchased_at', 'expense_type', 'vendor', 'total_amount', 'currency')
+    ordering = ('purchased_at', 'expense_type', 'vendor', 'total_amount', )
     raw_id_fields = ('vendor', 'payment_method', )
     search_fields = ('purchased_at', 'vendor__name',)
 

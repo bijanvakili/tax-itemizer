@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from taxes.receipts import google_sheets
-from .shared import DateRangeMixin
+from taxes.receipts.management.shared import DateRangeMixin
 
 
 class Command(DateRangeMixin, BaseCommand):

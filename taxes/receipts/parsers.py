@@ -1,10 +1,12 @@
 import abc
 import csv
+import datetime
+from enum import Enum
+from functools import lru_cache
 import logging
 import os
 import re
-from enum import Enum
-from functools import lru_cache
+import typing
 
 from django.conf import settings
 from django.db.models.query import Q
@@ -63,6 +65,11 @@ class SkipPatternsFilter(TextFileFilter):
         return True
 
 
+class VendorMatch(typing.NamedTuple):
+    vendor: models.Vendor
+    expense_type: constants.ExpenseType
+
+
 # TODO remap dict keys in base class
 class BaseParser(metaclass=abc.ABCMeta):
     CSV_FIELDS = None
@@ -117,7 +124,15 @@ class BaseParser(metaclass=abc.ABCMeta):
         last_4_digits = card_number[-4:]
         return models.PaymentMethod.objects.get(safe_numeric_id=last_4_digits)
 
-    def _add_new_receipt(self, vendor, purchased_at, payment_method, total_amount, currency):
+    @staticmethod
+    def _add_new_receipt(
+        vendor_match: VendorMatch,
+        purchased_at: datetime.date,
+        payment_method: models.PaymentMethod,
+        total_amount: int,
+        currency: int
+    ):
+        vendor = vendor_match.vendor
         if vendor.fixed_amount:
             total_amount = vendor.fixed_amount
             LOGGER.info(f'Using fixed amount {vendor.fixed_amount} for vendor {vendor.name}')
@@ -125,6 +140,7 @@ class BaseParser(metaclass=abc.ABCMeta):
         receipt = models.Receipt.objects.create(
             vendor=vendor,
             purchased_at=purchased_at,
+            expense_type=vendor_match.expense_type,
             payment_method=payment_method,
             total_amount=total_amount,
             currency=currency
@@ -140,7 +156,7 @@ class BaseParser(metaclass=abc.ABCMeta):
             for f in self.exclusion_filters
         )
 
-    def _find_vendor(self, pattern, for_date, amount):
+    def _find_vendor(self, pattern, for_date, amount) -> typing.Optional[VendorMatch]:
         # check exclusion conditions
         if self._is_exclusion(pattern, for_date, amount):
             LOGGER.warning(f'Skipped vendor {pattern}')
@@ -158,7 +174,13 @@ class BaseParser(metaclass=abc.ABCMeta):
             self.failures += 1
             LOGGER.error(f'Pattern not found: {pattern}')
             return None
-        return vendor_alias.vendor
+
+        # prioritize vendor alias's expense type over the vendor's expense type
+        vendor = vendor_alias.vendor
+        return VendorMatch(
+            vendor=vendor,
+            expense_type=vendor_alias.default_expense_type or vendor.default_expense_type
+        )
 
 
 class BaseBMOCSVParser(BaseParser):
@@ -194,6 +216,7 @@ class BMOTransactionCode(Enum):
     CREDIT_MEMO = 'CM'
     DEBIT_MEMO = 'DM'
     ADJUSTMENT = 'AD'
+    BILL_PAYMENT_CANCELLED = 'BC'
 
 
 class BMOBankAccountParser(BaseBMOCSVParser):
@@ -210,7 +233,7 @@ class BMOBankAccountParser(BaseBMOCSVParser):
         super().__init__()
         self.party_parser = re.compile('^\[([A-Z]{2})\](.*)$')
 
-    def _find_vendor_from_amount(self, for_date, amount):
+    def _find_vendor_from_amount(self, for_date, amount) -> typing.Optional[VendorMatch]:
         if self._is_exclusion('', for_date, amount):
             LOGGER.warning(f'Skipping amount: {amount}')
             return None
@@ -223,10 +246,13 @@ class BMOBankAccountParser(BaseBMOCSVParser):
             )
         except django_exc.ObjectDoesNotExist:
             self.failures += 1
-            LOGGER.error(f'Pattern not for amount: {cents_to_dollars(amount)}')
+            LOGGER.error(f'Pattern not found for amount: {cents_to_dollars(amount)}')
             return None
 
-        return periodic_payment.vendor
+        return VendorMatch(
+            vendor=periodic_payment.vendor,
+            expense_type=periodic_payment.vendor.default_expense_type,
+        )
 
     def parse_row(self, row, line_number):
         # determine the vendor
@@ -244,18 +270,19 @@ class BMOBankAccountParser(BaseBMOCSVParser):
         receipt_date = parse_date(row['date'], self.DATE_FORMAT)
 
         if tx_code == BMOTransactionCode.CHECK_DEPOSIT:
-            vendor = self._find_vendor_from_amount(receipt_date, amount)
-            if not vendor:
+            vendor_match = self._find_vendor_from_amount(receipt_date, amount)
+            if not vendor_match:
                 return
         elif tx_code in self.VALID_CHARGE_CODES:
-            vendor = self._find_vendor(merchant_description, receipt_date, amount)
-            if not vendor:
+            vendor_match = self._find_vendor(merchant_description, receipt_date, amount)
+            if not vendor_match:
                 return
         else:
             LOGGER.info(f'Skipping {tx_code} transaction for {merchant_description}...')
             return
 
-        self._add_new_receipt(vendor, receipt_date, payment_method, amount, constants.Currency.CAD)
+        self._add_new_receipt(vendor_match, receipt_date, payment_method, amount,
+                              constants.Currency.CAD)
 
 
 class BMOCreditParser(BaseBMOCSVParser):
@@ -273,11 +300,12 @@ class BMOCreditParser(BaseBMOCSVParser):
             return
 
         receipt_date = parse_date(row['transaction_date'], self.DATE_FORMAT)
-        vendor = self._find_vendor(vendor_description, receipt_date, amount)
-        if not vendor:
+        vendor_match = self._find_vendor(vendor_description, receipt_date, amount)
+        if not vendor_match:
             return
 
-        self._add_new_receipt(vendor, receipt_date, payment_method, amount, constants.Currency.CAD)
+        self._add_new_receipt(vendor_match, receipt_date, payment_method, amount,
+                              constants.Currency.CAD)
 
 
 class USDateFormatMixin(object):
@@ -303,11 +331,11 @@ class CapitalOneParser(BaseParser):
         debit_amount = parse_amount(row['debit'] or '0.0')
         credit_amount = parse_amount(row['credit'] or '0.0')
         amount = credit_amount - debit_amount
-        vendor = self._find_vendor(vendor_description, receipt_date, amount)
-        if not vendor:
+        vendor_match = self._find_vendor(vendor_description, receipt_date, amount)
+        if not vendor_match:
             return
 
-        self._add_new_receipt(vendor, receipt_date, payment_method,
+        self._add_new_receipt(vendor_match, receipt_date, payment_method,
                               amount, constants.Currency.USD)
 
 
@@ -323,11 +351,11 @@ class MBNAMastercardParser(BaseParser, USDateFormatMixin):
         vendor_description = row['payee']
         receipt_date = parse_date(row['posted_date'], self.DATE_FORMAT)
         amount = parse_amount(row['amount'])
-        vendor = self._find_vendor(vendor_description, receipt_date, amount)
-        if not vendor:
+        vendor_match = self._find_vendor(vendor_description, receipt_date, amount)
+        if not vendor_match:
             return
 
-        self._add_new_receipt(vendor, receipt_date, self.fixed_payment_method,
+        self._add_new_receipt(vendor_match, receipt_date, self.fixed_payment_method,
                               amount, constants.Currency.CAD)
 
 
@@ -368,11 +396,11 @@ class BaseWellsFargoParser(BaseParser, USDateFormatMixin):
 
         receipt_date = parse_date(row['transaction_date'], self.DATE_FORMAT)
         amount = parse_amount(row['amount'])
-        vendor = self._find_vendor(party, receipt_date, amount)
-        if not vendor:
+        vendor_match = self._find_vendor(party, receipt_date, amount)
+        if not vendor_match:
             return
 
-        self._add_new_receipt(vendor, receipt_date, self.fixed_payment_method,
+        self._add_new_receipt(vendor_match, receipt_date, self.fixed_payment_method,
                               amount, constants.Currency.USD)
 
 
@@ -400,11 +428,11 @@ class ChaseVisaParser(BaseParser, USDateFormatMixin):
         party = row['party'].upper()
         receipt_date = parse_date(row['transaction_date'], self.DATE_FORMAT)
         amount = parse_amount(row['amount'])
-        vendor = self._find_vendor(party, receipt_date, amount)
-        if not vendor:
+        vendor_match = self._find_vendor(party, receipt_date, amount)
+        if not vendor_match:
             return
 
-        self._add_new_receipt(vendor, receipt_date, self.fixed_payment_method,
+        self._add_new_receipt(vendor_match, receipt_date, self.fixed_payment_method,
                               amount, constants.Currency.USD)
 
     @property

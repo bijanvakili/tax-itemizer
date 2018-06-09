@@ -74,7 +74,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.UUIDField(blank=True, default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('name', models.CharField(db_index=True, max_length=200, unique=True)),
-                ('type', enumfields.fields.EnumField(db_index=True, enum=taxes.receipts.constants.VendorType, max_length=14)),
+                ('type', enumfields.fields.EnumField(db_index=True, enum=taxes.receipts.constants.ExpenseType, max_length=14)),
                 ('fixed_amount', models.IntegerField(default=None, null=True)),
             ],
             options={

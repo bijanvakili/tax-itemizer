@@ -53,7 +53,7 @@ def test_vendor_yaml_load():
 
     assert result
     assert result.name == 'Xoom'
-    assert result.type == constants.VendorType.ADMINISTRATIVE
+    assert result.default_expense_type == constants.ExpenseType.ADMINISTRATIVE
     assert result.fixed_amount == -499
     assert result.assigned_asset.name == '1001-25 Wellesley St'
 
@@ -62,12 +62,13 @@ def test_vendor_yaml_load():
     alias = alias_patterns[0]
     assert alias.pattern == 'XOOM.COM DEBIT%'
     assert alias.match_operation == constants.AliasMatchOperation.LIKE
+    assert alias.default_expense_type is None
 
     result = models.Vendor.objects.get(name='We Be Sushi')
 
     assert result
     assert result.name == 'We Be Sushi'
-    assert result.type == constants.VendorType.MEALS_AND_ENTERTAINMENT
+    assert result.default_expense_type == constants.ExpenseType.MEALS_AND_ENTERTAINMENT
     assert result.fixed_amount is None
     assert result.assigned_asset.name == 'Sole Proprietorship'
 
@@ -76,6 +77,7 @@ def test_vendor_yaml_load():
     alias = alias_patterns[0]
     assert alias.pattern == 'WE BE SUSHI 5'
     assert alias.match_operation == constants.AliasMatchOperation.EQUAL
+    assert alias.default_expense_type is None
 
     # verify a regular payment method and its associated vendor
     result = models.PeriodicPayment.objects.get(name='1001-25 Wellesley monthly rent')
@@ -84,7 +86,7 @@ def test_vendor_yaml_load():
     assert result.amount == 160000
     assert result.currency == constants.Currency.CAD
     assert result.vendor
-    assert result.vendor.type == constants.VendorType.RENT
+    assert result.vendor.default_expense_type == constants.ExpenseType.RENT
     assert result.vendor.tax_adjustment_type is None
 
     # verify some sample exclusions
@@ -108,6 +110,20 @@ def test_vendor_yaml_load():
     assert result
     assert result.vendor.name == 'FootBlind Finance Analytic'
     assert result.vendor.tax_adjustment_type == constants.TaxType.HST
+
+    results = models.VendorAliasPattern.objects.filter(
+        vendor__name='Wells Fargo'
+    ).order_by('pattern')
+
+    assert len(results) == 2
+
+    assert results[0].pattern == 'ANNUAL FEE FOR%'
+    assert results[0].match_operation == constants.AliasMatchOperation.LIKE
+    assert results[0].default_expense_type == constants.ExpenseType.ADMINISTRATIVE
+
+    assert results[1].pattern == 'INTEREST PAYMENT'
+    assert results[1].match_operation == constants.AliasMatchOperation.EQUAL
+    assert results[1].default_expense_type == constants.ExpenseType.CAPITAL_GAINS
 
 
 def test_forex_json_load(mock_logger):

@@ -1,5 +1,9 @@
+repos:
 - repo: git://github.com/pre-commit/pre-commit-hooks
-  sha: v0.9.1
+  rev: a193eab99ed99429b9b8e517be68bed9a7f6ec4f
   hooks:
   - id: flake8
-    args: ["--config", ".flake8", "taxes"]
+    args: ["--config=.flake8"]
+    # Required due to pre-commit-hooks bug #112
+    # https://github.com/pre-commit/pre-commit-hooks/issues/112
+    exclude: 'taxes/receipts/migrations'

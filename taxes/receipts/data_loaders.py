@@ -87,7 +87,10 @@ class VendorYamlLoader(BaseYamlDataLoader):
         for vendor in all_vendors:
             new_vendor_params = {}
             new_vendor_params['name'] = vendor['name']
-            new_vendor_params['type'] = constants.VendorType(vendor['type'])
+            if vendor.get('default_expense_type'):
+                new_vendor_params['default_expense_type'] = constants.ExpenseType(
+                    vendor['default_expense_type']
+                )
             if vendor.get('merchant_id'):
                 new_vendor_params['merchant_id'] = vendor['merchant_id']
             if vendor.get('fixed_amount'):
@@ -102,18 +105,22 @@ class VendorYamlLoader(BaseYamlDataLoader):
             new_vendor = models.Vendor.objects.create(**new_vendor_params)
 
             for alias in vendor.get('aliases', []):
+                default_expense_type = None
                 if type(alias) == str:
                     pattern = alias
                     match_operation = constants.AliasMatchOperation.EQUAL
                 elif type(alias) == dict:
                     pattern = alias['pattern']
                     match_operation = alias['match_operation']
+                    if alias.get('default_expense_type'):
+                        default_expense_type = constants.ExpenseType(alias['default_expense_type'])
                 else:
                     raise ValueError(f'Unable to parse alias: {alias}')
                 models.VendorAliasPattern.objects.create(
                     vendor=new_vendor,
                     pattern=pattern,
-                    match_operation=match_operation
+                    match_operation=match_operation,
+                    default_expense_type=default_expense_type,
                 )
 
             for payment in vendor.get('regular_payments', []):

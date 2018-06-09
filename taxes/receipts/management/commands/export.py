@@ -3,7 +3,7 @@ from enum import Enum, unique
 from django.core.management.base import BaseCommand
 
 from taxes.receipts.csv_exporters import dump_receipts, dump_forex
-from .shared import DateRangeOutputMixin
+from taxes.receipts.management.shared import DateRangeOutputMixin
 
 
 @unique

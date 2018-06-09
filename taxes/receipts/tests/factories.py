@@ -11,7 +11,7 @@ class VendorFactory(factory.DjangoModelFactory):
 
     id = None
     name = factory.Faker('company')
-    type = factory.LazyFunction(lambda: random.choice(list(constants.VendorType)))
+    default_expense_type = factory.LazyFunction(lambda: random.choice(list(constants.ExpenseType)))
     fixed_amount = None
     tax_adjustment_type = None
 

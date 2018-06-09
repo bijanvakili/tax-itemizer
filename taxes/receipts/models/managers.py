@@ -75,7 +75,7 @@ class ReceiptManager(ReportMixinBase, models.Manager):
                 amount_in_cents,
                 receipt.vendor.name,
                 hst_amount,
-                receipt.vendor.type.label,
+                receipt.expense_type.label,
                 receipt.payment_method.name,
                 '',
             )
