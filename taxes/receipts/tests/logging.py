@@ -14,7 +14,7 @@ class MockLogger(logging.Logger):
     def isEnabledFor(self, level):
         return True
 
-    def _log(self, level, message, *args, **kwargs):
+    def _log(self, level, message, args, **kwargs):  # pylint: disable=arguments-differ
         self.messages.append(
             MockLogRecord(level, message, args, kwargs)
         )

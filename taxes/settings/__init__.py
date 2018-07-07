@@ -1,22 +1,25 @@
+"""
+Main settings package
+"""
 import dj_database_url
 
-from .base import *  # noqa = F403
+from taxes.settings.base import *  # noqa: F403  # pylint: disable=wildcard-import
 from taxes.receipts.util import yaml
 
-# silences linter due to inherting imported libs
-os = os  # noqa = 405
-
 # determine environment name
-RECEIPTS_ENV = os.environ.get('RECEIPTS_ENV', None)
+RECEIPTS_ENV = os.environ.get('RECEIPTS_ENV', None)  # noqa: F405
 if not RECEIPTS_ENV:
     raise ValueError('Must specify receipts env')
 
 # load file config
-DEFAULT_CONFIG_DIR = os.path.join(os.getcwd(), 'config')
-RECEIPTS_CONFIG_DIR = os.environ.get('RECEIPTS_CONFIG_DIR', DEFAULT_CONFIG_DIR)
-RECEIPTS_CONFIG_PATH = os.path.join(RECEIPTS_CONFIG_DIR, f'config.{RECEIPTS_ENV}.yaml')
+DEFAULT_CONFIG_DIR = os.path.join(os.getcwd(), 'config')  # noqa: F405
+RECEIPTS_CONFIG_DIR = os.environ.get('RECEIPTS_CONFIG_DIR', DEFAULT_CONFIG_DIR)  # noqa: F405
+RECEIPTS_CONFIG_PATH = os.path.join(  # noqa: F405
+    RECEIPTS_CONFIG_DIR,
+    f'config.{RECEIPTS_ENV}.yaml'
+)
 
-TEST_DATA_FIXTURE_DIR = os.path.join(os.getcwd(), 'data', 'fixtures', 'tests')
+TEST_DATA_FIXTURE_DIR = os.path.join(os.getcwd(), 'data', 'fixtures', 'tests')  # noqa: F405
 
 with open(RECEIPTS_CONFIG_PATH, 'r') as receipt_config_file:
     RECEIPTS_CONFIG = yaml.load(receipt_config_file)

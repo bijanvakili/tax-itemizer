@@ -1,5 +1,7 @@
-import yaml
 import typing
+
+import yaml
+
 
 try:
     DefaultLoader = yaml.CSafeLoader

@@ -31,9 +31,9 @@ class Command(DateRangeOutputMixin, BaseCommand):
 
     def handle(self, *args, **options):
         f_dump = COMMAND_MAP[ExportType(options['export_type'])]
-        with self.open_output(options['output_filename']) as f:
+        with self.open_output(options['output_filename']) as output_file:
             f_dump(
-                f,
+                output_file,
                 options['start_date'],
                 options['end_date'],
                 output_header=options['with_header']

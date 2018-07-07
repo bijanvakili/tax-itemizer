@@ -39,13 +39,14 @@ class BaseDataLoader(metaclass=abc.ABCMeta):
         pass
 
 
+# pylint: disable=abstract-method
 class BaseYamlDataLoader(BaseDataLoader, metaclass=abc.ABCMeta):
     def load_fixture(self, filename: str):
         if not os.path.exists(filename):
             raise FileNotFoundError(filename)
 
-        with open(filename, 'r') as f:
-            data = yaml.load(f)
+        with open(filename, 'r') as yaml_file:
+            data = yaml.load(yaml_file)
             self.load_data(data)
 
 
@@ -54,9 +55,10 @@ class BaseJsonDataLoader(BaseDataLoader, metaclass=abc.ABCMeta):
         if not os.path.exists(filename):
             raise FileNotFoundError(filename)
 
-        with open(filename, 'r') as f:
-            data = json.load(f)
+        with open(filename, 'r') as json_file:
+            data = json.load(json_file)
             self.load_data(data)
+# pylint: enable=abstract-method
 
 
 class PaymentMethodYamlLoader(BaseYamlDataLoader):
@@ -65,13 +67,14 @@ class PaymentMethodYamlLoader(BaseYamlDataLoader):
             raise ValueError('payment_methods not found')
         root = data['payment_methods']
         defaults = root['defaults']
-        for o in root['objects']:
+        for obj in root['objects']:
             item = defaults.copy()
-            item.update(o)
+            item.update(obj)
             models.PaymentMethod.objects.create(**item)
 
 
 class VendorYamlLoader(BaseYamlDataLoader):
+    # pylint: disable=too-many-locals,too-many-branches
     def load_data(self, data: dict):
         # NOTE: assumes all assets can fit into memory
         asset_map = {}
@@ -81,7 +84,9 @@ class VendorYamlLoader(BaseYamlDataLoader):
             new_asset_params = {}
             new_asset_params['name'] = financial_asset['name']
             new_asset_params['type'] = constants.FinancialAssetType(financial_asset['type'])
-            asset_map[new_asset_params['name']] = models.FinancialAsset.objects.create(**new_asset_params)
+            asset_map[new_asset_params['name']] = models.FinancialAsset.objects.create(
+                **new_asset_params
+            )
 
         all_vendors = data['vendors'] or []
         for vendor in all_vendors:
@@ -99,17 +104,21 @@ class VendorYamlLoader(BaseYamlDataLoader):
                 try:
                     new_vendor_params['assigned_asset'] = asset_map[vendor['assigned_asset']]
                 except KeyError:
-                    raise ValueError(f"Unable to locate financial asset: {vendor['assigned_asset']}")
+                    raise ValueError(
+                        f"Unable to locate financial asset: {vendor['assigned_asset']}"
+                    )
             if vendor.get('tax_adjustment_type'):
-                new_vendor_params['tax_adjustment_type'] = constants.TaxType(vendor['tax_adjustment_type'])
+                new_vendor_params['tax_adjustment_type'] = constants.TaxType(
+                    vendor['tax_adjustment_type']
+                )
             new_vendor = models.Vendor.objects.create(**new_vendor_params)
 
             for alias in vendor.get('aliases', []):
                 default_expense_type = None
-                if type(alias) == str:
+                if isinstance(alias, str):
                     pattern = alias
                     match_operation = constants.AliasMatchOperation.EQUAL
-                elif type(alias) == dict:
+                elif isinstance(alias, dict):
                     pattern = alias['pattern']
                     match_operation = alias['match_operation']
                     if alias.get('default_expense_type'):
@@ -134,9 +143,9 @@ class VendorYamlLoader(BaseYamlDataLoader):
 
         for exclusion in data['exclusions']:
             exclusion_kwargs = {'on_date': None, 'amount': None}
-            if type(exclusion) == str:
+            if isinstance(exclusion, str):
                 exclusion_kwargs['prefix'] = exclusion
-            elif type(exclusion) == dict:
+            elif isinstance(exclusion, dict):
                 exclusion_kwargs['prefix'] = exclusion.get('prefix')
                 on_date_str = exclusion.get('on_date')
                 if on_date_str:
@@ -149,6 +158,7 @@ class VendorYamlLoader(BaseYamlDataLoader):
                     exclusion_kwargs['amount'] = currency.parse_amount(amount_str)
 
             models.ExclusionCondition.objects.create(**exclusion_kwargs)
+    # pylint: enable=too-many-locals,too-many-branches
 
 
 class ForexJsonLoader(BaseJsonDataLoader):
@@ -162,7 +172,9 @@ class ForexJsonLoader(BaseJsonDataLoader):
                 rates.append(
                     models.ForexRate(
                         pair=currency_pair,
-                        effective_at=datetime.datetime.utcfromtimestamp(math.floor(int(row[0]) / 1000)).date(),
+                        effective_at=datetime.datetime.utcfromtimestamp(
+                            math.floor(int(row[0]) / 1000)
+                        ).date(),
                         rate=Decimal(row[1]).quantize(Decimal('1.0000'))
                     )
                 )

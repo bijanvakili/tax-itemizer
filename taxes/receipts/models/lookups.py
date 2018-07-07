@@ -8,9 +8,15 @@ __all__ = [
 
 
 class VendorAliasPatternLookupBase(models.Lookup):
+    """
+    Base alias lookup class
+    """
     def _validate_operands(self):
         assert self.lhs.alias in ('vendor_alias_pattern', 'exclusion_condition')
-        assert type(self.rhs) == str
+        assert isinstance(self.rhs, str)
+
+    def as_sql(self, compiler, connection):
+        raise NotImplementedError
 
 
 class AliasMatchLookup(VendorAliasPatternLookupBase):

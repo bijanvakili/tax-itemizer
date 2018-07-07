@@ -46,13 +46,15 @@ class ExclusionConditionFilter(BaseVendorExclusionFilter):
             ).exists()
 
 
-def load_filters_from_modules(module_paths: typing.Iterable[str]) -> typing.List[BaseVendorExclusionFilter]:
+def load_filters_from_modules(module_paths: typing.Iterable[str]) -> \
+        typing.List[BaseVendorExclusionFilter]:
     filters = []
 
     for module_path in module_paths:
         filter_module = import_module(module_path)
-        for name, clz in inspect.getmembers(filter_module):
-            if inspect.isclass(clz) and not inspect.isabstract(clz) and issubclass(clz, BaseVendorExclusionFilter):
+        for _, clz in inspect.getmembers(filter_module):
+            if inspect.isclass(clz) and not inspect.isabstract(clz) and\
+                    issubclass(clz, BaseVendorExclusionFilter):
                 filters.append(clz())
 
     return filters

@@ -85,11 +85,13 @@ class BaseParser(metaclass=abc.ABCMeta):
     def parse(self, filename):
         # set the fixed card number if the class specifies it
         if self.FIXED_PAYMENT_METHOD_NAME:
-            self.fixed_payment_method = models.PaymentMethod.objects.get(name=self.FIXED_PAYMENT_METHOD_NAME)
+            self.fixed_payment_method = models.PaymentMethod.objects.get(
+                name=self.FIXED_PAYMENT_METHOD_NAME
+            )
 
         self.failures = 0
-        with open(filename, 'r') as f:
-            file_iterator = FileIterator(f, self.filters)
+        with open(filename, 'r') as csv_file:
+            file_iterator = FileIterator(csv_file, self.filters)
             reader = csv.DictReader(
                 file_iterator,
                 fieldnames=self.CSV_FIELDS,
@@ -118,20 +120,19 @@ class BaseParser(metaclass=abc.ABCMeta):
         """
         pass
 
+    @staticmethod
     @lru_cache(maxsize=8)
-    def _get_payment_method(self, card_number):
+    def _get_payment_method(card_number):
         # TODO determine how to handle different cards with the same last 4 digits
         last_4_digits = card_number[-4:]
         return models.PaymentMethod.objects.get(safe_numeric_id=last_4_digits)
 
     @staticmethod
-    def _add_new_receipt(
-        vendor_match: VendorMatch,
-        purchased_at: datetime.date,
-        payment_method: models.PaymentMethod,
-        total_amount: int,
-        currency: int
-    ):
+    def _add_new_receipt(vendor_match: VendorMatch,
+                         purchased_at: datetime.date,
+                         payment_method: models.PaymentMethod,
+                         total_amount: int,
+                         currency: constants.Currency):
         vendor = vendor_match.vendor
         if vendor.fixed_amount:
             total_amount = vendor.fixed_amount
@@ -183,7 +184,7 @@ class BaseParser(metaclass=abc.ABCMeta):
         )
 
 
-class BaseBMOCSVParser(BaseParser):
+class BaseBMOCSVParser(BaseParser):  # pylint: disable=abstract-method
     DATE_FORMAT = '%Y%m%d'
     CSV_QUOTECHAR = "'"
 
@@ -219,7 +220,7 @@ class BMOTransactionCode(Enum):
     BILL_PAYMENT_CANCELLED = 'BC'
 
 
-class BMOBankAccountParser(BaseBMOCSVParser):
+class BMOCSVBankAccountParser(BaseBMOCSVParser):
     CSV_FIELDS = ['card_number', 'type', 'date', 'amount', 'party']
     VALID_CHARGE_CODES = {
         BMOTransactionCode.SERVICE_CHARGEABLE,
@@ -231,7 +232,7 @@ class BMOBankAccountParser(BaseBMOCSVParser):
 
     def __init__(self):
         super().__init__()
-        self.party_parser = re.compile('^\[([A-Z]{2})\](.*)$')
+        self.party_parser = re.compile(r'^\[([A-Z]{2})\](.*)$')
 
     def _find_vendor_from_amount(self, for_date, amount) -> typing.Optional[VendorMatch]:
         if self._is_exclusion('', for_date, amount):
@@ -285,7 +286,7 @@ class BMOBankAccountParser(BaseBMOCSVParser):
                               constants.Currency.CAD)
 
 
-class BMOCreditParser(BaseBMOCSVParser):
+class BMOCSVCreditParser(BaseBMOCSVParser):
     CSV_FIELDS = ['item_number', 'card_number', 'transaction_date',
                   'posting_date', 'amount', 'party']
 
@@ -321,7 +322,8 @@ class CapitalOneParser(BaseParser):
     def parse_row(self, row, line_number):
         if row['category'] in self.PAYMENT_DESCRIPTIONS:
             LOGGER.info(
-                'Skipping payment {transaction_date} {card_number} {description}'.format(**row)
+                'Skipping payment %s %s %s',
+                row['transaction_date'], row['card_number'], row['description']
             )
             return
 
@@ -345,7 +347,7 @@ class MBNAMastercardParser(BaseParser, USDateFormatMixin):
 
     def parse_row(self, row, line_number):
         if row['payee'].upper() == 'PAYMENT':
-            LOGGER.info('Skipping payment {posted_date}...'.format(**row))
+            LOGGER.info('Skipping payment %s...', row['posted_date'])
             return
 
         vendor_description = row['payee']
@@ -373,12 +375,14 @@ class BaseWellsFargoParser(BaseParser, USDateFormatMixin):
 
     def __init__(self):
         super().__init__()
-        self.authorized_purchase_pattern = re.compile('^PURCHASE AUTHORIZED ON \d{2}/\d{2} (?P<party>.+)$')
+        self.authorized_purchase_pattern = re.compile(
+            r'^PURCHASE AUTHORIZED ON \d{2}/\d{2} (?P<party>.+)$'
+        )
 
     def parse_row(self, row, line_number):
         # skip checks
         if row['check_number']:
-            LOGGER.info('Skipping check #{check_number}...'.format(**row))
+            LOGGER.info('Skipping check #%s...', row['check_number'])
             return
 
         party = row['party'].upper()
@@ -391,7 +395,7 @@ class BaseWellsFargoParser(BaseParser, USDateFormatMixin):
         # skip common transactions
         for prefix in WellFargoCheckingParser.PREFIXES_TO_SKIP:
             if party.startswith(prefix):
-                LOGGER.info('Skipping transaction: {party}...'.format(**row))
+                LOGGER.info('Skipping transaction: %s...', row['party'])
                 return
 
         receipt_date = parse_date(row['transaction_date'], self.DATE_FORMAT)
@@ -422,7 +426,7 @@ class ChaseVisaParser(BaseParser, USDateFormatMixin):
     def parse_row(self, row, line_number):
         # skip non-sale transactions
         if row['type'].upper() != 'SALE':
-            LOGGER.info('Skipping {type}: {party}...'.format(**row))
+            LOGGER.info('Skipping %s: %s...', row['type'], row['party'])
             return
 
         party = row['party'].upper()
@@ -446,10 +450,10 @@ class ChaseVisaParser(BaseParser, USDateFormatMixin):
 
 PARSER_MAP = [
     # (filename_prefix, parser_class)
-    ('bmo_savings', BMOBankAccountParser),
-    ('bmo_premium', BMOBankAccountParser),
-    ('bmo_mastercard', BMOCreditParser),
-    ('bmo_readiline', BMOCreditParser),
+    ('bmo_savings', BMOCSVBankAccountParser),
+    ('bmo_premium', BMOCSVBankAccountParser),
+    ('bmo_mastercard', BMOCSVCreditParser),
+    ('bmo_readiline', BMOCSVCreditParser),
     ('capitalone', CapitalOneParser),
     ('mbna_mastercard', MBNAMastercardParser),
     ('wellsfargo_checking', WellFargoCheckingParser),

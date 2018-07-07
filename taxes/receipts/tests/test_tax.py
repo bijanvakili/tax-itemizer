@@ -7,11 +7,16 @@ from taxes.receipts import (
 from taxes.receipts.tests import factories
 
 
+pytestmark = pytest.mark.usefixtures(  # pylint: disable=invalid-name
+    'transactional_db',
+)
+
+
 @pytest.mark.parametrize('total_amount, expected_tax_adjustment', (
-        (50850, 5850),
-        (-22599, -2600),
+    (50850, 5850),
+    (-22599, -2600),
 ))
-def test_hst_adjustment_basic(total_amount, expected_tax_adjustment, transactional_db):
+def test_hst_adjustment_basic(total_amount, expected_tax_adjustment):
     vendor = factories.VendorFactory.create(tax_adjustment_type=constants.TaxType.HST)
     payment_method = factories.PaymentMethodFactory.create(currency=constants.Currency.CAD)
     receipt = models.Receipt(
@@ -37,7 +42,7 @@ def test_hst_adjustment_basic(total_amount, expected_tax_adjustment, transaction
     (50850, 5850),
     (-22599, -2600),
 ))
-def test_hst_adjustment_periodic(total_amount, expected_tax_adjustment, transactional_db):
+def test_hst_adjustment_periodic(total_amount, expected_tax_adjustment):
     vendor = factories.VendorFactory.create(tax_adjustment_type=constants.TaxType.HST)
     periodic_payment = models.PeriodicPayment(
         name='test',

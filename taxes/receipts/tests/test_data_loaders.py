@@ -14,7 +14,7 @@ from .logging import log_contains_message, MockLogger
 
 
 @pytest.fixture(autouse=True)
-def data_loaders_setup(transactional_db):
+def data_loaders_setup(transactional_db):  # pylint: disable=unused-argument
     return
 
 
@@ -40,6 +40,7 @@ def test_payment_method_yaml_load():
     assert models.PaymentMethod.objects.count() == 11
 
 
+# pylint: disable=too-many-statements
 @pytest.mark.usefixtures('vendors_and_exclusions')
 def test_vendor_yaml_load():
     # verify sample financial assets
@@ -124,8 +125,10 @@ def test_vendor_yaml_load():
     assert results[1].pattern == 'INTEREST PAYMENT'
     assert results[1].match_operation == constants.AliasMatchOperation.EQUAL
     assert results[1].default_expense_type == constants.ExpenseType.CAPITAL_GAINS
+# pylint: enable=too-many-statements
 
 
+# pylint: disable=redefined-outer-name
 def test_forex_json_load(mock_logger):
     forex_json_filename = f'{settings.TEST_DATA_FIXTURE_DIR}/forex.json'
     data_loaders.load_fixture(data_loaders.DataLoadType.FOREX, forex_json_filename)
@@ -147,3 +150,4 @@ def test_forex_json_load(mock_logger):
         f'Saved {len(all_rates)} new forex rates',
         level=logging.INFO,
     )
+# pylint: enable=redefined-outer-name

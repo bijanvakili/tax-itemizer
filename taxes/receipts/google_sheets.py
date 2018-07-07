@@ -27,6 +27,15 @@ class WorksheetType(Enum):
     aggregate_usd = 'Aggregations (USD)'
 
 
+@unique
+class LineItemType(Enum):
+    """
+    Line item type
+    """
+    revenue = 'revenue'
+    cost = 'cost'
+
+
 WORKSHEET_COLUMN_FORMATS = {
     WorksheetType.forex: [
         {'type': 'DATE', 'pattern': 'yyyy"-"mm"-"dd'},          # Date
@@ -58,9 +67,17 @@ CONVERTER_SUBFORMULA = {
 
 AGGREGATE_FORMULA = \
     '=SUM(IFERROR(FILTER(ARRAYFORMULA({items}!$D$2:$D${total_items} * ' + \
-    '{converter}), {items}!$B$2:$B${total_items} = {col_asset}$1, {items}!$G$2:$G${total_items} = $A2),0))'
+    '{converter}), {items}!$B$2:$B${total_items} = ' + \
+    '{col_asset}$1, {items}!$G$2:$G${total_items} = $A2),0))'
 
 AGGREGATE_FORMAT = {'type': 'NUMBER', 'pattern': '#,##0.00;(#,##0.00)'}
+
+HST_FORMULA = {
+    LineItemType.revenue: '=SUMIF(Items!$F$2:$F${total_items},">0")',
+    LineItemType.cost:    '=SUMIF(Items!$F$2:$F${total_items},"<0")',
+}
+
+HST_START_CELL = (16, 6)
 
 EVEN_ROW_BACKGROUND = {
     'red': 0.8509804,
@@ -84,11 +101,8 @@ WORKSHEET_SOURCE_MODELS = {
 }
 
 
-def upload_to_gsheet(
-    config: GoogleSheetConfig,
-    start_timestamp: datetime.date,
-    end_timestamp: datetime.date,
-):
+def upload_to_gsheet(config: GoogleSheetConfig, start_timestamp: datetime.date,
+                     end_timestamp: datetime.date):
     # connect to spreadsheet
     gdrive_credentials = _load_credentials(config.credentials_file)
     gsheet_client = pygsheets.authorize(credentials=gdrive_credentials)
@@ -109,20 +123,12 @@ def upload_to_gsheet(
                                  total_items, total_rates)
 
 
-def _upload_to_worksheet(
-    gsheet_client,
-    spreadsheet,
-    worksheet_type: WorksheetType,
-    start_timestamp: datetime.date,
-    end_timestamp: datetime.date,
-
-):
+def _upload_to_worksheet(gsheet_client, spreadsheet, worksheet_type: WorksheetType,
+                         start_timestamp: datetime.date, end_timestamp: datetime.date):
     worksheet = spreadsheet.worksheet_by_title(worksheet_type.value)
     source_model = WORKSHEET_SOURCE_MODELS[worksheet_type]
     source_data = list(source_model.objects.sorted_report(start_timestamp, end_timestamp))
-    flattened_data = []
-    for row in source_data:
-        flattened_data.append(list(row))
+    flattened_data = [list(row) for row in source_data]
     num_rows = len(flattened_data)
     if not num_rows:
         LOGGER.warning('Range does not contain any data')
@@ -144,7 +150,8 @@ def _upload_to_worksheet(
     for col, col_format in enumerate(WORKSHEET_COLUMN_FORMATS[worksheet_type]):
         # grid range is half-open [start, end) where 'end' is exclusive
         # indices are zero-based
-        col_range = _make_column_range(worksheet, col, first_empty_row - 1, first_empty_row + num_rows)
+        col_range = _make_column_range(worksheet, col, first_empty_row - 1,
+                                       first_empty_row + num_rows)
         format_requests.append(_make_batch_format_request(col_range, col_format))
 
     # extend the conditional formatting to the new number of rows
@@ -165,13 +172,8 @@ def _upload_to_worksheet(
     LOGGER.info(f'Finished uploading {num_rows} rows to {worksheet_type.value} worksheet')
 
 
-def _refresh_aggregate_worksheet(
-    gsheet_client,
-    spreadsheet,
-    aggregate_type: WorksheetType,
-    total_items: int,
-    total_rates: int,
-):
+def _refresh_aggregate_worksheet(gsheet_client, spreadsheet, aggregate_type: WorksheetType,
+                                 total_items: int, total_rates: int):
     worksheet = spreadsheet.worksheet_by_title(aggregate_type.value)
     batch_requests = []
 
@@ -195,6 +197,44 @@ def _refresh_aggregate_worksheet(
             _make_batch_format_request(grid_range, AGGREGATE_FORMAT),
         ]
 
+    hst_range = _make_grid_range(
+        worksheet,
+        HST_START_CELL[1],
+        HST_START_CELL[1] + 1,
+        HST_START_CELL[0],
+        HST_START_CELL[0] + 1,
+    )
+    batch_requests.append(
+        _make_batch_formula_request(
+            hst_range,
+            HST_FORMULA[LineItemType.revenue].format(total_items=total_items)
+        )
+    )
+
+    hst_range = _make_grid_range(
+        worksheet,
+        HST_START_CELL[1],
+        HST_START_CELL[1] + 1,
+        HST_START_CELL[0] + 1,
+        HST_START_CELL[0] + 2,
+    )
+    batch_requests.append(
+        _make_batch_formula_request(
+            hst_range,
+            HST_FORMULA[LineItemType.cost].format(total_items=total_items)
+        )
+    )
+    hst_range = _make_grid_range(
+        worksheet,
+        HST_START_CELL[1],
+        HST_START_CELL[1] + 1,
+        HST_START_CELL[0],
+        HST_START_CELL[0] + 2,
+    )
+    batch_requests.append(
+        _make_batch_format_request(hst_range, AGGREGATE_FORMAT),
+    )
+
     gsheet_client.sh_batch_update(spreadsheet.id, batch_requests)
     LOGGER.info(f'Finished refreshing {aggregate_type.value} worksheet')
 
@@ -209,18 +249,22 @@ def _load_credentials(credentials_filename):
 
 
 def _get_first_empty_row(spreadsheet, worksheet):
-    if type(worksheet) == WorksheetType:
+    if isinstance(worksheet, WorksheetType):
         worksheet = spreadsheet.worksheet_by_title(worksheet.value)
     return len(worksheet.get_col(1, include_empty=False)) + 1
 
 
-def _make_grid_range(
-    worksheet,
-    start_col: int,
-    end_col: int,  # exclusive
-    start_row: int,
-    end_row: int,  # exclusive
-):
+def _make_grid_range(worksheet, start_col: int, end_col: int, start_row: int, end_row: int):
+    """
+    Constructs a grid range for Google sheets
+
+    :param worksheet:
+    :param start_col: inclusive
+    :param end_col: exclusive
+    :param start_row: inclusive
+    :param end_row: exclusive
+    :return:
+    """
     return {
         'sheetId': worksheet.id,
         'startRowIndex': start_row,
@@ -230,12 +274,16 @@ def _make_grid_range(
     }
 
 
-def _make_column_range(
-    worksheet,
-    col: int,
-    start_row: int,
-    end_row: int,  # exclusive
-):
+def _make_column_range(worksheet, col: int, start_row: int, end_row: int):
+    """
+    Constructs a single column grid range for Google Sheets
+
+    :param worksheet:
+    :param col:
+    :param start_row:
+    :param end_row: this is exclusive
+    :return:
+    """
     return _make_grid_range(worksheet, col, col + 1, start_row, end_row)
 
 

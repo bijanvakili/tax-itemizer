@@ -25,3 +25,5 @@ def _compute_tax_adjustment_amount(receipt: models.Receipt, tax_type: constants.
     if tax_type == constants.TaxType.HST:
         tax_amount = Decimal(receipt.total_amount) * (Decimal(1) - (Decimal(1) / Decimal(1.13)))
         return round(tax_amount)
+
+    raise ValueError('Unsupported tax type')

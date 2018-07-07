@@ -6,7 +6,8 @@ import pygsheets
 from pygsheets.client import SCOPES as PYGSHEETS_SCOPES
 from pygsheets.custom_types import ValueRenderOption
 
-if __name__ == '__main__':
+
+def main():
     parser = argparse.ArgumentParser(description='Google Sheet Inspector')
     parser.add_argument('credentials_file', type=str)
     parser.add_argument('spreadsheet_id', type=str)
@@ -28,3 +29,7 @@ if __name__ == '__main__':
     )
 
     pprint(result)
+
+
+if __name__ == '__main__':
+    main()

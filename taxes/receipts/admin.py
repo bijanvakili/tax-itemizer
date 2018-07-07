@@ -66,6 +66,7 @@ class TaxAdjustmentAdmin(admin.ModelAdmin):
     list_display = ('receipt_purchase_at', 'receipt_vendor_name', 'tax_type', 'amount',)
     raw_id_fields = ('receipt',)
 
+    # pylint: disable=no-self-use
     def receipt_purchase_at(self, obj):
         return obj.receipt.purchased_at
     receipt_purchase_at.short_description = 'Receipt Purchased At'
@@ -73,3 +74,4 @@ class TaxAdjustmentAdmin(admin.ModelAdmin):
     def receipt_vendor_name(self, obj):
         return obj.receipt.vendor.name
     receipt_vendor_name.short_description = 'Receipt Vendor Name'
+    # pylint: enable=no-self-use

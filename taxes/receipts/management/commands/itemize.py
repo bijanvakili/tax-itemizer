@@ -4,6 +4,7 @@ import sys
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
+from taxes.receipts.management.shared import DBTransactionMixin
 from taxes.receipts.parsers import get_parser_class
 
 LOGGER = logging.getLogger(__name__)
@@ -17,12 +18,12 @@ SELECTABLE_LOGGING_LEVELS = {
 }
 
 
-class Command(BaseCommand):
+class Command(DBTransactionMixin, BaseCommand):
     help = 'Parses and itemizes transactions'
 
     def add_arguments(self, parser):
-        parser.add_argument('--dry-run', action='store_true', help='Do not store results in database')
         parser.add_argument('--log-level', help='Logging level')
+        super().add_arguments(parser)
         parser.add_argument('transaction_filenames', nargs='+')
 
     def handle(self, *args, **options):
@@ -30,36 +31,27 @@ class Command(BaseCommand):
         log_level = options['log_level']
         transaction_filenames = options['transaction_filenames']
 
-        transaction.set_autocommit(False)
         if log_level:
             try:
                 level = SELECTABLE_LOGGING_LEVELS[log_level.upper()]
             except KeyError:
-                LOGGER.error('Invalid log level name: ' + log_level)
+                LOGGER.error('Invalid log level name: %s', log_level)
             else:
                 root_logger = logging.getLogger('taxes.receipts')
                 root_logger.setLevel(level)
 
-        try:
+        with self.ensure_atomic(dry_run, logger=LOGGER):
             total_failures = self._import_files(transaction_filenames)
-        except Exception:
-            transaction.rollback()
-            LOGGER.exception('Unhandled exception')
-            sys.exit(1)
+            if total_failures > 0:
+                LOGGER.info('Rolling back...')
+                transaction.rollback()
+                sys.exit(1)
 
-        if dry_run or total_failures > 0:
-            LOGGER.info('Rolling back...')
-            transaction.rollback()
-        else:
-            transaction.commit()
-
-        if total_failures:
-            sys.exit(1)
-
-    def _import_files(self, transaction_filenames):
+    @staticmethod
+    def _import_files(transaction_filenames):
         total_failures = 0
         for tx_filename in transaction_filenames:
-            LOGGER.info(f'Starting to process: {tx_filename}...')
+            LOGGER.info('Starting to process: %s...', tx_filename)
 
             parser_class = get_parser_class(tx_filename)
             parser = parser_class()

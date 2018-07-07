@@ -7,3 +7,11 @@ repos:
     # Required due to pre-commit-hooks bug #112
     # https://github.com/pre-commit/pre-commit-hooks/issues/112
     exclude: 'taxes/receipts/migrations'
+
+- repo: git://github.com/pre-commit/mirrors-pylint
+  rev: v1.9.1
+  hooks:
+  - id: pylint
+    entry: pylint
+    args: ["--rcfile=.pylintrc"]
+    additional_dependencies: [pylint_django, django]

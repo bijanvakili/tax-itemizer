@@ -8,7 +8,7 @@ import pytest
 from taxes.receipts import constants, models, parsers
 from .logging import log_contains_message, MockLogger
 
-pytestmark = pytest.mark.usefixtures(
+pytestmark = pytest.mark.usefixtures(  # pylint: disable=invalid-name
     'transactional_db',
     'payment_methods',
     'vendors_and_exclusions'
@@ -36,14 +36,10 @@ def _run_parser(filename, transaction_dir=None, logger=None):
     assert parser.failures == 0
 
 
-@pytest.fixture()
-def run_parser(transaction_fixture_dir, mock_logger):
-    return functools.partial(_run_parser, transaction_dir=transaction_fixture_dir, logger=mock_logger)
-
-
 def _skipped_vendors_from_log(logger):
     actual_skip_warnings = filter(
-        lambda m: m.level == logging.WARN and re.match(r'^Skipped vendor', m.msg),
+        lambda m: m.level == logging.WARN and
+        re.match(r'^Skipped vendor', m.msg),
         logger.messages
     )
     return set(
@@ -69,11 +65,23 @@ def _verify_receipts(actual_receipts, expected_receipt_values):
         (purchased_at, vendor.name, total_amount, expense_type)
     """
     assert len(actual_receipts) == len(expected_receipt_values)
-    for i, r in enumerate(actual_receipts):
-        assert r.purchased_at.isoformat() == expected_receipt_values[i][0]
-        assert r.vendor.name == expected_receipt_values[i][1]
-        assert r.total_amount == expected_receipt_values[i][2]
-        assert r.expense_type == expected_receipt_values[i][3]
+    for i, receipt in enumerate(actual_receipts):
+        assert receipt.purchased_at.isoformat() == expected_receipt_values[i][0]
+        assert receipt.vendor.name == expected_receipt_values[i][1]
+        assert receipt.total_amount == expected_receipt_values[i][2]
+        assert receipt.expense_type == expected_receipt_values[i][3]
+
+
+# pylint: disable=redefined-outer-name
+@pytest.fixture()
+def run_parser(transaction_fixture_dir, mock_logger):
+    # clear the cache to to avoid using primary keys from test fixtures
+    # pylint: disable=protected-access
+    parsers.BaseParser._get_payment_method.cache_clear()
+    # pylint: enable=protected-access
+
+    return functools.partial(_run_parser,
+                             transaction_dir=transaction_fixture_dir, logger=mock_logger)
 
 
 def test_parse_bmo_savings(run_parser):
@@ -156,7 +164,7 @@ def test_parse_readiline(run_parser, mock_logger):
     run_parser('bmo_readiline_2016-09.csv')
 
     actual_skipped_vendors = _skipped_vendors_from_log(mock_logger)
-    assert len(actual_skipped_vendors) == 0
+    assert actual_skipped_vendors == set()
 
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
@@ -216,7 +224,7 @@ def test_parse_mbna(run_parser, mock_logger):
     assert {r.currency for r in actual_receipts} == {constants.Currency.CAD}
 
 
-def test_parse_checking_account_basic(run_parser, mock_logger):
+def test_parse_checking_account_basic(run_parser, mock_logger):  # pylint: disable=invalid-name
     run_parser('wellsfargo_checking_2016-08.csv')
 
     # collect skip warnings
@@ -243,7 +251,7 @@ def test_parse_checking_account_basic(run_parser, mock_logger):
     assert {r.currency for r in actual_receipts} == {constants.Currency.USD}
 
 
-def test_parse_checking_account_basic_with_fixed_amount(run_parser, mock_logger):
+def test_parse_checking_account_with_fixed_amount(run_parser):  # pylint: disable=invalid-name
     run_parser('wellsfargo_checking_2016-09_fixed_amount.csv')
 
     actual_receipts = _all_sorted_receipts()
@@ -327,7 +335,8 @@ def test_parse_chase_visa(run_parser, mock_logger):
         ('2016-09-10', 'Uber', -475, constants.ExpenseType.TRAVEL),
         ('2016-09-10', 'Uber', -475, constants.ExpenseType.TRAVEL),
         ('2016-09-10', 'Uber', -200, constants.ExpenseType.TRAVEL),
-        ('2016-09-11', 'Il Fornaio Caffe Del Mondo', -1468, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-11', 'Il Fornaio Caffe Del Mondo', -1468,
+         constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
         ('2016-09-11', 'Uber', -1917, constants.ExpenseType.TRAVEL),
         ('2016-09-13', 'Uber', -712, constants.ExpenseType.TRAVEL),
         ('2016-09-13', 'Uber', -461, constants.ExpenseType.TRAVEL),
@@ -341,7 +350,8 @@ def test_parse_chase_visa(run_parser, mock_logger):
         ('2016-09-19', 'Glaze Teriyaki', -1578, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
         ('2016-09-19', 'Saiwalks', -1952, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
         ('2016-09-20', 'Uber', -332, constants.ExpenseType.TRAVEL),
-        ('2016-09-21', 'Taqueria El Buen Sabor', -1115, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2016-09-21', 'Taqueria El Buen Sabor', -1115,
+         constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
         ('2016-09-22', 'Freshbooks', -995, constants.ExpenseType.ADMINISTRATIVE),
         ('2016-09-24', 'FedEx', -274, constants.ExpenseType.ADMINISTRATIVE),
         ('2016-09-24', 'Uber', -475, constants.ExpenseType.TRAVEL),
@@ -355,3 +365,4 @@ def test_parse_chase_visa(run_parser, mock_logger):
         ('2016-09-30', 'Sharetea', -575, constants.ExpenseType.MEALS_AND_ENTERTAINMENT)
     ]
     _verify_receipts(actual_receipts, expected_receipt_values)
+# pylint: enable=redefined-outer-name
