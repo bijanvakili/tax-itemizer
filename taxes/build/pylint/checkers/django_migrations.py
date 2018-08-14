@@ -47,7 +47,7 @@ class DjangoMigrationChecker(BaseChecker):
             return
 
         for module_name, _ in node.names:
-            if module_name.startswith('taxes'):
+            if module_name.startswith('taxes') and module_name != 'taxes.receipts.models.fields':
                 self.add_message(
                     'migration-import-app',
                     node=node,
