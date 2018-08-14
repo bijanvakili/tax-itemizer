@@ -11,7 +11,7 @@ ignore=.git,tmp
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
-ignore-patterns=^\d{4}_.+\.py$
+#ignore-patterns=
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
