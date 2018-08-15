@@ -1,5 +1,6 @@
 from django.contrib import admin
 from enumfields.admin import EnumFieldListFilter
+
 from . import models
 
 
@@ -63,13 +64,15 @@ class ForexRateAdmin(admin.ModelAdmin):
 
 @admin.register(models.TaxAdjustment)
 class TaxAdjustmentAdmin(admin.ModelAdmin):
-    list_display = ('receipt_purchase_at', 'receipt_vendor_name', 'tax_type', 'amount',)
+    list_display = ('receipt_purchased_at', 'receipt_vendor_name', 'tax_type', 'amount',)
+    ordering = ('receipt__purchased_at', )
     raw_id_fields = ('receipt',)
 
     # pylint: disable=no-self-use
-    def receipt_purchase_at(self, obj):
+    def receipt_purchased_at(self, obj):
         return obj.receipt.purchased_at
-    receipt_purchase_at.short_description = 'Receipt Purchased At'
+    receipt_purchased_at.short_description = 'Receipt Purchased At'
+    receipt_purchased_at.admin_order_field = 'receipt__purchased_at'
 
     def receipt_vendor_name(self, obj):
         return obj.receipt.vendor.name

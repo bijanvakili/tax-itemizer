@@ -218,6 +218,7 @@ class BMOTransactionCode(Enum):
     DEBIT_MEMO = 'DM'
     ADJUSTMENT = 'AD'
     BILL_PAYMENT_CANCELLED = 'BC'
+    OTHER_AUTOMATED_MACHINE = 'OM'
 
 
 class BMOCSVBankAccountParser(BaseBMOCSVParser):
