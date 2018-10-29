@@ -24,11 +24,7 @@ TEST_DATA_FIXTURE_DIR = os.path.join(os.getcwd(), 'data', 'fixtures', 'tests')  
 with open(RECEIPTS_CONFIG_PATH, 'r') as receipt_config_file:
     RECEIPTS_CONFIG = yaml.load(receipt_config_file)
 
-# TODO find out why DEBUG = False is crashing the admin panel
-#
-# DEBUG = RECEIPTS_CONFIG.get('DEBUG', False)
-#
-DEBUG = True
+DEBUG = RECEIPTS_CONFIG.get('DEBUG', False)
 
 LOGGING = RECEIPTS_CONFIG.get('LOGGING')
 EXCLUSION_FILTER_MODULES = RECEIPTS_CONFIG.get('EXCLUSION_FILTER_MODULES', [])

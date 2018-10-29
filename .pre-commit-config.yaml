@@ -14,4 +14,4 @@ repos:
   - id: pylint
     entry: pylint
     args: ["--rcfile=.pylintrc"]
-    additional_dependencies: [pylint_django, django, django-enumfields]
+    additional_dependencies: [pylint_django, django, django-enumfields, dj-database-url]
