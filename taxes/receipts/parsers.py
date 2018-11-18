@@ -316,6 +316,7 @@ class USDateFormatMixin(object):
 
 
 class CapitalOneParser(BaseParser):
+    FIXED_PAYMENT_METHOD_NAME = 'CapitalOne Platinum Mastercard'
     DATE_FORMAT = '%m/%d/%Y'
     CSV_FIELDS = ['stage', 'transaction_date', 'posted_date', 'card_number', 'description',
                   'category', 'debit', 'credit']
