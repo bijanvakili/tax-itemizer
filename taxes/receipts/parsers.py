@@ -81,6 +81,7 @@ class BaseParser(metaclass=abc.ABCMeta):
         self.failures = 0
         self.fixed_payment_method = None
         self.exclusion_filters = load_filters_from_modules(settings.EXCLUSION_FILTER_MODULES)
+        self.current_filename = None
 
     def parse(self, filename):
         # set the fixed card number if the class specifies it
@@ -89,6 +90,7 @@ class BaseParser(metaclass=abc.ABCMeta):
                 name=self.FIXED_PAYMENT_METHOD_NAME
             )
 
+        self.current_filename = os.path.basename(filename)
         self.failures = 0
         with open(filename, 'r') as csv_file:
             file_iterator = FileIterator(csv_file, self.filters)
@@ -173,7 +175,7 @@ class BaseParser(metaclass=abc.ABCMeta):
             )
         except django_exc.ObjectDoesNotExist:
             self.failures += 1
-            LOGGER.error(f'Pattern not found: {pattern}')
+            LOGGER.error(f'Pattern not found in {self.current_filename}: {pattern}')
             return None
 
         # prioritize vendor alias's expense type over the vendor's expense type
