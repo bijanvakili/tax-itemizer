@@ -1,16 +1,16 @@
 assets:
   -
     name: 1001-25 Wellesley St
-    type: rental
+    asset_type: rental
   -
     name: 5-699 Amber St
-    type: rental
+    asset_type: rental
   -
     name: Sole Proprietorship
-    type: proprietorship
+    asset_type: proprietorship
   -
     name: U.S. Employment
-    type: employment
+    asset_type: employment
 
 vendors:
   -
@@ -772,6 +772,20 @@ vendors:
         pattern: 'ANNUAL FEE FOR%'
         match_operation: like
         default_expense_type: administrative
+  -
+    name: Ho Da La
+    default_expense_type: meals
+    aliases:
+      -
+        pattern: 'HODALA RESTAURANT%'
+        match_operation: like
+  -
+    name: Mainland Market
+    default_expense_type: meals
+    aliases:
+      -
+        pattern: 'MAINLAND MARKET'
+        match_operation: equal
 
 exclusions:
 - SAFEWAY

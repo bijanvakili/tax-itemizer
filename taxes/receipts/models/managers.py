@@ -49,7 +49,7 @@ class ReceiptManager(ReportMixinBase, models.Manager):
     def sorted_report(self, start_date: datetime.date, end_date: datetime.date) -> TUPLE_GENERATOR:
         receipts = self.get_queryset() \
             .select_related('vendor', 'vendor__assigned_asset', 'payment_method') \
-            .filter(purchased_at__range=(start_date, end_date)) \
+            .filter(transaction_date__range=(start_date, end_date)) \
             .extra(select={
                 'hst_amount': """
                     SELECT SUM(amount)
@@ -57,7 +57,7 @@ class ReceiptManager(ReportMixinBase, models.Manager):
                     WHERE ta.tax_type = 'hst' AND ta.receipt_id = receipt.id
                 """
             }) \
-            .order_by('purchased_at', 'vendor__name', 'total_amount')
+            .order_by('transaction_date', 'vendor__name', 'total_amount')
 
         for receipt in receipts:
             financial_asset = receipt.vendor.assigned_asset
@@ -69,7 +69,7 @@ class ReceiptManager(ReportMixinBase, models.Manager):
                 hst_amount = ''
 
             yield ItemizedReceiptFields(
-                receipt.purchased_at.isoformat(),
+                receipt.transaction_date.isoformat(),
                 financial_asset.name if financial_asset else '',
                 receipt.currency.value,
                 amount_in_cents,

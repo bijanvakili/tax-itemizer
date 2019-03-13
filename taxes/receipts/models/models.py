@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import fields as django_fields
 
@@ -18,6 +19,13 @@ __all__ = [
 ]
 
 
+def validate_uppercase(value):
+    if value != value.upper():
+        raise ValidationError('Invalid value (must be uppercase): %(value)s',
+                              code='invalid',
+                              params={'value': value})
+
+
 class SurrogateIdMixin(models.Model):
     """
     Base class for any model that requires a standard UUID surrogate primary key
@@ -33,7 +41,7 @@ class FinancialAsset(SurrogateIdMixin):
         db_table = 'financial_asset'
 
     name = models.CharField(max_length=200, unique=True, db_index=True)
-    type = fields.enum_field(constants.FinancialAssetType)
+    asset_type = fields.enum_field(constants.FinancialAssetType)
 
     def __str__(self):
         return self.name
@@ -49,6 +57,7 @@ class Vendor(SurrogateIdMixin):
     name = models.CharField(max_length=200, unique=True, db_index=True)
     default_expense_type = fields.enum_field(constants.ExpenseType, db_index=True,
                                              null=True, blank=True)
+    # TODO should this be a DecimalField?
     fixed_amount = models.IntegerField(null=True, default=None, blank=True)
     assigned_asset = models.ForeignKey('FinancialAsset', on_delete=models.SET_NULL,
                                        db_index=True, related_name='assigned_vendors',
@@ -90,8 +99,8 @@ class ExclusionCondition(SurrogateIdMixin):
     class Meta:
         db_table = 'exclusion_condition'
 
-    # TODO enforce uppercase through validation
-    prefix = models.CharField(max_length=200, db_index=True, null=True, blank=True)
+    prefix = models.CharField(max_length=200, db_index=True, null=True, blank=True,
+                              validators=[validate_uppercase])
     on_date = models.DateField(db_index=True, null=True, blank=True)
     amount = models.IntegerField(null=True, blank=True)
 
@@ -107,7 +116,7 @@ class PaymentMethod(SurrogateIdMixin):
 
     name = models.CharField(max_length=200, unique=True, db_index=True)
     description = models.TextField()
-    type = fields.enum_field(constants.PaymentMethod)
+    method_type = fields.enum_field(constants.PaymentMethod)
     safe_numeric_id = models.CharField(max_length=4, db_index=True)
     currency = fields.enum_field(constants.Currency)
 
@@ -124,8 +133,7 @@ class Receipt(SurrogateIdMixin):
     vendor = models.ForeignKey('Vendor', on_delete=models.PROTECT,
                                db_index=True, related_name='client_receipts')
     expense_type = fields.enum_field(constants.ExpenseType)
-    # TODO rename this to transaction_date
-    purchased_at = models.DateField(db_index=True)
+    transaction_date = models.DateField(db_index=True)
     payment_method = models.ForeignKey('PaymentMethod', on_delete=models.PROTECT,
                                        db_index=True)
     # TODO should this be a DecimalField?
@@ -175,7 +183,7 @@ class ForexRate(SurrogateIdMixin):
 class TaxAdjustment(SurrogateIdMixin):
     class Meta:
         db_table = 'tax_adjustment'
-        ordering = ('receipt__purchased_at', 'receipt__vendor__name', 'tax_type',)
+        ordering = ('receipt__transaction_date', 'receipt__vendor__name', 'tax_type',)
 
     receipt = models.ForeignKey('Receipt', on_delete=models.CASCADE,
                                 db_index=True, related_name='tax_adjustments')

@@ -83,7 +83,9 @@ class VendorYamlLoader(BaseYamlDataLoader):
         for financial_asset in all_assets:
             new_asset_params = {}
             new_asset_params['name'] = financial_asset['name']
-            new_asset_params['type'] = constants.FinancialAssetType(financial_asset['type'])
+            new_asset_params['asset_type'] = constants.FinancialAssetType(
+                financial_asset['asset_type']
+            )
             asset_map[new_asset_params['name']] = models.FinancialAsset.objects.create(
                 **new_asset_params
             )

@@ -37,8 +37,8 @@ class Command(DBTransactionMixin, BaseCommand):
 
     def _backfill_hst(self, csv_filename):
         min_receipt_date = models.Receipt.objects.aggregate(
-            Min('purchased_at')
-        )['purchased_at__min']
+            Min('transaction_date')
+        )['transaction_date_at__min']
 
         with open(csv_filename, 'r') as csv_file:
             reader = csv.DictReader(csv_file)
@@ -59,7 +59,7 @@ class Command(DBTransactionMixin, BaseCommand):
                     total_amount = self.parse_accounting_str_amount(row['Amount (CAD)'])
 
                     receipt = models.Receipt.objects.get(
-                        purchased_at=receipt_date,
+                        transaction_date=receipt_date,
                         currency=constants.Currency.CAD,
                         vendor__name=row['Transaction Party'],
                         total_amount=total_amount,

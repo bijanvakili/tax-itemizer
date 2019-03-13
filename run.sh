@@ -23,6 +23,9 @@ fi
 if [ "${COMMAND}" == "test" ]; then
     shift
     RECEIPTS_ENV=test pytest $@
+elif [ "${COMMAND}" == "lint" ]; then
+    flake8
+    pylint taxes/
 elif [ "${COMMAND}" == "web" ]; then
     python manage.py runserver --insecure
 else

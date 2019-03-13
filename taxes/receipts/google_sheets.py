@@ -77,7 +77,7 @@ HST_FORMULA = {
     LineItemType.cost:    '=SUMIF(Items!$F$2:$F${total_items},"<0")',
 }
 
-HST_START_CELL = (16, 6)
+HST_START_CELL = (17, 6)
 
 EVEN_ROW_BACKGROUND = {
     'red': 0.8509804,
@@ -87,7 +87,7 @@ EVEN_ROW_BACKGROUND = {
 
 # TODO avoid hardcoding these
 NUM_AGGREGATE_ASSETS = 4
-NUM_AGGREGATE_TAX_CATEGORIES = 14
+NUM_AGGREGATE_TAX_CATEGORIES = 15
 
 GoogleSheetConfig = typing.NamedTuple('GoogleSheetConfig', [
     ('id', str),

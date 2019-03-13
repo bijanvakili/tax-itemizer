@@ -6,7 +6,7 @@ from . import models
 
 @admin.register(models.PaymentMethod)
 class PaymentMethodAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type', 'safe_numeric_id', )
+    list_display = ('name', 'method_type', 'safe_numeric_id', )
     ordering = ('name', )
 
 
@@ -44,16 +44,16 @@ class PeriodicPaymentAdmin(admin.ModelAdmin):
 
 @admin.register(models.Receipt)
 class ReceiptAdmin(admin.ModelAdmin):
-    list_display = ('purchased_at', 'expense_type', 'vendor', 'total_amount', 'currency')
-    ordering = ('purchased_at', 'expense_type', 'vendor', 'total_amount', )
+    list_display = ('transaction_date', 'expense_type', 'vendor', 'total_amount', 'currency')
+    ordering = ('transaction_date', 'expense_type', 'vendor', 'total_amount', )
     raw_id_fields = ('vendor', 'payment_method', )
-    search_fields = ('purchased_at', 'vendor__name',)
+    search_fields = ('transaction_date', 'vendor__name',)
 
 
 @admin.register(models.FinancialAsset)
 class FinancialAssetAdmin(admin.ModelAdmin):
     ordering = ('name', )
-    list_display = ('name', 'type', )
+    list_display = ('name', 'asset_type', )
 
 
 @admin.register(models.ForexRate)
@@ -64,15 +64,15 @@ class ForexRateAdmin(admin.ModelAdmin):
 
 @admin.register(models.TaxAdjustment)
 class TaxAdjustmentAdmin(admin.ModelAdmin):
-    list_display = ('receipt_purchased_at', 'receipt_vendor_name', 'tax_type', 'amount',)
-    ordering = ('receipt__purchased_at', )
+    list_display = ('receipt_transaction_date', 'receipt_vendor_name', 'tax_type', 'amount',)
+    ordering = ('receipt__transaction_date', )
     raw_id_fields = ('receipt',)
 
     # pylint: disable=no-self-use
-    def receipt_purchased_at(self, obj):
-        return obj.receipt.purchased_at
-    receipt_purchased_at.short_description = 'Receipt Purchased At'
-    receipt_purchased_at.admin_order_field = 'receipt__purchased_at'
+    def receipt_transaction_date(self, obj):
+        return obj.receipt.transaction_date
+    receipt_transaction_date.short_description = 'Receipt Transaction Date'
+    receipt_transaction_date.admin_order_field = 'receipt__transaction_date'
 
     def receipt_vendor_name(self, obj):
         return obj.receipt.vendor.name

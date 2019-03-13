@@ -29,7 +29,6 @@ def _run_parser(filename, transaction_dir=None, logger=None):
     pathname = os.path.join(transaction_dir, filename)
     parser_class = parsers.get_parser_class(pathname)
     parser = parser_class()
-    # TODO remove category 'Payment'
     parser.parse(pathname)
 
     assert not log_contains_message(logger, 'Pattern not found', level=logging.ERROR)
@@ -54,7 +53,7 @@ def _all_sorted_receipts():
     return list(
         models.Receipt.objects
         .select_related('vendor', 'payment_method')
-        .order_by('purchased_at', 'vendor__name', 'expense_type', 'total_amount')
+        .order_by('transaction_date', 'vendor__name', 'expense_type', 'total_amount')
     )
 
 
@@ -62,11 +61,11 @@ def _verify_receipts(actual_receipts, expected_receipt_values):
     """
     :param actual_receipts: array of models.Receipt
     :param expected_receipt_values: array of tuples
-        (purchased_at, vendor.name, total_amount, expense_type)
+        (transaction_date, vendor.name, total_amount, expense_type)
     """
     assert len(actual_receipts) == len(expected_receipt_values)
     for i, receipt in enumerate(actual_receipts):
-        assert receipt.purchased_at.isoformat() == expected_receipt_values[i][0]
+        assert receipt.transaction_date.isoformat() == expected_receipt_values[i][0]
         assert receipt.vendor.name == expected_receipt_values[i][1]
         assert receipt.total_amount == expected_receipt_values[i][2]
         assert receipt.expense_type == expected_receipt_values[i][3]
@@ -189,7 +188,7 @@ def test_parse_capitalone(run_parser, mock_logger):
 
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
-        # (purchased_at, vendor.name, total_amount)
+        # (transaction_date, vendor.name, total_amount)
         ('2017-09-04', 'Embarcadero Cinemas', -2600, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
         ('2017-09-09', 'Marina Supermarket', -2520, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
         ('2017-09-17', 'Yum Yum Hunan', -3054, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
@@ -215,7 +214,7 @@ def test_parse_mbna(run_parser, mock_logger):
 
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
-        # (purchased_at, vendor.name, total_amount)
+        # (transaction_date, vendor.name, total_amount)
         ('2016-09-16', 'Relay', -281, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
     ]
     _verify_receipts(actual_receipts, expected_receipt_values)
@@ -239,7 +238,7 @@ def test_parse_checking_account_basic(run_parser, mock_logger):  # pylint: disab
 
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
-        # (purchased_at, vendor.name, total_amount)
+        # (transaction_date, vendor.name, total_amount)
         ('2016-08-15', 'Liars', 8035, constants.ExpenseType.FOREIGN_INCOME),
         ('2016-08-15', 'Wells Fargo', 31, constants.ExpenseType.CAPITAL_GAINS),
         ('2016-08-30', '21st Century Insurance', -7666, constants.ExpenseType.INSURANCE),
@@ -256,7 +255,7 @@ def test_parse_checking_account_with_fixed_amount(run_parser):  # pylint: disabl
 
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
-        # (purchased_at, vendor.name, total_amount)
+        # (transaction_date, vendor.name, total_amount)
         ('2016-09-16', 'Xoom', -499, constants.ExpenseType.ADMINISTRATIVE),
         ('2016-09-28', '21st Century Insurance', -7666, constants.ExpenseType.INSURANCE),
     ]
@@ -279,7 +278,7 @@ def test_parse_wellsfargo_visa(run_parser, mock_logger):
 
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
-        # (purchased_at, vendor.name, total_amount)
+        # (transaction_date, vendor.name, total_amount)
         ('2016-09-01', 'Chariot', -11900, constants.ExpenseType.TRAVEL),
         ('2016-09-01', 'Wells Fargo', -2500, constants.ExpenseType.ADMINISTRATIVE),
         ('2016-09-03', 'Crepevine', -1469, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
@@ -292,77 +291,21 @@ def test_parse_wellsfargo_visa(run_parser, mock_logger):
 
 
 def test_parse_chase_visa(run_parser, mock_logger):
-    run_parser('chase_visa_2016-09.csv')
+    run_parser('chase_visa_2019-02.csv')
 
     actual_skipped_vendors = _skipped_vendors_from_log(mock_logger)
     expected_skipped_vendors = {
-        'ATT*BILL PAYMENT',
-        'AT&AMP;T*BILL PAYMENT',
         'BANANAREPUBLIC US 8035',
-        'CHESTNUT ST COFFEE ROASTE',
-        'DON PABLO',
-        'MAVEN',
-        'RINCON MARKET',
-        'SPORTS BASEMENT',
-        'SQ *ALLSTAR CAFE',
-        'SQ *BLUE BOTTLE COFFEE',
-        'SQ *COUNTER OFFER, LLC',
-        'SQ *OVER THE MOON',
-        'SAFEWAY  STORE00017111',
-        'WALGREENS #1403',
     }
     assert expected_skipped_vendors == actual_skipped_vendors
 
     actual_receipts = _all_sorted_receipts()
     expected_receipt_values = [
-        # (purchased_at, vendor.name, total_amount)
-        ('2016-09-01', 'Blackwood', -7315, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-01', 'The Market', -1487, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-02', "Lee's Deli", -1009, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-02', 'Squat and Gobble', -1477, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-03', 'IHOP', -1812, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-04', "Barney's Burgers", -2529, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-04', 'Squat and Gobble', -1771, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-06', 'The Market', -1372, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-06', 'We Be Sushi', -2349, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-07', 'Gyro King', -1617, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-08', 'Air Canada', -126433, constants.ExpenseType.TRAVEL),
-        ('2016-09-08', 'Air Canada', -83409, constants.ExpenseType.TRAVEL),
-        ('2016-09-08', 'Uber', -598, constants.ExpenseType.TRAVEL),
-        ('2016-09-09', 'Expedia', -1000, constants.ExpenseType.TRAVEL),
-        ('2016-09-10', "Barney's Burgers", -2591, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-10', 'Squat and Gobble', -1613, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-10', 'Uber', -475, constants.ExpenseType.TRAVEL),
-        ('2016-09-10', 'Uber', -475, constants.ExpenseType.TRAVEL),
-        ('2016-09-10', 'Uber', -200, constants.ExpenseType.TRAVEL),
-        ('2016-09-11', 'Il Fornaio Caffe Del Mondo', -1468,
-         constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-11', 'Uber', -1917, constants.ExpenseType.TRAVEL),
-        ('2016-09-13', 'Uber', -712, constants.ExpenseType.TRAVEL),
-        ('2016-09-13', 'Uber', -461, constants.ExpenseType.TRAVEL),
-        ('2016-09-15', 'Bonita Taqueria', -1170, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-15', 'Uber', -1880, constants.ExpenseType.TRAVEL),
-        ('2016-09-15', 'Uber', -457, constants.ExpenseType.TRAVEL),
-        ('2016-09-16', 'The Sandwich Spot', -1474, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-16', 'Uber', -1999, constants.ExpenseType.TRAVEL),
-        ('2016-09-18', 'Pacific Catch', -2531, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-18', 'Zipcar', -762, constants.ExpenseType.TRAVEL),
-        ('2016-09-19', 'Glaze Teriyaki', -1578, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-19', 'Saiwalks', -1952, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-20', 'Uber', -332, constants.ExpenseType.TRAVEL),
-        ('2016-09-21', 'Taqueria El Buen Sabor', -1115,
-         constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-22', 'Freshbooks', -995, constants.ExpenseType.ADMINISTRATIVE),
-        ('2016-09-24', 'FedEx', -274, constants.ExpenseType.ADMINISTRATIVE),
-        ('2016-09-24', 'Uber', -475, constants.ExpenseType.TRAVEL),
-        ('2016-09-25', 'IHOP', -1894, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-25', 'Uber', -1431, constants.ExpenseType.TRAVEL),
-        ('2016-09-25', 'Uber', -500, constants.ExpenseType.TRAVEL),
-        ('2016-09-25', 'Uber', -475, constants.ExpenseType.TRAVEL),
-        ('2016-09-26', 'Github', -700, constants.ExpenseType.ADMINISTRATIVE),
-        ('2016-09-30', 'FedEx', -288, constants.ExpenseType.ADMINISTRATIVE),
-        ('2016-09-30', 'Glaze Teriyaki', -1588, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
-        ('2016-09-30', 'Sharetea', -575, constants.ExpenseType.MEALS_AND_ENTERTAINMENT)
+        # (transaction_date, vendor.name, total_amount)
+        ('2019-02-24', 'Ho Da La', -4283, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2019-02-24', 'Mainland Market', -5770, constants.ExpenseType.MEALS_AND_ENTERTAINMENT),
+        ('2019-02-26', "Github", -700, constants.ExpenseType.ADMINISTRATIVE),
+        ('2019-02-27', 'Intuit', -2398, constants.ExpenseType.ADMINISTRATIVE),
     ]
     _verify_receipts(actual_receipts, expected_receipt_values)
 # pylint: enable=redefined-outer-name

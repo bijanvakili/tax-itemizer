@@ -2,17 +2,17 @@
 payment_methods:
   defaults:
     currency: USD
-    type: credit_card
+    method_type: credit_card
   objects:
     -
       description: "American cash transactions"
       name: "USD Cash"
-      type: cash
+      method_type: cash
     -
       currency: CAD
       description: "Canadian cash transactions"
       name: "CAD Cash"
-      type: cash
+      method_type: cash
     -
       description: "Preferred card with cash back"
       name: "Chase Freedom Visa"

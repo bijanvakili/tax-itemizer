@@ -70,7 +70,6 @@ class VendorMatch(typing.NamedTuple):
     expense_type: constants.ExpenseType
 
 
-# TODO remap dict keys in base class
 class BaseParser(metaclass=abc.ABCMeta):
     CSV_FIELDS = None
     CSV_QUOTECHAR = '"'
@@ -131,7 +130,7 @@ class BaseParser(metaclass=abc.ABCMeta):
 
     @staticmethod
     def _add_new_receipt(vendor_match: VendorMatch,
-                         purchased_at: datetime.date,
+                         transaction_date: datetime.date,
                          payment_method: models.PaymentMethod,
                          total_amount: int,
                          currency: constants.Currency):
@@ -142,7 +141,7 @@ class BaseParser(metaclass=abc.ABCMeta):
 
         receipt = models.Receipt.objects.create(
             vendor=vendor,
-            purchased_at=purchased_at,
+            transaction_date=transaction_date,
             expense_type=vendor_match.expense_type,
             payment_method=payment_method,
             total_amount=total_amount,
@@ -222,6 +221,7 @@ class BMOTransactionCode(Enum):
     BILL_PAYMENT_CANCELLED = 'BC'
     OTHER_AUTOMATED_MACHINE = 'OM'
     ONLINE_PURCHASE = 'OP'
+    OTHER_CHARGE = 'DC'
 
 
 class BMOCSVBankAccountParser(BaseBMOCSVParser):
@@ -423,7 +423,7 @@ class WellsFargoVisaParser(BaseWellsFargoParser):
 
 class ChaseVisaParser(BaseParser, USDateFormatMixin):
     FIXED_PAYMENT_METHOD_NAME = 'Chase Freedom Visa'
-    CSV_FIELDS = ['type', 'transaction_date', 'posted_date', 'party', 'amount', 'category', 'memo']
+    CSV_FIELDS = ['transaction_date', 'posted_date', 'party', 'category', 'type', 'amount']
 
     # NOTE: The Chase Online 'Download transactions' feature has a known bug where it fails to quote
     # the 'category' and 'memo' columns.  These fields can contain commas.
@@ -443,14 +443,6 @@ class ChaseVisaParser(BaseParser, USDateFormatMixin):
 
         self._add_new_receipt(vendor_match, receipt_date, self.fixed_payment_method,
                               amount, constants.Currency.USD)
-
-    @property
-    def filters(self):
-        # Chase CSV's unfortunately do not output with quotes
-        # TODO avoid hardcoding this specific vendor's string
-        return [
-            SkipPatternsFilter(['^.*,24HOUR FITNESS USA,INC,.*$'])
-        ]
 
 
 PARSER_MAP = [

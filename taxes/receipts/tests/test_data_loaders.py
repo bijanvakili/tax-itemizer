@@ -32,7 +32,7 @@ def test_payment_method_yaml_load():
 
     assert result.name == 'BMO Paypass Mastercard'
     assert result.description == 'Canadian card for Canadian purchases'
-    assert result.type == constants.PaymentMethod.CREDIT_CARD
+    assert result.method_type == constants.PaymentMethod.CREDIT_CARD
     assert result.currency == constants.Currency.CAD
     assert result.safe_numeric_id == '0004'
 
@@ -47,7 +47,7 @@ def test_vendor_yaml_load():
     result = models.FinancialAsset.objects.get(name='1001-25 Wellesley St')
 
     assert result.name == '1001-25 Wellesley St'
-    assert result.type == constants.FinancialAssetType.RENTAL
+    assert result.asset_type == constants.FinancialAssetType.RENTAL
 
     # verify sample vendors and aliases
     result = models.Vendor.objects.get(name='Xoom')

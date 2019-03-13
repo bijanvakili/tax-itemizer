@@ -38,6 +38,7 @@ class ExpenseType(enumfields.Enum):
     FOREIGN_INCOME = 'foreign_income'
     CAPITAL_GAINS = 'capital_gains'
     ADVERTISING = 'advertising'
+    DONATION = 'donation'
 
     class Labels:
         IGNORE = '*IGNORE*'
@@ -54,6 +55,7 @@ class ExpenseType(enumfields.Enum):
         FOREIGN_INCOME = 'Foreign Income'
         CAPITAL_GAINS = 'Capital Gains'
         ADVERTISING = 'Advertising'
+        DONATION = 'Donations'
 
 
 @unique
