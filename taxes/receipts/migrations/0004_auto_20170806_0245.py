@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 import enumfields.fields
-import taxes.receipts.constants
+import taxes.receipts.types
 import uuid
 
 
@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.UUIDField(blank=True, default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('name', models.CharField(db_index=True, max_length=200, unique=True)),
-                ('type', enumfields.fields.EnumField(enum=taxes.receipts.constants.FinancialAssetType, max_length=14)),
+                ('type', enumfields.fields.EnumField(enum=taxes.receipts.types.FinancialAssetType, max_length=14)),
             ],
             options={
                 'db_table': 'financial_asset',

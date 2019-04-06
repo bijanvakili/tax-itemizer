@@ -1,25 +1,22 @@
 import abc
 import csv
-import datetime
-from enum import Enum
-from functools import lru_cache
+import enum
 import logging
-import os
 import re
-import typing
 
-from django.conf import settings
-from django.db.models.query import Q
-import django.core.exceptions as django_exc
-
-from taxes.receipts import (
-    models, constants, tax
-)
+from taxes.receipts.models import PaymentMethod
+from taxes.receipts.types import Transaction, TRANSACTION_GENERATOR
 from taxes.receipts.util.datetime import parse_date
-from taxes.receipts.util.currency import parse_amount, cents_to_dollars
-from taxes.receipts.filters import load_filters_from_modules
+from taxes.receipts.util.currency import parse_amount
+
 
 LOGGER = logging.getLogger(__name__)
+
+
+class CommonColumn(enum.Enum):
+    transaction_date = 'transaction_date'
+    amount = 'amount'
+    description = 'description'
 
 
 class ParseException(Exception):
@@ -32,29 +29,18 @@ class ParseException(Exception):
         return prefix + super().__repr__()
 
 
-class TextFileFilter(metaclass=abc.ABCMeta):
+class TextFileLineFilter(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def is_accepted(self, line):
         pass
 
 
-class NonEmptyLinesFilter(TextFileFilter):
+class NonEmptyLinesFilter(TextFileLineFilter):
     def is_accepted(self, line):
         return line.strip() != ''
 
 
-class FileIterator(object):
-    def __init__(self, file, filters):
-        self.file = file
-        self.filters = filters or []
-
-    def __iter__(self):
-        for line in self.file.readlines():
-            if all((f.is_accepted(line) for f in self.filters)):
-                yield line
-
-
-class SkipPatternsFilter(TextFileFilter):
+class SkipPatternsFilter(TextFileLineFilter):
     def __init__(self, patterns):
         self.patterns = [re.compile(pattern) for pattern in patterns]
 
@@ -65,404 +51,229 @@ class SkipPatternsFilter(TextFileFilter):
         return True
 
 
-class VendorMatch(typing.NamedTuple):
-    vendor: models.Vendor
-    expense_type: constants.ExpenseType
+class TextFileIterator(object):
+    def __init__(self, file):
+        self.file = file
+        self._line_num = 0
+
+    def __iter__(self):
+        self._line_num = 0
+        for line in self.file.readlines():
+            self._line_num += 1
+            yield line
+
+    @property
+    def line_num(self):
+        return self._line_num
 
 
-class BaseParser(metaclass=abc.ABCMeta):
-    CSV_FIELDS = None
-    CSV_QUOTECHAR = '"'
-    FIXED_PAYMENT_METHOD_NAME = None
-    SKIP_HEADER = True
+class BaseTransactionParser(metaclass=abc.ABCMeta):
+    QUOTE_CHAR = '"'
+    LINE_FILTERS = []
+    CSV_FIELDS = None  # must be specified by derived class
+    TRANSACTION_DATE_FORMAT = '%m/%d/%Y'
 
-    def __init__(self):
-        self.failures = 0
-        self.fixed_payment_method = None
-        self.exclusion_filters = load_filters_from_modules(settings.EXCLUSION_FILTER_MODULES)
-        self.current_filename = None
+    """
+    Base class for parsing transaction files from financial institutions
+    """
+    def __init__(self, payment_method: PaymentMethod):
+        self.payment_method = payment_method
+        self._failures = 0
+        if not self.CSV_FIELDS:
+            raise RuntimeError('CSV_FIELDS not specified in derived class')
 
-    def parse(self, filename):
-        # set the fixed card number if the class specifies it
-        if self.FIXED_PAYMENT_METHOD_NAME:
-            self.fixed_payment_method = models.PaymentMethod.objects.get(
-                name=self.FIXED_PAYMENT_METHOD_NAME
-            )
-
-        self.current_filename = os.path.basename(filename)
-        self.failures = 0
+    def parse(self, filename: str) -> TRANSACTION_GENERATOR:
+        self._failures = 0
         with open(filename, 'r') as csv_file:
-            file_iterator = FileIterator(csv_file, self.filters)
-            reader = csv.DictReader(
-                file_iterator,
-                fieldnames=self.CSV_FIELDS,
-                quotechar=self.CSV_QUOTECHAR
+            raw_iter_lines = TextFileIterator(csv_file)
+            iter_filtered_lines = filter(
+                lambda line: all((f.is_accepted(line) for f in self.LINE_FILTERS)),
+                raw_iter_lines
             )
-            for line_number, row in enumerate(reader):
-                # skip header
-                if self.SKIP_HEADER and line_number == 0:
-                    continue
-                LOGGER.debug(f'CSV Line - {line_number}')
+            iter_rows = csv.DictReader(
+                iter_filtered_lines,
+                fieldnames=self.CSV_FIELDS,
+                quotechar=self.QUOTE_CHAR
+            )
+            for row in iter_rows:
                 try:
-                    self.parse_row(row, line_number)
+                    yield self.parse_row(row, raw_iter_lines.line_num)
                 except Exception:
-                    LOGGER.error(f'FAILURE on line {line_number + 1} of file {filename}')
+                    LOGGER.error('FAILURE on line %d of file %s',
+                                 raw_iter_lines.line_num, filename)
+                    self._failures += 1
                     raise
 
-    @property
-    def filters(self):
-        return []
-
     @abc.abstractmethod
-    def parse_row(self, row: dict, line_number: int):
-        """
-        :param row: current row parsed from CSV
-        :param line_number: zero-based integer line number
-        """
+    def parse_row(self, row: dict, line_number: int) -> Transaction:
         pass
 
-    @staticmethod
-    @lru_cache(maxsize=8)
-    def _get_payment_method(card_number):
-        # TODO determine how to handle different cards with the same last 4 digits
-        last_4_digits = card_number[-4:]
-        return models.PaymentMethod.objects.get(safe_numeric_id=last_4_digits)
-
-    @staticmethod
-    def _add_new_receipt(vendor_match: VendorMatch,
-                         transaction_date: datetime.date,
-                         payment_method: models.PaymentMethod,
-                         total_amount: int,
-                         currency: constants.Currency):
-        vendor = vendor_match.vendor
-        if vendor.fixed_amount:
-            total_amount = vendor.fixed_amount
-            LOGGER.info(f'Using fixed amount {vendor.fixed_amount} for vendor {vendor.name}')
-
-        receipt = models.Receipt.objects.create(
-            vendor=vendor,
-            transaction_date=transaction_date,
-            expense_type=vendor_match.expense_type,
-            payment_method=payment_method,
-            total_amount=total_amount,
-            currency=currency
-        )
-        if vendor.tax_adjustment_type:
-            # add a tax adjustment if required
-            tax.add_tax_adjustment(receipt)
-        return receipt
-
-    def _is_exclusion(self, pattern, for_date, amount):
-        return any(
-            f.is_exclusion(pattern, for_date, amount, self.fixed_payment_method)
-            for f in self.exclusion_filters
-        )
-
-    def _find_vendor(self, pattern, for_date, amount) -> typing.Optional[VendorMatch]:
-        # check exclusion conditions
-        if self._is_exclusion(pattern, for_date, amount):
-            LOGGER.warning(f'Skipped vendor {pattern}')
-            return None
-
-        # locate the vendor by alias
-        q_pattern = pattern.upper()
-        q_ops = constants.AliasMatchOperation
-        try:
-            vendor_alias = models.VendorAliasPattern.objects.get(
-                Q(match_operation=q_ops.EQUAL, pattern=q_pattern) |
-                Q(match_operation=q_ops.LIKE, pattern__is_alias_match=q_pattern)
-            )
-        except django_exc.ObjectDoesNotExist:
-            self.failures += 1
-            LOGGER.error(f'Pattern not found in {self.current_filename}: {pattern}')
-            return None
-
-        # prioritize vendor alias's expense type over the vendor's expense type
-        vendor = vendor_alias.vendor
-        return VendorMatch(
-            vendor=vendor,
-            expense_type=vendor_alias.default_expense_type or vendor.default_expense_type
-        )
-
-
-class BaseBMOCSVParser(BaseParser):  # pylint: disable=abstract-method
-    DATE_FORMAT = '%Y%m%d'
-    CSV_QUOTECHAR = "'"
-
     @property
-    def filters(self):
-        return [
-            NonEmptyLinesFilter(),
-            SkipPatternsFilter(['^Following data is valid as of.*'])
-        ]
+    def failures(self) -> int:
+        return self._failures
 
-
-class BMOTransactionCode(Enum):
-    """
-    https://www.bmo.com/olb/help-centre/en/my-accounts/
-    """
-    SERVICE_CHARGEABLE = 'DS'
-    CHECK_DEPOSIT = 'CD'
-    ONLINE_BANKING = 'CW'
-    STANDARD_ORDER = 'SO'
-    SERVICE_CHARGE = 'SC'
-    NOT_SERVICE_CHARGEABLE = 'DN'
-    INSTABANK = 'IB'
-    INTEREST = 'IN'
-    ONLINE_DEBIT_PURCHASE = 'OL'
-    MULTI_BRANCH_BANKING = 'MB'
-    RETURNED_ITEM = 'RT'
-    TRANSFER_OF_FUNDS = 'TF'
-    FOREIGN_EXCHANGE = 'FX'
-    WITHDRAWAL = 'WD'
-    CREDIT_MEMO = 'CM'
-    DEBIT_MEMO = 'DM'
-    ADJUSTMENT = 'AD'
-    BILL_PAYMENT_CANCELLED = 'BC'
-    OTHER_AUTOMATED_MACHINE = 'OM'
-    ONLINE_PURCHASE = 'OP'
-    OTHER_CHARGE = 'DC'
-
-
-class BMOCSVBankAccountParser(BaseBMOCSVParser):
-    CSV_FIELDS = ['card_number', 'type', 'date', 'amount', 'party']
-    VALID_CHARGE_CODES = {
-        BMOTransactionCode.SERVICE_CHARGEABLE,
-        BMOTransactionCode.NOT_SERVICE_CHARGEABLE,
-        BMOTransactionCode.ONLINE_DEBIT_PURCHASE,
-        BMOTransactionCode.MULTI_BRANCH_BANKING,
-        BMOTransactionCode.FOREIGN_EXCHANGE,
-    }
-
-    def __init__(self):
-        super().__init__()
-        self.party_parser = re.compile(r'^\[([A-Z]{2})\](.*)$')
-
-    def _find_vendor_from_amount(self, for_date, amount) -> typing.Optional[VendorMatch]:
-        if self._is_exclusion('', for_date, amount):
-            LOGGER.warning(f'Skipping amount: {amount}')
-            return None
-
-        # TODO determine how to handle regular payments with the same amount and currency
-        try:
-            periodic_payment = models.PeriodicPayment.objects.get(
-                currency=constants.Currency.CAD,
-                amount=amount
-            )
-        except django_exc.ObjectDoesNotExist:
-            self.failures += 1
-            LOGGER.error(f'Pattern not found for amount: {cents_to_dollars(amount)}')
-            return None
-
-        return VendorMatch(
-            vendor=periodic_payment.vendor,
-            expense_type=periodic_payment.vendor.default_expense_type,
+    def _make_transaction(self, row: dict, line_number: int, misc: dict,
+                          amount: int = None) -> Transaction:
+        return Transaction(
+            line_number=line_number,
+            transaction_date=parse_date(
+                row[CommonColumn.transaction_date.value],
+                self.TRANSACTION_DATE_FORMAT
+            ),
+            amount=amount if amount else parse_amount(row[CommonColumn.amount.value]),
+            currency=self.payment_method.currency,
+            description=row[CommonColumn.description.value].strip(),
+            misc=misc,
+            payment_method=self.payment_method,
         )
 
-    def parse_row(self, row, line_number):
-        # determine the vendor
-        payment_method = self._get_payment_method(row['card_number'])
 
-        # parse the description to determine the vendor
-        match = self.party_parser.search(row['party'])
+class BMOCSVBankAccountParser(BaseTransactionParser):
+    QUOTE_CHAR = "'"
+    LINE_FILTERS = [
+        NonEmptyLinesFilter(),
+        SkipPatternsFilter([
+            r'^Following data is valid as of.*',
+            r'^First Bank Card.*'
+        ]),
+    ]
+    CSV_FIELDS = [
+        'card_number',
+        'transaction_type',
+        CommonColumn.transaction_date.value,
+        CommonColumn.amount.value,
+        'consolidated_description'
+    ]
+    TRANSACTION_DATE_FORMAT = '%Y%m%d'
+    DESCRIPTION_PARSER = re.compile(r'^\[([A-Z]{2})\](.*)$')
+
+    def parse_row(self, row: dict, line_number: int) -> Transaction:
+        match = self.DESCRIPTION_PARSER.search(row['consolidated_description'])
         if not match:
             raise ParseException('Unable to parse line', line_number=line_number)
-        tx_code_string, merchant_description = match.groups()
-        tx_code = BMOTransactionCode(tx_code_string)
-        merchant_description = merchant_description.strip()
+        transaction_code, description = match.groups()
 
-        amount = parse_amount(row['amount'])
-        receipt_date = parse_date(row['date'], self.DATE_FORMAT)
-
-        if tx_code == BMOTransactionCode.CHECK_DEPOSIT:
-            vendor_match = self._find_vendor_from_amount(receipt_date, amount)
-            if not vendor_match:
-                return
-        elif tx_code in self.VALID_CHARGE_CODES:
-            vendor_match = self._find_vendor(merchant_description, receipt_date, amount)
-            if not vendor_match:
-                return
-        else:
-            LOGGER.info(f'Skipping {tx_code} transaction for {merchant_description}...')
-            return
-
-        self._add_new_receipt(vendor_match, receipt_date, payment_method, amount,
-                              constants.Currency.CAD)
+        row[CommonColumn.description.value] = description
+        return self._make_transaction(row, line_number, {
+            'last_4_digits': row['card_number'][-4:],
+            'transaction_code': transaction_code,
+        })
 
 
-class BMOCSVCreditParser(BaseBMOCSVParser):
-    CSV_FIELDS = ['item_number', 'card_number', 'transaction_date',
-                  'posting_date', 'amount', 'party']
+class BMOCSVCreditParser(BaseTransactionParser):
+    QUOTE_CHAR = "'"
+    LINE_FILTERS = [
+        NonEmptyLinesFilter(),
+        SkipPatternsFilter([
+            r'^Following data is valid as of.*',
+            r'^Item #.*'
+        ]),
+    ]
+    CSV_FIELDS = [
+        'item_number',
+        'card_number',
+        CommonColumn.transaction_date.value,
+        'posting_date',
+        CommonColumn.amount.value,
+        CommonColumn.description.value,
+    ]
+    TRANSACTION_DATE_FORMAT = '%Y%m%d'
 
-    def parse_row(self, row, line_number):
-        payment_method = self._get_payment_method(row['card_number'])
-        vendor_description = row['party']
-
+    def parse_row(self, row: dict, line_number: int) -> Transaction:
         # all postive values are debited as expenses
-        amount = -1 * parse_amount(row['amount'])
+        amount = -1 * parse_amount(row[CommonColumn.amount.value])
 
-        if 'PAYMENT RECEIVED - THANK YOU' in vendor_description and amount >= 0:
-            return
-
-        receipt_date = parse_date(row['transaction_date'], self.DATE_FORMAT)
-        vendor_match = self._find_vendor(vendor_description, receipt_date, amount)
-        if not vendor_match:
-            return
-
-        self._add_new_receipt(vendor_match, receipt_date, payment_method, amount,
-                              constants.Currency.CAD)
+        return self._make_transaction(row, line_number, {
+            'last_4_digits': row['card_number'][-4:],
+        }, amount=amount)
 
 
-class USDateFormatMixin(object):
-    DATE_FORMAT = '%m/%d/%Y'
+class MBNAMastercardParser(BaseTransactionParser):
+    LINE_FILTERS = [
+        SkipPatternsFilter([r'^Posted Date,Payee.*'])
+    ]
+    CSV_FIELDS = [
+        CommonColumn.transaction_date.value,
+        CommonColumn.description.value,
+        'address',
+        CommonColumn.amount.value,
+    ]
+    TRANSACTION_DATE_FORMAT = '%m/%d/%Y'
+
+    def parse_row(self, row: dict, line_number: int) -> Transaction:
+        return self._make_transaction(row, line_number, {})
 
 
-class CapitalOneParser(BaseParser):
-    FIXED_PAYMENT_METHOD_NAME = 'CapitalOne Platinum Mastercard'
-    DATE_FORMAT = '%m/%d/%Y'
-    CSV_FIELDS = ['stage', 'transaction_date', 'posted_date', 'card_number', 'description',
-                  'category', 'debit', 'credit']
-    PAYMENT_DESCRIPTIONS = {'Payment', 'Payment/Credit'}
-
-    def parse_row(self, row, line_number):
-        if row['category'] in self.PAYMENT_DESCRIPTIONS:
-            LOGGER.info(
-                'Skipping payment %s %s %s',
-                row['transaction_date'], row['card_number'], row['description']
-            )
-            return
-
-        payment_method = self._get_payment_method(row['card_number'])
-        vendor_description = row['description']
-        receipt_date = parse_date(row['transaction_date'], self.DATE_FORMAT)
-        debit_amount = parse_amount(row['debit'] or '0.0')
-        credit_amount = parse_amount(row['credit'] or '0.0')
-        amount = credit_amount - debit_amount
-        vendor_match = self._find_vendor(vendor_description, receipt_date, amount)
-        if not vendor_match:
-            return
-
-        self._add_new_receipt(vendor_match, receipt_date, payment_method,
-                              amount, constants.Currency.USD)
-
-
-class MBNAMastercardParser(BaseParser, USDateFormatMixin):
-    CSV_FIELDS = ['posted_date', 'payee', 'address', 'amount']
-    FIXED_PAYMENT_METHOD_NAME = 'MBNA Mastercard'
-
-    def parse_row(self, row, line_number):
-        if row['payee'].upper() == 'PAYMENT':
-            LOGGER.info('Skipping payment %s...', row['posted_date'])
-            return
-
-        vendor_description = row['payee']
-        receipt_date = parse_date(row['posted_date'], self.DATE_FORMAT)
-        amount = parse_amount(row['amount'])
-        vendor_match = self._find_vendor(vendor_description, receipt_date, amount)
-        if not vendor_match:
-            return
-
-        self._add_new_receipt(vendor_match, receipt_date, self.fixed_payment_method,
-                              amount, constants.Currency.CAD)
-
-
-class BaseWellsFargoParser(BaseParser, USDateFormatMixin):
-    CSV_FIELDS = ['transaction_date', 'amount', 'unknown_0', 'check_number', 'party']
-    SKIP_HEADER = False
-    PREFIXES_TO_SKIP = [
-        'ATM WITHDRAWAL AUTHORIZED',
-        'BILL PAY',
-        'CASH EWITHDRAWAL',
-        'DEPOSITED OR CASHED CHECK',
-        'ONLINE TRANSFER',
-        'ONLINE PAYMENT'
+class CapitalOneMastercardParser(BaseTransactionParser):
+    LINE_FILTERS = [
+        SkipPatternsFilter([r'^Stage, Transaction Date.*'])
+    ]
+    CSV_FIELDS = [
+        'stage',
+        CommonColumn.transaction_date.value,
+        'posted_date',
+        'card_number',
+        CommonColumn.description.value,
+        'category',
+        'debit',
+        'credit'
     ]
 
-    def __init__(self):
-        super().__init__()
+    def parse_row(self, row: dict, line_number: int) -> Transaction:
+        debit_amount = parse_amount(row['debit'] or '0.0')
+        credit_amount = parse_amount(row['credit'] or '0.0')
+        return self._make_transaction(row, line_number, {
+            'last_4_digits': row['card_number'],
+            'category': row['category']
+        }, amount=credit_amount - debit_amount)
+
+
+class ChaseVisaParser(BaseTransactionParser):
+    LINE_FILTERS = [
+        SkipPatternsFilter([r'^Transaction Date,Post Date.*'])
+    ]
+    CSV_FIELDS = [
+        CommonColumn.transaction_date.value,
+        'posted_date',
+        CommonColumn.description.value,
+        'category',
+        'type',
+        CommonColumn.amount.value,
+    ]
+
+    def parse_row(self, row: dict, line_number: int) -> Transaction:
+        return self._make_transaction(row, line_number, {
+            'category': row['category'],
+            'type': row['type'],
+        })
+
+
+class WellsFargoParser(BaseTransactionParser):
+    LINE_FILTERS = [
+        NonEmptyLinesFilter(),
+    ]
+    CSV_FIELDS = [
+        CommonColumn.transaction_date.value,
+        CommonColumn.amount.value,
+        'unknown_0',
+        'check_number',
+        CommonColumn.description.value,
+    ]
+
+    def __init__(self, *args):
+        super().__init__(*args)
         self.authorized_purchase_pattern = re.compile(
-            r'^PURCHASE AUTHORIZED ON \d{2}/\d{2} (?P<party>.+)$'
+            r'^PURCHASE AUTHORIZED ON (?P<authorized_date>\d{2}/\d{2}) (?P<party>.+)$'
         )
 
-    def parse_row(self, row, line_number):
-        # skip checks
-        if row['check_number']:
-            LOGGER.info('Skipping check #%s...', row['check_number'])
-            return
-
-        party = row['party'].upper()
-
+    def parse_row(self, row: dict, line_number: int) -> Transaction:
         # extract real payee if preauthorized payment
-        preauthorized_match = self.authorized_purchase_pattern.match(party)
+        misc = {}
+        preauthorized_match = self.authorized_purchase_pattern.match(
+            row[CommonColumn.description.value]
+        )
         if preauthorized_match:
-            party = preauthorized_match.group('party')
+            row[CommonColumn.description.value] = preauthorized_match.group('party')
+            misc['authorized_purchase_on'] = preauthorized_match.group('authorized_date')
 
-        # skip common transactions
-        for prefix in WellFargoCheckingParser.PREFIXES_TO_SKIP:
-            if party.startswith(prefix):
-                LOGGER.info('Skipping transaction: %s...', row['party'])
-                return
-
-        receipt_date = parse_date(row['transaction_date'], self.DATE_FORMAT)
-        amount = parse_amount(row['amount'])
-        vendor_match = self._find_vendor(party, receipt_date, amount)
-        if not vendor_match:
-            return
-
-        self._add_new_receipt(vendor_match, receipt_date, self.fixed_payment_method,
-                              amount, constants.Currency.USD)
-
-
-class WellFargoCheckingParser(BaseWellsFargoParser):
-    FIXED_PAYMENT_METHOD_NAME = 'Wells Fargo Checking'
-
-
-class WellsFargoVisaParser(BaseWellsFargoParser):
-    FIXED_PAYMENT_METHOD_NAME = 'Wells Fargo Visa Card'
-
-
-class ChaseVisaParser(BaseParser, USDateFormatMixin):
-    FIXED_PAYMENT_METHOD_NAME = 'Chase Freedom Visa'
-    CSV_FIELDS = ['transaction_date', 'posted_date', 'party', 'category', 'type', 'amount']
-
-    # NOTE: The Chase Online 'Download transactions' feature has a known bug where it fails to quote
-    # the 'category' and 'memo' columns.  These fields can contain commas.
-
-    def parse_row(self, row, line_number):
-        # skip non-sale transactions
-        if row['type'].upper() != 'SALE':
-            LOGGER.info('Skipping %s: %s...', row['type'], row['party'])
-            return
-
-        party = row['party'].upper()
-        receipt_date = parse_date(row['transaction_date'], self.DATE_FORMAT)
-        amount = parse_amount(row['amount'])
-        vendor_match = self._find_vendor(party, receipt_date, amount)
-        if not vendor_match:
-            return
-
-        self._add_new_receipt(vendor_match, receipt_date, self.fixed_payment_method,
-                              amount, constants.Currency.USD)
-
-
-PARSER_MAP = [
-    # (filename_prefix, parser_class)
-    ('bmo_savings', BMOCSVBankAccountParser),
-    ('bmo_premium', BMOCSVBankAccountParser),
-    ('bmo_mastercard', BMOCSVCreditParser),
-    ('bmo_readiline', BMOCSVCreditParser),
-    ('capitalone', CapitalOneParser),
-    ('mbna_mastercard', MBNAMastercardParser),
-    ('wellsfargo_checking', WellFargoCheckingParser),
-    ('wellsfargo_savings', WellFargoCheckingParser),
-    ('wellsfargo_visa', WellsFargoVisaParser),
-    ('chase_visa', ChaseVisaParser),
-]
-
-
-def get_parser_class(pathname):
-    filename = os.path.basename(pathname)
-    matched_parser = next((p[1] for p in PARSER_MAP if filename.startswith(p[0])), None)
-    if not matched_parser:
-        raise ParseException('No class found for file: ' + filename)
-    return matched_parser
+        return self._make_transaction(row, line_number, misc)

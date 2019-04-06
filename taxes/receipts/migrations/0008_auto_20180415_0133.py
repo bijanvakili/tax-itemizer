@@ -2,7 +2,7 @@
 
 from django.db import migrations
 import enumfields.fields
-import taxes.receipts.constants
+import taxes.receipts.types
 
 
 def _forward_move_tax_adjustment_type(apps, schema_editor):
@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='vendor',
             name='tax_adjustment_type',
-            field=enumfields.fields.EnumField(blank=True, enum=taxes.receipts.constants.TaxType,
+            field=enumfields.fields.EnumField(blank=True, enum=taxes.receipts.types.TaxType,
                                               max_length=3, null=True),
         ),
         migrations.RunPython(

@@ -2,7 +2,7 @@
 
 from django.db import migrations
 import enumfields.fields
-import taxes.receipts.constants
+import taxes.receipts.types
 
 
 def _expense_type_vendor_to_receipt(apps, schema_editor):
@@ -29,14 +29,14 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='receipt',
             name='expense_type',
-            field=enumfields.fields.EnumField(default='ignore', enum=taxes.receipts.constants.ExpenseType, max_length=14),
+            field=enumfields.fields.EnumField(default='ignore', enum=taxes.receipts.types.ExpenseType, max_length=14),
             preserve_default=False,
         ),
         # use temporary default
         migrations.AddField(
             model_name='vendor',
             name='default_expense_type',
-            field=enumfields.fields.EnumField(blank=True, db_index=True, enum=taxes.receipts.constants.ExpenseType, max_length=14, null=True),
+            field=enumfields.fields.EnumField(blank=True, db_index=True, enum=taxes.receipts.types.ExpenseType, max_length=14, null=True),
         ),
         migrations.RunPython(
             _expense_type_vendor_to_receipt,
@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='receipt',
             name='expense_type',
-            field=enumfields.fields.EnumField(enum=taxes.receipts.constants.ExpenseType, max_length=14),
+            field=enumfields.fields.EnumField(enum=taxes.receipts.types.ExpenseType, max_length=14),
             preserve_default=False,
         ),
         migrations.RemoveField(

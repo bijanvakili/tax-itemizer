@@ -8,50 +8,69 @@ payment_methods:
       description: "American cash transactions"
       name: "USD Cash"
       method_type: cash
+      currency: USD
+      file_prefix: null
+      parser_class: null
     -
       currency: CAD
       description: "Canadian cash transactions"
       name: "CAD Cash"
       method_type: cash
+      file_prefix: null
+      parser_class: null
     -
       description: "Preferred card with cash back"
       name: "Chase Freedom Visa"
       safe_numeric_id: '0001'
-    -
-      description: "First secured card"
-      name: "Wells Fargo Visa Platinum"
-      safe_numeric_id: '0002'
+      currency: USD
+      file_prefix: chase_visa
+      parser_class: ChaseVisaParser
     -
       description: "Alternative card"
       name: "CapitalOne Platinum Mastercard"
+      currency: USD
       safe_numeric_id: '0003'
+      file_prefix: capitalone
+      parser_class: CapitalOneMastercardParser
     -
       currency: CAD
       description: "Canadian card for Canadian purchases"
       name: "BMO Paypass Mastercard"
       safe_numeric_id: '0004'
+      file_prefix: bmo_mastercard
+      parser_class: BMOCSVCreditParser
     -
       currency: CAD
       name: "BMO Savings"
       description: "BMO Debit card and Savings account"
       safe_numeric_id: '0066'
+      file_prefix: bmo_savings
+      parser_class: BMOCSVBankAccountParser
     -
       description: "Line of credit backed by property"
       name: "BMO Readiline"
       currency: CAD
       safe_numeric_id: '0067'
+      file_prefix: bmo_readiline
+      parser_class: BMOCSVCreditParser
     -
       currency: CAD
       description: 'Additional card for Canadian purchases'
       name: 'MBNA Mastercard'
       safe_numeric_id: '0068'
+      file_prefix: mbna_mastercard
+      parser_class: MBNAMastercardParser
     -
       currency: USD
       description: 'US checking account'
       name: 'Wells Fargo Checking'
       safe_numeric_id: '0069'
+      file_prefix: wellsfargo_checking
+      parser_class: WellsFargoParser
     -
       name: "Wells Fargo Visa Card"
       description: "Secured credit card"
       safe_numeric_id: '0070'
       currency: USD
+      file_prefix: wellsfargo_visa
+      parser_class: WellsFargoParser

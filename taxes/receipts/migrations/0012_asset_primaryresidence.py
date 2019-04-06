@@ -2,7 +2,7 @@
 
 from django.db import migrations
 import enumfields.fields
-import taxes.receipts.constants
+import taxes.receipts.types
 
 
 class Migration(migrations.Migration):
@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='financialasset',
             name='type',
-            field=enumfields.fields.EnumField(enum=taxes.receipts.constants.FinancialAssetType, max_length=17),
+            field=enumfields.fields.EnumField(enum=taxes.receipts.types.FinancialAssetType, max_length=17),
         ),
     ]

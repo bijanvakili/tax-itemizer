@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from taxes.receipts import models, constants
+from taxes.receipts import models, types
 
 
 def add_tax_adjustment(receipt: models.Receipt):
@@ -21,8 +21,8 @@ def add_tax_adjustment(receipt: models.Receipt):
     )
 
 
-def _compute_tax_adjustment_amount(receipt: models.Receipt, tax_type: constants.TaxType.HST) -> int:
-    if tax_type == constants.TaxType.HST:
+def _compute_tax_adjustment_amount(receipt: models.Receipt, tax_type: types.TaxType.HST) -> int:
+    if tax_type == types.TaxType.HST:
         tax_amount = Decimal(receipt.total_amount) * (Decimal(1) - (Decimal(1) / Decimal(1.13)))
         return round(tax_amount)
 

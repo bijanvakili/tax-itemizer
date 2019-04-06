@@ -6,7 +6,4 @@ def parse_amount(amount_string):
 
 
 def cents_to_dollars(amount_in_cents):
-    return '{dollars:0n}.{cents:02n}'.format(
-        dollars=int(amount_in_cents / 100),
-        cents=amount_in_cents % 100
-    )
+    return f'{amount_in_cents * 0.01:0.2f}'

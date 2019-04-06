@@ -72,6 +72,7 @@ AGGREGATE_FORMULA = \
 
 AGGREGATE_FORMAT = {'type': 'NUMBER', 'pattern': '#,##0.00;(#,##0.00)'}
 
+# flake8: noqa: E241
 HST_FORMULA = {
     LineItemType.revenue: '=SUMIF(Items!$F$2:$F${total_items},">0")',
     LineItemType.cost:    '=SUMIF(Items!$F$2:$F${total_items},"<0")',

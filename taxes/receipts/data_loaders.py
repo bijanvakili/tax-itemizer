@@ -9,7 +9,7 @@ import os
 import json
 
 
-from taxes.receipts import constants, models
+from taxes.receipts import types, models
 from taxes.receipts.util import currency, yaml
 
 
@@ -83,7 +83,7 @@ class VendorYamlLoader(BaseYamlDataLoader):
         for financial_asset in all_assets:
             new_asset_params = {}
             new_asset_params['name'] = financial_asset['name']
-            new_asset_params['asset_type'] = constants.FinancialAssetType(
+            new_asset_params['asset_type'] = types.FinancialAssetType(
                 financial_asset['asset_type']
             )
             asset_map[new_asset_params['name']] = models.FinancialAsset.objects.create(
@@ -95,7 +95,7 @@ class VendorYamlLoader(BaseYamlDataLoader):
             new_vendor_params = {}
             new_vendor_params['name'] = vendor['name']
             if vendor.get('default_expense_type'):
-                new_vendor_params['default_expense_type'] = constants.ExpenseType(
+                new_vendor_params['default_expense_type'] = types.ExpenseType(
                     vendor['default_expense_type']
                 )
             if vendor.get('merchant_id'):
@@ -110,7 +110,7 @@ class VendorYamlLoader(BaseYamlDataLoader):
                         f"Unable to locate financial asset: {vendor['assigned_asset']}"
                     )
             if vendor.get('tax_adjustment_type'):
-                new_vendor_params['tax_adjustment_type'] = constants.TaxType(
+                new_vendor_params['tax_adjustment_type'] = types.TaxType(
                     vendor['tax_adjustment_type']
                 )
             new_vendor = models.Vendor.objects.create(**new_vendor_params)
@@ -119,12 +119,12 @@ class VendorYamlLoader(BaseYamlDataLoader):
                 default_expense_type = None
                 if isinstance(alias, str):
                     pattern = alias
-                    match_operation = constants.AliasMatchOperation.EQUAL
+                    match_operation = types.AliasMatchOperation.EQUAL
                 elif isinstance(alias, dict):
                     pattern = alias['pattern']
                     match_operation = alias['match_operation']
                     if alias.get('default_expense_type'):
-                        default_expense_type = constants.ExpenseType(alias['default_expense_type'])
+                        default_expense_type = types.ExpenseType(alias['default_expense_type'])
                 else:
                     raise ValueError(f'Unable to parse alias: {alias}')
                 models.VendorAliasPattern.objects.create(
@@ -139,7 +139,7 @@ class VendorYamlLoader(BaseYamlDataLoader):
                     vendor=new_vendor,
                     amount=payment['amount'],
                     name=payment.get('name'),
-                    currency=constants.Currency(payment['currency']),
+                    currency=types.Currency(payment['currency']),
                 )
                 new_periodic_payment.save()
 

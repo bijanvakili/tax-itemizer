@@ -5,21 +5,10 @@ import typing
 from django.db import models
 
 from taxes.receipts.forex import CURRENCY_PAIR
+from taxes.receipts.util.csv import receipt_to_itemized_row
 
 
 TUPLE_GENERATOR = typing.Generator[typing.NamedTuple, None, None]
-
-
-class ItemizedReceiptFields(typing.NamedTuple):
-    date: str
-    asset: str
-    currency: str
-    amount: str
-    transaction_party: str
-    hst_amount: str
-    tax_category: str
-    payment_method: str
-    notes: str
 
 
 class ForexRateFields(typing.NamedTuple):
@@ -60,25 +49,7 @@ class ReceiptManager(ReportMixinBase, models.Manager):
             .order_by('transaction_date', 'vendor__name', 'total_amount')
 
         for receipt in receipts:
-            financial_asset = receipt.vendor.assigned_asset
-            amount_in_cents = f'{receipt.total_amount * 0.01:0.2f}'
-
-            if receipt.hst_amount:
-                hst_amount = f'{receipt.hst_amount * 0.01:0.2f}'
-            else:
-                hst_amount = ''
-
-            yield ItemizedReceiptFields(
-                receipt.transaction_date.isoformat(),
-                financial_asset.name if financial_asset else '',
-                receipt.currency.value,
-                amount_in_cents,
-                receipt.vendor.name,
-                hst_amount,
-                receipt.expense_type.label,
-                receipt.payment_method.name,
-                '',
-            )
+            yield receipt_to_itemized_row(receipt, receipt.hst_amount)
 
 
 class ForexRateManager(models.Manager):

@@ -6,7 +6,7 @@ from django.conf import settings
 import pytest
 
 from taxes.receipts import (
-    constants,
+    types,
     data_loaders,
     models,
 )
@@ -32,12 +32,12 @@ def test_payment_method_yaml_load():
 
     assert result.name == 'BMO Paypass Mastercard'
     assert result.description == 'Canadian card for Canadian purchases'
-    assert result.method_type == constants.PaymentMethod.CREDIT_CARD
-    assert result.currency == constants.Currency.CAD
+    assert result.method_type == types.PaymentMethod.CREDIT_CARD
+    assert result.currency == types.Currency.CAD
     assert result.safe_numeric_id == '0004'
 
     # verify total number of methods loaded
-    assert models.PaymentMethod.objects.count() == 11
+    assert models.PaymentMethod.objects.count() == 10
 
 
 # pylint: disable=too-many-statements
@@ -47,14 +47,14 @@ def test_vendor_yaml_load():
     result = models.FinancialAsset.objects.get(name='1001-25 Wellesley St')
 
     assert result.name == '1001-25 Wellesley St'
-    assert result.asset_type == constants.FinancialAssetType.RENTAL
+    assert result.asset_type == types.FinancialAssetType.RENTAL
 
     # verify sample vendors and aliases
     result = models.Vendor.objects.get(name='Xoom')
 
     assert result
     assert result.name == 'Xoom'
-    assert result.default_expense_type == constants.ExpenseType.ADMINISTRATIVE
+    assert result.default_expense_type == types.ExpenseType.ADMINISTRATIVE
     assert result.fixed_amount == -499
     assert result.assigned_asset.name == '1001-25 Wellesley St'
 
@@ -62,14 +62,14 @@ def test_vendor_yaml_load():
     assert len(alias_patterns) == 1
     alias = alias_patterns[0]
     assert alias.pattern == 'XOOM.COM DEBIT%'
-    assert alias.match_operation == constants.AliasMatchOperation.LIKE
+    assert alias.match_operation == types.AliasMatchOperation.LIKE
     assert alias.default_expense_type is None
 
     result = models.Vendor.objects.get(name='We Be Sushi')
 
     assert result
     assert result.name == 'We Be Sushi'
-    assert result.default_expense_type == constants.ExpenseType.MEALS_AND_ENTERTAINMENT
+    assert result.default_expense_type == types.ExpenseType.MEALS_AND_ENTERTAINMENT
     assert result.fixed_amount is None
     assert result.assigned_asset.name == 'Sole Proprietorship'
 
@@ -77,7 +77,7 @@ def test_vendor_yaml_load():
     assert len(alias_patterns) == 1
     alias = alias_patterns[0]
     assert alias.pattern == 'WE BE SUSHI 5'
-    assert alias.match_operation == constants.AliasMatchOperation.EQUAL
+    assert alias.match_operation == types.AliasMatchOperation.EQUAL
     assert alias.default_expense_type is None
 
     # verify a regular payment method and its associated vendor
@@ -85,9 +85,9 @@ def test_vendor_yaml_load():
     assert result
     assert result.name == '1001-25 Wellesley monthly rent'
     assert result.amount == 160000
-    assert result.currency == constants.Currency.CAD
+    assert result.currency == types.Currency.CAD
     assert result.vendor
-    assert result.vendor.default_expense_type == constants.ExpenseType.RENT
+    assert result.vendor.default_expense_type == types.ExpenseType.RENT
     assert result.vendor.tax_adjustment_type is None
 
     # verify some sample exclusions
@@ -110,7 +110,7 @@ def test_vendor_yaml_load():
     result = models.PeriodicPayment.objects.get(name='5-699 Amber St monthly rent')
     assert result
     assert result.vendor.name == 'FootBlind Finance Analytic'
-    assert result.vendor.tax_adjustment_type == constants.TaxType.HST
+    assert result.vendor.tax_adjustment_type == types.TaxType.HST
 
     results = models.VendorAliasPattern.objects.filter(
         vendor__name='Wells Fargo'
@@ -119,12 +119,12 @@ def test_vendor_yaml_load():
     assert len(results) == 2
 
     assert results[0].pattern == 'ANNUAL FEE FOR%'
-    assert results[0].match_operation == constants.AliasMatchOperation.LIKE
-    assert results[0].default_expense_type == constants.ExpenseType.ADMINISTRATIVE
+    assert results[0].match_operation == types.AliasMatchOperation.LIKE
+    assert results[0].default_expense_type == types.ExpenseType.ADMINISTRATIVE
 
     assert results[1].pattern == 'INTEREST PAYMENT'
-    assert results[1].match_operation == constants.AliasMatchOperation.EQUAL
-    assert results[1].default_expense_type == constants.ExpenseType.CAPITAL_GAINS
+    assert results[1].match_operation == types.AliasMatchOperation.EQUAL
+    assert results[1].default_expense_type == types.ExpenseType.CAPITAL_GAINS
 # pylint: enable=too-many-statements
 
 

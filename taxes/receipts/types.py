@@ -1,4 +1,8 @@
+from datetime import date
 from enum import Enum, unique
+import typing
+
+from dataclasses import dataclass
 import enumfields
 
 
@@ -16,9 +20,6 @@ class PaymentMethod(enumfields.Enum):
 class Currency(Enum):
     USD = 'USD'
     CAD = 'CAD'
-
-
-CASH_UNIQUE_IDENTIFIER = 'CASH'
 
 
 # taxable expense aggregation type
@@ -81,3 +82,38 @@ class FinancialAssetType(enumfields.Enum):
 @unique
 class TaxType(enumfields.Enum):
     HST = 'hst'
+
+
+@dataclass
+class Transaction:
+    """
+    Represents a parsed transaction
+    """
+    line_number: int
+    transaction_date: date
+    amount: int
+    currency: Currency
+    description: str = None
+    misc: dict = None
+    payment_method: PaymentMethod = None
+
+
+class ItemizedReceiptRow(typing.NamedTuple):
+    """
+    Fields to output in CSV format for an itemized receipt
+    """
+    date: str
+    asset: str
+    currency: str
+    amount: str
+    transaction_party: str
+    hst_amount: str
+    tax_category: str
+    payment_method: str
+    notes: str
+
+
+TRANSACTION_SEQUENCE = typing.Sequence[Transaction]
+TRANSACTION_ITERABLE = typing.Iterable[Transaction]
+TRANSACTION_GENERATOR = typing.Generator[Transaction, None, None]
+TEXT_LINE_GENERATOR = typing.Generator[str, None, None]

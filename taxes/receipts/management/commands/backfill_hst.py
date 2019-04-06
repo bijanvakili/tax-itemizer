@@ -7,7 +7,7 @@ from django.db.models import Min
 from taxes.receipts.management.shared import DBTransactionMixin
 from taxes.receipts.util.datetime import parse_iso_datestring
 from taxes.receipts.util.currency import parse_amount
-from taxes.receipts import models, constants
+from taxes.receipts import models, types
 
 LOGGER = logging.getLogger(__name__)
 
@@ -60,14 +60,14 @@ class Command(DBTransactionMixin, BaseCommand):
 
                     receipt = models.Receipt.objects.get(
                         transaction_date=receipt_date,
-                        currency=constants.Currency.CAD,
+                        currency=types.Currency.CAD,
                         vendor__name=row['Transaction Party'],
                         total_amount=total_amount,
                     )
                     adjustments.append(
                         models.TaxAdjustment(
                             receipt=receipt,
-                            tax_type=constants.TaxType.HST,
+                            tax_type=types.TaxType.HST,
                             amount=hst_amount
                         )
                     )

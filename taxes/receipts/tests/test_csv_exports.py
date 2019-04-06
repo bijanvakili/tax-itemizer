@@ -6,7 +6,8 @@ import pytest
 
 from taxes.receipts.csv_exporters import dump_receipts, dump_forex
 from taxes.receipts import models
-from taxes.receipts.parsers import get_parser_class
+from taxes.receipts.parsers_factory import ParserFactory
+from taxes.receipts.itemize import Itemizer
 from taxes.receipts.util.datetime import parse_iso_datestring as isodstr
 
 
@@ -35,9 +36,10 @@ def _verify_csv_output(fileobj, expected_rows):
 @pytest.mark.usefixtures('payment_methods', 'vendors_and_exclusions')
 def test_receipt_dump(t_file, transaction_fixture_dir):
     filename = os.path.join(transaction_fixture_dir, 'bmo_savings_2016-08.csv')
-    parser_class = get_parser_class(filename)
-    parser = parser_class()
-    parser.parse(filename)
+    parser_factory = ParserFactory()
+    parser = parser_factory .get_parser(filename)
+    itemizer = Itemizer(filename)
+    itemizer.process_transactions(parser.parse(filename))
 
     dump_receipts(t_file, isodstr('2016-08-01'), isodstr('2016-09-01'), output_header=True)
 

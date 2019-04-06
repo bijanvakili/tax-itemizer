@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import fields as django_fields
 
-from taxes.receipts import constants
+from taxes.receipts import types
 from . import fields, lookups, managers
 
 
@@ -41,7 +41,7 @@ class FinancialAsset(SurrogateIdMixin):
         db_table = 'financial_asset'
 
     name = models.CharField(max_length=200, unique=True, db_index=True)
-    asset_type = fields.enum_field(constants.FinancialAssetType)
+    asset_type = fields.enum_field(types.FinancialAssetType)
 
     def __str__(self):
         return self.name
@@ -55,14 +55,14 @@ class Vendor(SurrogateIdMixin):
         db_table = 'vendor'
 
     name = models.CharField(max_length=200, unique=True, db_index=True)
-    default_expense_type = fields.enum_field(constants.ExpenseType, db_index=True,
+    default_expense_type = fields.enum_field(types.ExpenseType, db_index=True,
                                              null=True, blank=True)
     # TODO should this be a DecimalField?
     fixed_amount = models.IntegerField(null=True, default=None, blank=True)
     assigned_asset = models.ForeignKey('FinancialAsset', on_delete=models.SET_NULL,
                                        db_index=True, related_name='assigned_vendors',
                                        null=True, default=None, blank=True)
-    tax_adjustment_type = fields.enum_field(constants.TaxType, null=True, blank=True)
+    tax_adjustment_type = fields.enum_field(types.TaxType, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -78,9 +78,9 @@ class VendorAliasPattern(SurrogateIdMixin):
     vendor = models.ForeignKey('Vendor', on_delete=models.CASCADE,
                                db_index=True, related_name='alias_patterns')
     pattern = models.CharField(max_length=200, unique=True, db_index=True)
-    match_operation = fields.enum_field(constants.AliasMatchOperation, db_index=True, blank=False,
-                                        default=constants.AliasMatchOperation.LIKE)
-    default_expense_type = fields.enum_field(constants.ExpenseType, db_index=True,
+    match_operation = fields.enum_field(types.AliasMatchOperation, db_index=True, blank=False,
+                                        default=types.AliasMatchOperation.LIKE)
+    default_expense_type = fields.enum_field(types.ExpenseType, db_index=True,
                                              null=True, blank=True)
 
     def __str__(self):
@@ -116,9 +116,11 @@ class PaymentMethod(SurrogateIdMixin):
 
     name = models.CharField(max_length=200, unique=True, db_index=True)
     description = models.TextField()
-    method_type = fields.enum_field(constants.PaymentMethod)
+    method_type = fields.enum_field(types.PaymentMethod)
     safe_numeric_id = models.CharField(max_length=4, db_index=True)
-    currency = fields.enum_field(constants.Currency)
+    currency = fields.enum_field(types.Currency)
+    file_prefix = models.CharField(max_length=255, db_index=True, null=True, blank=True)
+    parser_class = models.CharField(max_length=50, db_index=True, null=True, blank=True)
 
     def __repr__(self):
         return '<PaymentMethod({id}, {name})>'.format(**self.__dict__)
@@ -132,13 +134,13 @@ class Receipt(SurrogateIdMixin):
 
     vendor = models.ForeignKey('Vendor', on_delete=models.PROTECT,
                                db_index=True, related_name='client_receipts')
-    expense_type = fields.enum_field(constants.ExpenseType)
+    expense_type = fields.enum_field(types.ExpenseType)
     transaction_date = models.DateField(db_index=True)
     payment_method = models.ForeignKey('PaymentMethod', on_delete=models.PROTECT,
                                        db_index=True)
     # TODO should this be a DecimalField?
     total_amount = models.IntegerField()  # in cents
-    currency = fields.enum_field(constants.Currency)
+    currency = fields.enum_field(types.Currency)
 
     def __repr__(self):
         return f'<Receipt({self.id}, {self.vendor.name}, {self.total_amount})>'
@@ -152,7 +154,7 @@ class PeriodicPayment(SurrogateIdMixin):
     name = models.CharField(max_length=200, null=True)
     vendor = models.OneToOneField('Vendor', on_delete=models.PROTECT, db_index=True,
                                   related_name='periodic_payment')
-    currency = fields.enum_field(constants.Currency)
+    currency = fields.enum_field(types.Currency)
     amount = models.IntegerField()
 
     def __str__(self):
@@ -187,7 +189,7 @@ class TaxAdjustment(SurrogateIdMixin):
 
     receipt = models.ForeignKey('Receipt', on_delete=models.CASCADE,
                                 db_index=True, related_name='tax_adjustments')
-    tax_type = fields.enum_field(constants.TaxType)
+    tax_type = fields.enum_field(types.TaxType)
     amount = models.IntegerField()  # in cents
 
     def __repr__(self):

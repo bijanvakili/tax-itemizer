@@ -2,7 +2,7 @@ import datetime
 import pytest
 
 from taxes.receipts import (
-    constants, models, tax
+    types, models, tax
 )
 from taxes.receipts.tests import factories
 
@@ -17,15 +17,15 @@ pytestmark = pytest.mark.usefixtures(  # pylint: disable=invalid-name
     (-22599, -2600),
 ))
 def test_hst_adjustment_basic(total_amount, expected_tax_adjustment):
-    vendor = factories.VendorFactory.create(tax_adjustment_type=constants.TaxType.HST)
-    payment_method = factories.PaymentMethodFactory.create(currency=constants.Currency.CAD)
+    vendor = factories.VendorFactory.create(tax_adjustment_type=types.TaxType.HST)
+    payment_method = factories.PaymentMethodFactory.create(currency=types.Currency.CAD)
     receipt = models.Receipt(
         vendor=vendor,
         expense_type=vendor.default_expense_type,
         transaction_date=datetime.date.today(),
         payment_method=payment_method,
         total_amount=total_amount,
-        currency=constants.Currency.CAD,
+        currency=types.Currency.CAD,
     )
     receipt.save()
 
@@ -34,7 +34,7 @@ def test_hst_adjustment_basic(total_amount, expected_tax_adjustment):
     assert adjustment
     assert isinstance(adjustment, models.TaxAdjustment)
     assert adjustment.receipt == receipt
-    assert adjustment.tax_type == constants.TaxType.HST
+    assert adjustment.tax_type == types.TaxType.HST
     assert adjustment.amount == expected_tax_adjustment
 
 
@@ -43,16 +43,16 @@ def test_hst_adjustment_basic(total_amount, expected_tax_adjustment):
     (-22599, -2600),
 ))
 def test_hst_adjustment_periodic(total_amount, expected_tax_adjustment):
-    vendor = factories.VendorFactory.create(tax_adjustment_type=constants.TaxType.HST)
+    vendor = factories.VendorFactory.create(tax_adjustment_type=types.TaxType.HST)
     periodic_payment = models.PeriodicPayment(
         name='test',
         vendor=vendor,
-        currency=constants.Currency.CAD,
+        currency=types.Currency.CAD,
         amount=total_amount,
     )
     periodic_payment.save()
 
-    payment_method = factories.PaymentMethodFactory.create(currency=constants.Currency.CAD)
+    payment_method = factories.PaymentMethodFactory.create(currency=types.Currency.CAD)
     receipt = models.Receipt(
         vendor=vendor,
         expense_type=vendor.default_expense_type,
@@ -68,5 +68,5 @@ def test_hst_adjustment_periodic(total_amount, expected_tax_adjustment):
     assert adjustment
     assert isinstance(adjustment, models.TaxAdjustment)
     assert adjustment.receipt == receipt
-    assert adjustment.tax_type == constants.TaxType.HST
+    assert adjustment.tax_type == types.TaxType.HST
     assert adjustment.amount == expected_tax_adjustment
