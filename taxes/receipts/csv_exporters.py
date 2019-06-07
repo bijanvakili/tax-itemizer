@@ -3,7 +3,7 @@ import datetime
 import typing
 
 from taxes.receipts.models import (
-    Receipt,
+    Transaction,
     ForexRate,
     managers,
 )
@@ -13,7 +13,7 @@ def dump_receipts(fileobj: typing.io,
                   start_timestamp: datetime.date,
                   end_timestamp: datetime.date,
                   output_header: bool = False):
-    _dump_as_csv(fileobj, start_timestamp, end_timestamp, Receipt.objects,
+    _dump_as_csv(fileobj, start_timestamp, end_timestamp, Transaction.objects,
                  output_header=output_header)
 
 

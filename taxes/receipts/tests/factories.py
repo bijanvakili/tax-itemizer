@@ -23,5 +23,5 @@ class PaymentMethodFactory(factory.DjangoModelFactory):
     name = factory.Faker('credit_card_provider')
     description = factory.Faker('text')
     method_type = types.PaymentMethod.CREDIT_CARD
-    safe_numeric_id = factory.LazyFunction(lambda: '{:04d}'.format(random.randint(1, 10000)))
+    safe_numeric_id = factory.LazyFunction(lambda: '{:04d}'.format(random.randint(1, 9999)))
     currency = factory.LazyFunction(lambda: random.choice(list(types.Currency)))

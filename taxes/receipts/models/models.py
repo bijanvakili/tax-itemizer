@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import fields as django_fields
 
+from taxes.receipts.constants import UNKNOWN_VALUE
 from taxes.receipts import types
 from . import fields, lookups, managers
 
@@ -13,7 +14,7 @@ __all__ = [
     'ExclusionCondition',
     'PaymentMethod',
     'PeriodicPayment',
-    'Receipt',
+    'Transaction',
     'ForexRate',
     'TaxAdjustment',
 ]
@@ -117,7 +118,7 @@ class PaymentMethod(SurrogateIdMixin):
     name = models.CharField(max_length=200, unique=True, db_index=True)
     description = models.TextField()
     method_type = fields.enum_field(types.PaymentMethod)
-    safe_numeric_id = models.CharField(max_length=4, db_index=True)
+    safe_numeric_id = models.CharField(max_length=4, db_index=True, null=True, blank=True)
     currency = fields.enum_field(types.Currency)
     file_prefix = models.CharField(max_length=255, db_index=True, null=True, blank=True)
     parser_class = models.CharField(max_length=50, db_index=True, null=True, blank=True)
@@ -126,24 +127,25 @@ class PaymentMethod(SurrogateIdMixin):
         return '<PaymentMethod({id}, {name})>'.format(**self.__dict__)
 
 
-class Receipt(SurrogateIdMixin):
-    objects = managers.ReceiptManager()
+class Transaction(SurrogateIdMixin):
+    objects = managers.TransactionManager()
 
     class Meta:
         db_table = 'receipt'
 
-    vendor = models.ForeignKey('Vendor', on_delete=models.PROTECT,
+    vendor = models.ForeignKey('Vendor', null=True, on_delete=models.PROTECT,
                                db_index=True, related_name='client_receipts')
-    expense_type = fields.enum_field(types.ExpenseType)
+    expense_type = fields.enum_field(types.ExpenseType, null=True)
     transaction_date = models.DateField(db_index=True)
     payment_method = models.ForeignKey('PaymentMethod', on_delete=models.PROTECT,
                                        db_index=True)
     # TODO should this be a DecimalField?
     total_amount = models.IntegerField()  # in cents
     currency = fields.enum_field(types.Currency)
+    description = models.TextField(default=UNKNOWN_VALUE)
 
     def __repr__(self):
-        return f'<Receipt({self.id}, {self.vendor.name}, {self.total_amount})>'
+        return f'<Receipt({self.id}, {self.description}, {self.total_amount})>'
 
 
 class PeriodicPayment(SurrogateIdMixin):
@@ -187,7 +189,7 @@ class TaxAdjustment(SurrogateIdMixin):
         db_table = 'tax_adjustment'
         ordering = ('receipt__transaction_date', 'receipt__vendor__name', 'tax_type',)
 
-    receipt = models.ForeignKey('Receipt', on_delete=models.CASCADE,
+    receipt = models.ForeignKey('Transaction', on_delete=models.CASCADE,
                                 db_index=True, related_name='tax_adjustments')
     tax_type = fields.enum_field(types.TaxType)
     amount = models.IntegerField()  # in cents

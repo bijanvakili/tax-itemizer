@@ -5,7 +5,7 @@ import logging
 import re
 
 from taxes.receipts.models import PaymentMethod
-from taxes.receipts.types import Transaction, TRANSACTION_GENERATOR
+from taxes.receipts.types import RawTransaction, RAW_TRANSACTION_GENERATOR
 from taxes.receipts.util.datetime import parse_date
 from taxes.receipts.util.currency import parse_amount
 
@@ -82,7 +82,7 @@ class BaseTransactionParser(metaclass=abc.ABCMeta):
         if not self.CSV_FIELDS:
             raise RuntimeError('CSV_FIELDS not specified in derived class')
 
-    def parse(self, filename: str) -> TRANSACTION_GENERATOR:
+    def parse(self, filename: str) -> RAW_TRANSACTION_GENERATOR:
         self._failures = 0
         with open(filename, 'r') as csv_file:
             raw_iter_lines = TextFileIterator(csv_file)
@@ -105,7 +105,7 @@ class BaseTransactionParser(metaclass=abc.ABCMeta):
                     raise
 
     @abc.abstractmethod
-    def parse_row(self, row: dict, line_number: int) -> Transaction:
+    def parse_row(self, row: dict, line_number: int) -> RawTransaction:
         pass
 
     @property
@@ -113,8 +113,8 @@ class BaseTransactionParser(metaclass=abc.ABCMeta):
         return self._failures
 
     def _make_transaction(self, row: dict, line_number: int, misc: dict,
-                          amount: int = None) -> Transaction:
-        return Transaction(
+                          amount: int = None) -> RawTransaction:
+        return RawTransaction(
             line_number=line_number,
             transaction_date=parse_date(
                 row[CommonColumn.transaction_date.value],
@@ -147,7 +147,7 @@ class BMOCSVBankAccountParser(BaseTransactionParser):
     TRANSACTION_DATE_FORMAT = '%Y%m%d'
     DESCRIPTION_PARSER = re.compile(r'^\[([A-Z]{2})\](.*)$')
 
-    def parse_row(self, row: dict, line_number: int) -> Transaction:
+    def parse_row(self, row: dict, line_number: int) -> RawTransaction:
         match = self.DESCRIPTION_PARSER.search(row['consolidated_description'])
         if not match:
             raise ParseException('Unable to parse line', line_number=line_number)
@@ -179,7 +179,7 @@ class BMOCSVCreditParser(BaseTransactionParser):
     ]
     TRANSACTION_DATE_FORMAT = '%Y%m%d'
 
-    def parse_row(self, row: dict, line_number: int) -> Transaction:
+    def parse_row(self, row: dict, line_number: int) -> RawTransaction:
         # all postive values are debited as expenses
         amount = -1 * parse_amount(row[CommonColumn.amount.value])
 
@@ -200,7 +200,7 @@ class MBNAMastercardParser(BaseTransactionParser):
     ]
     TRANSACTION_DATE_FORMAT = '%m/%d/%Y'
 
-    def parse_row(self, row: dict, line_number: int) -> Transaction:
+    def parse_row(self, row: dict, line_number: int) -> RawTransaction:
         return self._make_transaction(row, line_number, {})
 
 
@@ -219,7 +219,7 @@ class CapitalOneMastercardParser(BaseTransactionParser):
         'credit'
     ]
 
-    def parse_row(self, row: dict, line_number: int) -> Transaction:
+    def parse_row(self, row: dict, line_number: int) -> RawTransaction:
         debit_amount = parse_amount(row['debit'] or '0.0')
         credit_amount = parse_amount(row['credit'] or '0.0')
         return self._make_transaction(row, line_number, {
@@ -241,7 +241,7 @@ class ChaseVisaParser(BaseTransactionParser):
         CommonColumn.amount.value,
     ]
 
-    def parse_row(self, row: dict, line_number: int) -> Transaction:
+    def parse_row(self, row: dict, line_number: int) -> RawTransaction:
         return self._make_transaction(row, line_number, {
             'category': row['category'],
             'type': row['type'],
@@ -266,7 +266,7 @@ class WellsFargoParser(BaseTransactionParser):
             r'^PURCHASE AUTHORIZED ON (?P<authorized_date>\d{2}/\d{2}) (?P<party>.+)$'
         )
 
-    def parse_row(self, row: dict, line_number: int) -> Transaction:
+    def parse_row(self, row: dict, line_number: int) -> RawTransaction:
         # extract real payee if preauthorized payment
         misc = {}
         preauthorized_match = self.authorized_purchase_pattern.match(

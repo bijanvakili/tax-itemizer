@@ -85,7 +85,7 @@ class TaxType(enumfields.Enum):
 
 
 @dataclass
-class Transaction:
+class RawTransaction:
     """
     Represents a parsed transaction
     """
@@ -98,9 +98,9 @@ class Transaction:
     payment_method: PaymentMethod = None
 
 
-class ItemizedReceiptRow(typing.NamedTuple):
+class ProcessedTransactionRow(typing.NamedTuple):
     """
-    Fields to output in CSV format for an itemized receipt
+    Fields to output in CSV format for an processed transaction
     """
     date: str
     asset: str
@@ -113,7 +113,7 @@ class ItemizedReceiptRow(typing.NamedTuple):
     notes: str
 
 
-TRANSACTION_SEQUENCE = typing.Sequence[Transaction]
-TRANSACTION_ITERABLE = typing.Iterable[Transaction]
-TRANSACTION_GENERATOR = typing.Generator[Transaction, None, None]
+RAW_TRANSACTION_SEQUENCE = typing.Sequence[RawTransaction]
+RAW_TRANSACTION_ITERABLE = typing.Iterable[RawTransaction]
+RAW_TRANSACTION_GENERATOR = typing.Generator[RawTransaction, None, None]
 TEXT_LINE_GENERATOR = typing.Generator[str, None, None]

@@ -1,7 +1,6 @@
 """
 Itemization logic
 """
-import csv
 import logging
 import typing
 
@@ -16,12 +15,11 @@ from taxes.receipts.types import (
     AliasMatchOperation,
     Currency,
     ExpenseType,
-    Transaction,
-    TRANSACTION_ITERABLE,
+    RawTransaction,
+    RAW_TRANSACTION_ITERABLE,
 )
 from taxes.receipts.tax import add_tax_adjustment
 from taxes.receipts.util.currency import cents_to_dollars
-from taxes.receipts.util.csv import receipt_to_itemized_row, transaction_to_itemized_row
 
 
 LOGGER = logging.getLogger(__name__)
@@ -40,30 +38,11 @@ class Itemizer:
         self.filename = filename
         self.exclusion_filters = load_filters_from_modules(settings.EXCLUSION_FILTER_MODULES)
 
-    def _is_excluded(self, transaction: Transaction) -> bool:
+    def _is_excluded(self, transaction: RawTransaction) -> bool:
         return any(f.is_exclusion(transaction) for f in self.exclusion_filters)
 
     @staticmethod
-    def _add_new_receipt(vendor_match: VendorMatch, transaction: Transaction):
-        vendor = vendor_match.vendor
-        if vendor.fixed_amount:
-            total_amount = vendor.fixed_amount
-            LOGGER.info(f'Using fixed amount {vendor.fixed_amount} for vendor {vendor.name}')
-        else:
-            total_amount = transaction.amount
-
-        receipt = models.Receipt.objects.create(
-            vendor=vendor,
-            transaction_date=transaction.transaction_date,
-            expense_type=vendor_match.expense_type,
-            payment_method=transaction.payment_method,
-            total_amount=total_amount,
-            currency=transaction.currency
-        )
-        return receipt
-
-    @staticmethod
-    def _is_periodic_payment(transaction: Transaction):
+    def _is_periodic_payment(transaction: RawTransaction):
         misc = transaction.misc
         # TODO extend to inspect payment method
         return \
@@ -115,37 +94,42 @@ class Itemizer:
             expense_type=vendor_alias.default_expense_type or vendor.default_expense_type
         )
 
-    def process_transactions(self, transactions: TRANSACTION_ITERABLE, csv_outputfile=None):
+    def process_transactions(self, raw_transactions: RAW_TRANSACTION_ITERABLE):
         """
         Itemizes an iterable of transactions
         """
-        if csv_outputfile:
-            csv_writer = csv.writer(csv_outputfile)
-        else:
-            csv_writer = None
-
-        for transaction in transactions:
-            if self._is_excluded(transaction):
+        for raw_transaction in raw_transactions:
+            if self._is_excluded(raw_transaction):
                 LOGGER.warning('Skipping transaction: %s %d',
-                               transaction.description, transaction.amount)
+                               raw_transaction.description, raw_transaction.amount)
                 continue
 
-            # attemp to match the vendor
-            vendor_match = self._find_vendor(transaction)
-            hst_amount = None
-            receipt = None
+            # attempt to match the vendor
+            total_amount = raw_transaction.amount
+            vendor_match = self._find_vendor(raw_transaction)
             if vendor_match:
-                receipt = self._add_new_receipt(vendor_match, transaction)
-                # add a tax adjustment if required
-                if vendor_match.vendor.tax_adjustment_type:
-                    adjustment = add_tax_adjustment(receipt)
-                    hst_amount = adjustment.amount
+                vendor = vendor_match.vendor
+                if vendor.fixed_amount:
+                    total_amount = vendor.fixed_amount
+                    LOGGER.info(
+                        f'Using fixed amount {vendor.fixed_amount} for vendor {vendor.name}'
+                    )
+            else:
+                vendor = None
 
-            if csv_writer:
-                if receipt:
-                    csv_writer.writerow(receipt_to_itemized_row(receipt, hst_amount))
-                else:
-                    csv_writer.writerow(transaction_to_itemized_row(transaction))
+            transaction = models.Transaction.objects.create(
+                vendor=vendor,
+                transaction_date=raw_transaction.transaction_date,
+                expense_type=vendor_match.expense_type if vendor_match else None,
+                payment_method=raw_transaction.payment_method,
+                total_amount=total_amount,
+                currency=raw_transaction.currency,
+                description=vendor.name if vendor else raw_transaction.description,
+            )
+
+            # add a tax adjustment if required
+            if vendor_match and vendor_match.vendor.tax_adjustment_type:
+                add_tax_adjustment(transaction)
 
     @property
     def failures(self) -> int:

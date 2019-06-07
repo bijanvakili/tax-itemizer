@@ -19,7 +19,7 @@ pytestmark = pytest.mark.usefixtures(  # pylint: disable=invalid-name
 def test_hst_adjustment_basic(total_amount, expected_tax_adjustment):
     vendor = factories.VendorFactory.create(tax_adjustment_type=types.TaxType.HST)
     payment_method = factories.PaymentMethodFactory.create(currency=types.Currency.CAD)
-    receipt = models.Receipt(
+    receipt = models.Transaction(
         vendor=vendor,
         expense_type=vendor.default_expense_type,
         transaction_date=datetime.date.today(),
@@ -53,7 +53,7 @@ def test_hst_adjustment_periodic(total_amount, expected_tax_adjustment):
     periodic_payment.save()
 
     payment_method = factories.PaymentMethodFactory.create(currency=types.Currency.CAD)
-    receipt = models.Receipt(
+    receipt = models.Transaction(
         vendor=vendor,
         expense_type=vendor.default_expense_type,
         transaction_date=datetime.date.today(),

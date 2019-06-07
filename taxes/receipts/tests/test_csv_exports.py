@@ -1,5 +1,6 @@
 from decimal import Decimal
 from io import StringIO
+import logging
 import os
 
 import pytest
@@ -7,7 +8,7 @@ import pytest
 from taxes.receipts.csv_exporters import dump_receipts, dump_forex
 from taxes.receipts import models
 from taxes.receipts.parsers_factory import ParserFactory
-from taxes.receipts.itemize import Itemizer
+from taxes.receipts.itemize import Itemizer, LOGGER as ITEMIZER_LOGGER
 from taxes.receipts.util.datetime import parse_iso_datestring as isodstr
 
 
@@ -34,7 +35,7 @@ def _verify_csv_output(fileobj, expected_rows):
 
 # pylint: disable=redefined-outer-name
 @pytest.mark.usefixtures('payment_methods', 'vendors_and_exclusions')
-def test_receipt_dump(t_file, transaction_fixture_dir):
+def test_receipt_dump_matched(t_file, transaction_fixture_dir):
     filename = os.path.join(transaction_fixture_dir, 'bmo_savings_2016-08.csv')
     parser_factory = ParserFactory()
     parser = parser_factory .get_parser(filename)
@@ -58,7 +59,33 @@ def test_receipt_dump(t_file, transaction_fixture_dir):
          '', 'Property Tax', 'BMO Savings', ''],
     ]
     t_file.seek(0)
+    _verify_csv_output(t_file, expected_rows)
 
+
+@pytest.mark.usefixtures('payment_methods', 'vendors_and_exclusions')
+def test_receipt_dump_unmatched(t_file, transaction_fixture_dir):
+    filename = os.path.join(transaction_fixture_dir, 'capitalone_2019-06-06.csv')
+    parser_factory = ParserFactory()
+    parser = parser_factory .get_parser(filename)
+    itemizer = Itemizer(filename)
+    itemizer.process_transactions(parser.parse(filename))
+
+    ITEMIZER_LOGGER.setLevel(logging.CRITICAL)
+    dump_receipts(t_file, isodstr('2019-04-30'), isodstr('2019-05-31'), output_header=True)
+
+    expected_rows = [
+        ['Date', 'Asset', 'Currency', 'Amount', 'Transaction Party',
+         'HST Amount (CAD)', 'Tax Category', 'Payment Method', 'Notes'],
+        ['2019-04-30', 'Sole Proprietorship', 'USD', '-13.13', 'El Toro Taqueria',
+         '', 'Meals and Entertainment', 'CapitalOne Platinum Mastercard', ''],
+        ['2019-05-01', '1001-25 Wellesley St', 'USD', '-15.66', 'Uber',
+         '', 'Business Travel', 'CapitalOne Platinum Mastercard', ''],
+        ['2019-05-04', '*UNKNOWN*', 'USD', '-55.11', 'KITCHEN ISTANBUL',
+         '', '*UNKNOWN*', 'CapitalOne Platinum Mastercard', ''],
+        ['2019-05-18', '*UNKNOWN*', 'USD', '-24.93', 'FIREHOUSE PIZZERIA',
+         '', '*UNKNOWN*', 'CapitalOne Platinum Mastercard', ''],
+    ]
+    t_file.seek(0)
     _verify_csv_output(t_file, expected_rows)
 
 

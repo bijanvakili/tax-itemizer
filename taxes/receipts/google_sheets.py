@@ -97,7 +97,7 @@ GoogleSheetConfig = typing.NamedTuple('GoogleSheetConfig', [
 
 
 WORKSHEET_SOURCE_MODELS = {
-    WorksheetType.items: models.Receipt,
+    WorksheetType.items: models.Transaction,
     WorksheetType.forex: models.ForexRate,
 }
 

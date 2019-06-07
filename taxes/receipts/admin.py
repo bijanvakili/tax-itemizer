@@ -42,12 +42,12 @@ class PeriodicPaymentAdmin(admin.ModelAdmin):
     raw_id_fields = ('vendor', )
 
 
-@admin.register(models.Receipt)
-class ReceiptAdmin(admin.ModelAdmin):
+@admin.register(models.Transaction)
+class TransactionAdmin(admin.ModelAdmin):
     list_display = ('transaction_date', 'expense_type', 'vendor', 'total_amount', 'currency')
     ordering = ('transaction_date', 'expense_type', 'vendor', 'total_amount', )
     raw_id_fields = ('vendor', 'payment_method', )
-    search_fields = ('transaction_date', 'vendor__name',)
+    search_fields = ('transaction_date', 'description', 'vendor__name',)
 
 
 @admin.register(models.FinancialAsset)

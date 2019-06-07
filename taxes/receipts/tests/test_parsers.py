@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from taxes.receipts.types import Currency, TRANSACTION_SEQUENCE
+from taxes.receipts.types import Currency, RAW_TRANSACTION_SEQUENCE
 from taxes.receipts.models import PaymentMethod
 from taxes.receipts import parsers as parsers
 from taxes.receipts.parsers_factory import ParserFactory
@@ -28,8 +28,8 @@ def parser_factory_setup(request, monkeypatch, transaction_fixture_dir):
 def _make_expected_transaction(line_number: int, transaction_datestr: str, amount: int,
                                description: str, misc: dict,
                                currency: Currency = None,
-                               payment_method: PaymentMethod = None) -> parsers.Transaction:
-    return parsers.Transaction(
+                               payment_method: PaymentMethod = None) -> parsers.RawTransaction:
+    return parsers.RawTransaction(
         line_number=line_number,
         payment_method=payment_method,
         transaction_date=parse_iso_datestring(transaction_datestr),
@@ -48,7 +48,7 @@ class TestParsers:
     mock_logger = None
     transaction_fixture_dir = None
 
-    def _run_parser(self, filename) -> TRANSACTION_SEQUENCE:  # pylint:disable=redefined-outer-name
+    def _run_parser(self, filename) -> RAW_TRANSACTION_SEQUENCE:  # pylint:disable=redefined-outer-name
         test_parser = self.parser_factory.get_parser(filename)
         results = list(test_parser.parse(os.path.join(self.transaction_fixture_dir, filename)))
 

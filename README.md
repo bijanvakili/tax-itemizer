@@ -32,7 +32,7 @@ Finally, run the following to initialize the database and create an initial admi
 
 Start up the server:
 
-    ./run.sh runserver
+    ./run.sh web
 
 Open the admin site in your web browser:
 
@@ -54,7 +54,7 @@ To load a OANDA forex JSON file:
 
     ./run.sh import forex path/to/sample/forex.json
 
-### Tax receipt processing
+### Transaction processing
 
     ./run.sh itemize path/to/transaction_XXX.csv
     ./run.sh itemize path/to/transaction_YYY.csv
@@ -118,18 +118,6 @@ Install packages in `test_requirements.txt`:
 
     pip install -r test_requirements.txt
 
-To set up git pre-commit hooks (e.g. linter), do this on OS X:
-
-    brew install pre-commit
-
-or just:
-
-    pip install pre-commit
-
-Then run:
-
-    pre-commit install
-
 For normal execution:
 
     ./run.sh test
@@ -147,6 +135,10 @@ For repeated execution, you can reuse the same test database with models using t
 To run code linter:
 
     ./run.sh lint
+
+To set up git pre-commit hooks to run code linter, do this:
+
+    cp scripts/pre-commit .git/hooks/pre-commit
 
 ### References
 

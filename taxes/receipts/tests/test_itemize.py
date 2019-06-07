@@ -14,12 +14,12 @@ from taxes.receipts.util.datetime import parse_iso_datestring
 from taxes.receipts.tests.factories import VendorFactory
 
 from taxes.receipts.types import (
-    Transaction,
+    RawTransaction,
     Currency,
     PaymentMethod,
     ExpenseType,
     TaxType,
-    TRANSACTION_ITERABLE,
+    RAW_TRANSACTION_ITERABLE,
     AliasMatchOperation
 )
 
@@ -56,8 +56,8 @@ def t_file():
 def _make_expected_transaction(line_number: int, transaction_datestr: str, amount: int,
                                description: str, misc: dict,
                                currency: Currency = None,
-                               payment_method: PaymentMethod = None) -> Transaction:
-    return Transaction(
+                               payment_method: PaymentMethod = None) -> RawTransaction:
+    return RawTransaction(
         line_number=line_number,
         payment_method=payment_method,
         transaction_date=parse_iso_datestring(transaction_datestr),
@@ -70,7 +70,7 @@ def _make_expected_transaction(line_number: int, transaction_datestr: str, amoun
 
 
 def _get_all_sorted_receipts():
-    q_receipts = models.Receipt.objects \
+    q_receipts = models.Transaction.objects \
         .extra(
             select={'transaction_date_isoformat': "to_char(transaction_date, 'YYYY-MM-DD')"}
         ) \
@@ -91,7 +91,7 @@ class BaseTestItemize:
     itemizer: itemize_module.Itemizer = None
     payment_method: models.PaymentMethod = None
 
-    def _run_itemizer(self, transactions: TRANSACTION_ITERABLE):
+    def _run_itemizer(self, transactions: RAW_TRANSACTION_ITERABLE):
         self.itemizer.process_transactions(transactions)
         assert not log_contains_message(self.mock_logger, 'Pattern not found', level=logging.ERROR)
 
@@ -186,45 +186,6 @@ class TestBmoBankAccountItemize(BaseTestItemize):
 
         assert log_contains_message(self.mock_logger, 'Skipping transaction:.*',
                                     level=logging.WARNING)
-
-    # pylint: disable=redefined-outer-name
-    def test_csv_output(self, t_file):
-        # pylint:disable=invalid-name
-        _T = self._make_transaction()
-        _m = self._make_misc()
-        # pylint:enable=invalid-name
-
-        transactions = [
-            # vendor match w/HST adjustment
-            _T(1, '2016-08-02', -200839, 'YRCC994         FEE/FRA', _m('DS')),
-
-            # not matched
-            _T(2, '2016-08-10', -3600, "PURCHASE AUTHORIZED ON 05/26 CA DMV SAN MATEO FO 593"
-               " SAN MATEO CA P888815690169999 CARD 2820", {}),
-
-            # vendor match (no adjustment)
-            _T(3, '2016-08-15', -73300, 'TORONTO TAX     TAX/TAX', _m('DS')),
-        ]
-
-        self.itemizer.process_transactions(transactions, csv_outputfile=t_file)
-
-        # check output
-        expected_rows = [
-            ['2016-08-02', '5-699 Amber St', 'CAD', '-2008.39', 'YRCC 994', '-231.05',
-             'Management and Administrative', self.payment_method.name, ''],
-            ['2016-08-10', '*UNKNOWN*', 'CAD', '-36.00', "PURCHASE AUTHORIZED ON 05/26 CA DMV"
-             " SAN MATEO FO 593 SAN MATEO CA P888815690169999 CARD 2820",
-             '', '*UNKNOWN*', self.payment_method.name, ''],
-            ['2016-08-15', '1001-25 Wellesley St', 'CAD', '-733.00', 'City of Toronto',
-             '', 'Property Tax', self.payment_method.name, ''],
-        ]
-        t_file.seek(0)
-        max_rows = len(expected_rows)
-        for row_id, row in enumerate(t_file):
-            assert row_id < max_rows
-            parsed_row = row.strip().split(',')
-            assert parsed_row == expected_rows[row_id]
-    # pylint: enable=redefined-outer-name
 
 
 @pytest.mark.usefixtures(

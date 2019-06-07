@@ -10,11 +10,11 @@ from importlib import import_module
 from django.db.models import Q
 
 from taxes.receipts import models
-from taxes.receipts.types import Transaction
+from taxes.receipts.types import RawTransaction
 
 
 class BaseVendorExclusionFilter(metaclass=abc.ABCMeta):
-    def is_exclusion(self, transaction: Transaction) -> bool:
+    def is_exclusion(self, transaction: RawTransaction) -> bool:
         """
         Determine if a transaction should be excluded
 
@@ -31,7 +31,7 @@ class ExclusionConditionFilter(BaseVendorExclusionFilter):
     """
     Filters based on loaded exclusions in the database
     """
-    def is_exclusion(self, transaction: Transaction) -> bool:
+    def is_exclusion(self, transaction: RawTransaction) -> bool:
         # TODO future support to filter on payment_method
         q_pattern = transaction.description.upper()
         for_date = transaction.transaction_date
@@ -51,7 +51,7 @@ class BMOTransactionCodeFilter(BaseVendorExclusionFilter):
     """
     EXCLUDED_TRANSACTION_CODES = {'SO', 'SC', 'CW'}
 
-    def is_exclusion(self, transaction: Transaction) -> bool:
+    def is_exclusion(self, transaction: RawTransaction) -> bool:
         transaction_code = transaction.misc.get('transaction_code')
         return transaction_code and transaction_code in self.EXCLUDED_TRANSACTION_CODES
 
@@ -67,7 +67,7 @@ class CreditPaymentFilter(BaseVendorExclusionFilter):
         'PAYMENT'
     }
 
-    def is_exclusion(self, transaction: Transaction) -> bool:
+    def is_exclusion(self, transaction: RawTransaction) -> bool:
         return transaction.misc.get('category') == 'Payment' or \
             transaction.misc.get('type') == 'Payment' or \
             transaction.description.upper() in self.PAYMENT_DESCRIPTIONS
@@ -77,7 +77,7 @@ class CRAPaymentFilter(BaseVendorExclusionFilter):
     """
     Filtesr out CRA withholding tax payments
     """
-    def is_exclusion(self, transaction: Transaction) -> bool:
+    def is_exclusion(self, transaction: RawTransaction) -> bool:
         return transaction.payment_method.name == 'BMO Savings' and \
             re.search(
                 r'^ONLINE PURCHASE\s.*PAY\s+TO\s+CRA',
@@ -86,7 +86,7 @@ class CRAPaymentFilter(BaseVendorExclusionFilter):
 
 
 class WellsFargoOnlinePaymentFilter(BaseVendorExclusionFilter):
-    def is_exclusion(self, transaction: Transaction) -> bool:
+    def is_exclusion(self, transaction: RawTransaction) -> bool:
         return transaction.payment_method.name == 'Wells Fargo Checking' and \
             re.search(
                 r'^(ONLINE TRANSFER REF|BILL PAY)\s.+ON\s.+$',

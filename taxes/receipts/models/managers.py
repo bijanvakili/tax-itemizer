@@ -4,8 +4,10 @@ import typing
 
 from django.db import models
 
+from taxes.receipts.constants import UNKNOWN_VALUE
 from taxes.receipts.forex import CURRENCY_PAIR
-from taxes.receipts.util.csv import receipt_to_itemized_row
+from taxes.receipts.types import ProcessedTransactionRow
+from taxes.receipts.util.currency import cents_to_dollars
 
 
 TUPLE_GENERATOR = typing.Generator[typing.NamedTuple, None, None]
@@ -27,7 +29,7 @@ class ReportMixinBase(metaclass=abc.ABCMeta):
         pass
 
 
-class ReceiptManager(ReportMixinBase, models.Manager):
+class TransactionManager(ReportMixinBase, models.Manager):
     @property
     def headers(self):
         return [
@@ -36,7 +38,7 @@ class ReceiptManager(ReportMixinBase, models.Manager):
         ]
 
     def sorted_report(self, start_date: datetime.date, end_date: datetime.date) -> TUPLE_GENERATOR:
-        receipts = self.get_queryset() \
+        transactions = self.get_queryset() \
             .select_related('vendor', 'vendor__assigned_asset', 'payment_method') \
             .filter(transaction_date__range=(start_date, end_date)) \
             .extra(select={
@@ -46,10 +48,24 @@ class ReceiptManager(ReportMixinBase, models.Manager):
                     WHERE ta.tax_type = 'hst' AND ta.receipt_id = receipt.id
                 """
             }) \
-            .order_by('transaction_date', 'vendor__name', 'total_amount')
+            .order_by('transaction_date', 'description', 'total_amount')
 
-        for receipt in receipts:
-            yield receipt_to_itemized_row(receipt, receipt.hst_amount)
+        for transaction in transactions:
+            vendor = transaction.vendor
+            financial_asset = vendor.assigned_asset if vendor else None
+            expense_type = transaction.expense_type
+
+            yield ProcessedTransactionRow(
+                transaction.transaction_date.isoformat(),
+                financial_asset.name if financial_asset else UNKNOWN_VALUE,
+                transaction.currency.value,
+                cents_to_dollars(transaction.total_amount),
+                transaction.description,
+                cents_to_dollars(transaction.hst_amount) if transaction.hst_amount else '',
+                expense_type.label if expense_type else UNKNOWN_VALUE,
+                transaction.payment_method.name,
+                '',
+            )
 
 
 class ForexRateManager(models.Manager):
