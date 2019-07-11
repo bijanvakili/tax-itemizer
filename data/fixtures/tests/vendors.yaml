@@ -786,6 +786,7 @@ vendors:
       -
         pattern: 'MAINLAND MARKET'
         match_operation: equal
+    assigned_asset: Sole Proprietorship
 
 exclusions:
 - SAFEWAY

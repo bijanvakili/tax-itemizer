@@ -57,7 +57,7 @@ class TestParsers:
 
         return results
 
-    def test_parse_bmo_savings(self):
+    def test_bmo_savings_parser(self):
         expected_payment_method = PaymentMethod.objects.get(name='BMO Savings')
 
         _T = functools.partial(_make_expected_transaction,  # pylint:disable=invalid-name
@@ -86,7 +86,7 @@ class TestParsers:
             _T(19, '2016-08-31', 2600, 'FULL PLAN FEE REBATE', _m('SC')),
         ]
 
-    def test_parse_bmo_readiline(self):
+    def test_bmo_readiline_parser(self):
         expected_payment_method = PaymentMethod.objects.get(name='BMO Readiline')
         _T = functools.partial(_make_expected_transaction,    # pylint:disable=invalid-name
                                currency=Currency.CAD, payment_method=expected_payment_method)
@@ -96,7 +96,7 @@ class TestParsers:
             _T(5, '2016-09-09', -45377, 'INTEREST ADVANCES  @ 02.70000% TO 09SEP', expected_misc),
         ]
 
-    def test_parse_bmo_mastercard(self):
+    def test_bmo_mastercard_parser(self):
         expected_payment_method = PaymentMethod.objects.get(name='BMO Paypass Mastercard')
         _T = functools.partial(_make_expected_transaction,    # pylint:disable=invalid-name
                                currency=Currency.CAD, payment_method=expected_payment_method)
@@ -120,7 +120,7 @@ class TestParsers:
             _T(19, '2016-02-18', -4999, 'INTUIT CANADA 780-555-8787 AB', expected_misc),
         ]
 
-    def test_mbna_mastercard(self):
+    def test_mbna_mastercard_parser(self):
         expected_payment_method = PaymentMethod.objects.get(name='MBNA Mastercard')
         _T = functools.partial(_make_expected_transaction,    # pylint:disable=invalid-name
                                currency=Currency.CAD, payment_method=expected_payment_method)
@@ -131,7 +131,7 @@ class TestParsers:
             _T(4, '2016-09-26', -999, 'NETFLIX.COM 866-716-0414 ON', expected_misc),
         ]
 
-    def test_parse_capitalone(self):
+    def test_capitalone_parser(self):
         expected_payment_method = PaymentMethod.objects.get(name='CapitalOne Platinum Mastercard')
         _T = functools.partial(_make_expected_transaction,    # pylint:disable=invalid-name
                                currency=Currency.USD, payment_method=expected_payment_method)
@@ -142,16 +142,13 @@ class TestParsers:
                 'category': category,
             }
 
-        assert self._run_parser('capitalone_2017-09.csv') == [
-            _T(2, '2017-09-26', 16072, 'ELECTRONIC PAYMENT', _m('Payment')),
-            _T(3, '2017-09-25', -1462, 'SQ *GLAZE TERIYAKI', _m('Dining')),
-            _T(4, '2017-09-24', -353, 'BOOKS INC     80700131', _m('Merchandise')),
-            _T(5, '2017-09-21', -2474, 'WE BE SUSHI 5', _m('Dining')),
-            _T(6, '2017-09-20', -1481, 'LEES DELI - 615 MARKET', _m('Dining')),
-            _T(7, '2017-09-17', -3054, 'GRUBHUBYUMYUMHUNAN', _m('Dining')),
-            _T(8, '2017-09-09', -2520, 'MARINA SUPERMARKET', _m('Merchandise')),
-            _T(9, '2017-09-04', -2600, 'EMBARCADERO CINEMA 224', _m('Entertainment')),
-            _T(10, '2017-09-02', -651, 'SAFEWAY  STORE00009670', _m('Merchandise')),
+        assert self._run_parser('capitalone_2019-06.csv') == [
+            _T(2, '2019-06-25', 27758, 'ELECTRONIC PAYMENT', _m('Payment/Credit')),
+            _T(3, '2019-06-17', -2005, 'LYFT   *RIDE SUN 11PM', _m('Other Travel')),
+            _T(4, '2019-06-12', -707, 'UBER   TRIP', _m('Other Travel')),
+            _T(5, '2019-06-05', -791, 'UBER   TRIP', _m('Other Travel')),
+            _T(6, '2019-05-31', -298, 'SAFEWAY #1547', _m('Merchandise')),
+            _T(7, '2019-05-30', -2061, 'MAINLAND MARKET', _m('Merchandise')),
         ]
 
     def test_chase_visa_parser(self):
@@ -174,7 +171,7 @@ class TestParsers:
             _T(7, '2019-02-03', -800100, 'BANANAREPUBLIC US 8035', _m('Shopping', 'Sale')),
         ]
 
-    def test_wellsfargo_checking(self):
+    def test_wellsfargo_checking_parser(self):
         expected_payment_method = PaymentMethod.objects.get(name='Wells Fargo Checking')
         _T = functools.partial(_make_expected_transaction,    # pylint:disable=invalid-name
                                currency=Currency.USD, payment_method=expected_payment_method)
@@ -210,7 +207,7 @@ class TestParsers:
                " P00000000000000008 CARD 0069", {'authorized_purchase_on': '07/31'}),
         ]
 
-    def test_wellsfargo_visa(self):
+    def test_wellsfargo_visa_parser(self):
         expected_payment_method = PaymentMethod.objects.get(name='Wells Fargo Visa Card')
         _T = functools.partial(_make_expected_transaction,    # pylint:disable=invalid-name
                                currency=Currency.USD, payment_method=expected_payment_method)

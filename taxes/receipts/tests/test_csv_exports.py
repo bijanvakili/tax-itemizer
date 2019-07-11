@@ -64,7 +64,7 @@ def test_receipt_dump_matched(t_file, transaction_fixture_dir):
 
 @pytest.mark.usefixtures('payment_methods', 'vendors_and_exclusions')
 def test_receipt_dump_unmatched(t_file, transaction_fixture_dir):
-    filename = os.path.join(transaction_fixture_dir, 'capitalone_2019-06-06.csv')
+    filename = os.path.join(transaction_fixture_dir, 'capitalone_2019-06.csv')
     parser_factory = ParserFactory()
     parser = parser_factory .get_parser(filename)
     itemizer = Itemizer(filename)
@@ -76,13 +76,15 @@ def test_receipt_dump_unmatched(t_file, transaction_fixture_dir):
     expected_rows = [
         ['Date', 'Asset', 'Currency', 'Amount', 'Transaction Party',
          'HST Amount (CAD)', 'Tax Category', 'Payment Method', 'Notes'],
-        ['2019-04-30', 'Sole Proprietorship', 'USD', '-13.13', 'El Toro Taqueria',
+        ['2019-05-30', 'Sole Proprietorship', 'USD', '-20.61', 'Mainland Market',
          '', 'Meals and Entertainment', 'CapitalOne Platinum Mastercard', ''],
-        ['2019-05-01', '1001-25 Wellesley St', 'USD', '-15.66', 'Uber',
+        ['2019-06-12', '1001-25 Wellesley St', 'USD', '-7.07', 'Uber',
          '', 'Business Travel', 'CapitalOne Platinum Mastercard', ''],
-        ['2019-05-04', '*UNKNOWN*', 'USD', '-55.11', 'KITCHEN ISTANBUL',
-         '', '*UNKNOWN*', 'CapitalOne Platinum Mastercard', ''],
-        ['2019-05-18', '*UNKNOWN*', 'USD', '-24.93', 'FIREHOUSE PIZZERIA',
+        ['2019-06-15', '1001-25 Wellesley St', 'USD', '-7.91', 'Uber',
+         '', 'Business Travel', 'CapitalOne Platinum Mastercard', ''],
+        ['2019-06-15', 'Sole Proprietorship', 'USD', '-2.98', 'Safeway',
+         '', 'Meals and Entertainment', 'CapitalOne Platinum Mastercard', ''],
+        ['2019-06-17', '*UNKNOWN*', 'USD', '-20.05', 'LYFT   *RIDE SUN 11PM',
          '', '*UNKNOWN*', 'CapitalOne Platinum Mastercard', ''],
     ]
     t_file.seek(0)

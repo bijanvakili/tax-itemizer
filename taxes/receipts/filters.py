@@ -64,7 +64,8 @@ class CreditPaymentFilter(BaseVendorExclusionFilter):
         'PAYMENT RECEIVED - THANK YOU',
         'AUTOMATIC PAYMENT RECEIVED - THANK YOU',
         'ONLINE PAYMENT',
-        'PAYMENT'
+        'PAYMENT',
+        'ELECTRONIC PAYMENT',
     }
 
     def is_exclusion(self, transaction: RawTransaction) -> bool:

@@ -206,10 +206,9 @@ class MBNAMastercardParser(BaseTransactionParser):
 
 class CapitalOneMastercardParser(BaseTransactionParser):
     LINE_FILTERS = [
-        SkipPatternsFilter([r'^Stage, Transaction Date.*'])
+        SkipPatternsFilter([r'^Transaction Date.*'])
     ]
     CSV_FIELDS = [
-        'stage',
         CommonColumn.transaction_date.value,
         'posted_date',
         'card_number',
@@ -218,6 +217,7 @@ class CapitalOneMastercardParser(BaseTransactionParser):
         'debit',
         'credit'
     ]
+    TRANSACTION_DATE_FORMAT = '%Y-%m-%d'
 
     def parse_row(self, row: dict, line_number: int) -> RawTransaction:
         debit_amount = parse_amount(row['debit'] or '0.0')
