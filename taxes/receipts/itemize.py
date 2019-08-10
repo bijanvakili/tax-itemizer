@@ -52,11 +52,6 @@ class Itemizer:
 
     def _find_vendor(self, transaction) -> typing.Optional[VendorMatch]:
         amount = transaction.amount
-        # TODO check exclusion conditions
-        # if self._is_exclusion(pattern, for_date, amount):
-        #     LOGGER.warning(f'Skipped vendor {pattern}')
-        #     return None
-
         if self._is_periodic_payment(transaction):
             # TODO determine how to handle regular payments with the same amount and currency
             try:
@@ -66,7 +61,7 @@ class Itemizer:
                 )
             except django_exc.ObjectDoesNotExist:
                 self._failures += 1
-                LOGGER.error(f'Pattern not found for amount: {cents_to_dollars(amount)}')
+                LOGGER.warning(f'Pattern not found for amount: {cents_to_dollars(amount)}')
                 return None
             return VendorMatch(
                 vendor=periodic_payment.vendor,
@@ -84,7 +79,7 @@ class Itemizer:
             )
         except django_exc.ObjectDoesNotExist:
             self._failures += 1
-            LOGGER.error(f'Pattern not found in {self.filename}: {pattern}')
+            LOGGER.warning(f'Pattern not found in {self.filename}: {pattern}')
             return None
 
         # prioritize vendor alias's expense type over the vendor's expense type
@@ -100,8 +95,8 @@ class Itemizer:
         """
         for raw_transaction in raw_transactions:
             if self._is_excluded(raw_transaction):
-                LOGGER.warning('Skipping transaction: %s %d',
-                               raw_transaction.description, raw_transaction.amount)
+                LOGGER.info('Skipping transaction: %s %d',
+                            raw_transaction.description, raw_transaction.amount)
                 continue
 
             # attempt to match the vendor

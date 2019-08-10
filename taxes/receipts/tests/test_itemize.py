@@ -93,7 +93,8 @@ class BaseTestItemize:
 
     def _run_itemizer(self, transactions: RAW_TRANSACTION_ITERABLE):
         self.itemizer.process_transactions(transactions)
-        assert not log_contains_message(self.mock_logger, 'Pattern not found', level=logging.ERROR)
+        assert not log_contains_message(self.mock_logger, 'Pattern not found',
+                                        level=logging.WARNING)
 
 
 @pytest.mark.usefixtures(
@@ -185,7 +186,7 @@ class TestBmoBankAccountItemize(BaseTestItemize):
         assert receipts == []
 
         assert log_contains_message(self.mock_logger, 'Skipping transaction:.*',
-                                    level=logging.WARNING)
+                                    level=logging.INFO)
 
 
 @pytest.mark.usefixtures(
@@ -225,7 +226,7 @@ class TestBmoCreditItemize(BaseTestItemize):
         ]
 
         assert log_contains_message(self.mock_logger, 'Skipping transaction:.*',
-                                    level=logging.WARNING)
+                                    level=logging.INFO)
 
 
 @pytest.mark.usefixtures(
@@ -275,7 +276,7 @@ class TestWellsFargoItemize(BaseTestItemize):
         ]
 
         assert log_contains_message(self.mock_logger, 'Skipping transaction:.*',
-                                    level=logging.WARNING)
+                                    level=logging.INFO)
 
     def test_online_payment_exclusions(self):
         # pylint:disable=invalid-name
@@ -304,4 +305,4 @@ class TestWellsFargoItemize(BaseTestItemize):
         ]
 
         assert log_contains_message(self.mock_logger, 'Skipping transaction:.*',
-                                    level=logging.WARNING)
+                                    level=logging.INFO)
