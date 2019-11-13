@@ -6,14 +6,14 @@ from taxes.receipts.management.shared import DateRangeMixin
 
 
 class Command(DateRangeMixin, BaseCommand):
-    help = 'Upload data to Google Sheets'
+    help = "Upload data to Google Sheets"
 
     def handle(self, *args, **options):
         if not settings.SPREADSHEET:
-            raise Exception('SPREADSHEET is not configured in JSON')
+            raise Exception("SPREADSHEET is not configured in JSON")
 
         google_sheets.upload_to_gsheet(
             google_sheets.GoogleSheetConfig(**settings.SPREADSHEET),
-            options['start_date'],
-            options['end_date'],
+            options["start_date"],
+            options["end_date"],
         )

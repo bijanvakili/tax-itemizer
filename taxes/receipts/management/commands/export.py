@@ -11,8 +11,9 @@ class ExportType(Enum):
     """
     Export type
     """
-    receipts = 'receipts'
-    forex = 'forex'
+
+    receipts = "receipts"
+    forex = "forex"
 
 
 COMMAND_MAP = {
@@ -22,19 +23,21 @@ COMMAND_MAP = {
 
 
 class Command(DateRangeOutputMixin, BaseCommand):
-    help = 'Exports to a CSV'
+    help = "Exports to a CSV"
 
     def add_arguments(self, parser):
         worksheet_choices = [e.name for e in ExportType]
-        parser.add_argument('export_type', choices=worksheet_choices, help='Export Type')
+        parser.add_argument(
+            "export_type", choices=worksheet_choices, help="Export Type"
+        )
         super().add_arguments(parser)
 
     def handle(self, *args, **options):
-        f_dump = COMMAND_MAP[ExportType(options['export_type'])]
-        with self.open_output(options['output_filename']) as output_file:
+        f_dump = COMMAND_MAP[ExportType(options["export_type"])]
+        with self.open_output(options["output_filename"]) as output_file:
             f_dump(
                 output_file,
-                options['start_date'],
-                options['end_date'],
-                output_header=options['with_header']
+                options["start_date"],
+                options["end_date"],
+                output_header=options["with_header"],
             )

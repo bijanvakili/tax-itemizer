@@ -8,80 +8,80 @@ import enumfields
 
 @unique
 class PaymentMethod(enumfields.Enum):
-    CASH = 'cash'
-    CREDIT_CARD = 'credit_card'
+    CASH = "cash"
+    CREDIT_CARD = "credit_card"
 
     class Labels:
-        CASH = 'Cash'
-        CREDIT_CARD = 'Credit Card'
+        CASH = "Cash"
+        CREDIT_CARD = "Credit Card"
 
 
 @unique
 class Currency(Enum):
-    USD = 'USD'
-    CAD = 'CAD'
+    USD = "USD"
+    CAD = "CAD"
 
 
 # taxable expense aggregation type
 @unique
 class ExpenseType(enumfields.Enum):
-    IGNORE = 'ignore'
-    PROPERTY_TAX = 'property_tax'
-    INTEREST = 'interest'
-    INSURANCE = 'insurance'
-    UTILITY = 'utility'
-    ADMINISTRATIVE = 'administrative'
-    MAINTENANCE = 'maintenance'
-    TRAVEL = 'travel'
-    MEALS_AND_ENTERTAINMENT = 'meals'
-    SUPPLIES = 'supplies'
-    RENT = 'rent'
-    FOREIGN_INCOME = 'foreign_income'
-    CAPITAL_GAINS = 'capital_gains'
-    ADVERTISING = 'advertising'
-    DONATION = 'donation'
+    IGNORE = "ignore"
+    PROPERTY_TAX = "property_tax"
+    INTEREST = "interest"
+    INSURANCE = "insurance"
+    UTILITY = "utility"
+    ADMINISTRATIVE = "administrative"
+    MAINTENANCE = "maintenance"
+    TRAVEL = "travel"
+    MEALS_AND_ENTERTAINMENT = "meals"
+    SUPPLIES = "supplies"
+    RENT = "rent"
+    FOREIGN_INCOME = "foreign_income"
+    CAPITAL_GAINS = "capital_gains"
+    ADVERTISING = "advertising"
+    DONATION = "donation"
 
     class Labels:
-        IGNORE = '*IGNORE*'
-        PROPERTY_TAX = 'Property Tax'
-        INTEREST = 'Interest'
-        INSURANCE = 'Insurance'
-        UTILITY = 'Telephone and Utilities'
-        ADMINISTRATIVE = 'Management and Administrative'
-        MAINTENANCE = 'Repair and Maintenance'
-        TRAVEL = 'Business Travel'
-        MEALS_AND_ENTERTAINMENT = 'Meals and Entertainment'
-        SUPPLIES = 'Office Supplies'
-        RENT = 'Gross Rent'
-        FOREIGN_INCOME = 'Foreign Income'
-        CAPITAL_GAINS = 'Capital Gains'
-        ADVERTISING = 'Advertising'
-        DONATION = 'Donations'
+        IGNORE = "*IGNORE*"
+        PROPERTY_TAX = "Property Tax"
+        INTEREST = "Interest"
+        INSURANCE = "Insurance"
+        UTILITY = "Telephone and Utilities"
+        ADMINISTRATIVE = "Management and Administrative"
+        MAINTENANCE = "Repair and Maintenance"
+        TRAVEL = "Business Travel"
+        MEALS_AND_ENTERTAINMENT = "Meals and Entertainment"
+        SUPPLIES = "Office Supplies"
+        RENT = "Gross Rent"
+        FOREIGN_INCOME = "Foreign Income"
+        CAPITAL_GAINS = "Capital Gains"
+        ADVERTISING = "Advertising"
+        DONATION = "Donations"
 
 
 @unique
 class AliasMatchOperation(Enum):
-    EQUAL = 'equal'
-    LIKE = 'like'
+    EQUAL = "equal"
+    LIKE = "like"
 
 
 @unique
 class FinancialAssetType(enumfields.Enum):
-    RENTAL = 'rental'
-    EMPLOYMENT = 'employment'
-    PROPRIETORSHIP = 'proprietorship'
-    PRIMARY_RESIDENCE = 'primary_residence'
+    RENTAL = "rental"
+    EMPLOYMENT = "employment"
+    PROPRIETORSHIP = "proprietorship"
+    PRIMARY_RESIDENCE = "primary_residence"
 
     class Labels:
-        RENTAL = 'Rental'
-        EMPLOYMENT = 'Employment'
-        PROPRIETORSHIP = 'Proprietorship'
-        PRIMARY_RESIDENCE = 'Primary Residence'
+        RENTAL = "Rental"
+        EMPLOYMENT = "Employment"
+        PROPRIETORSHIP = "Proprietorship"
+        PRIMARY_RESIDENCE = "Primary Residence"
 
 
 @unique
 class TaxType(enumfields.Enum):
-    HST = 'hst'
+    HST = "hst"
 
 
 @dataclass
@@ -89,6 +89,7 @@ class RawTransaction:
     """
     Represents a parsed transaction
     """
+
     line_number: int
     transaction_date: date
     amount: int
@@ -102,6 +103,7 @@ class ProcessedTransactionRow(typing.NamedTuple):
     """
     Fields to output in CSV format for an processed transaction
     """
+
     date: str
     asset: str
     currency: str
@@ -113,7 +115,7 @@ class ProcessedTransactionRow(typing.NamedTuple):
     notes: str
 
 
-RAW_TRANSACTION_SEQUENCE = typing.Sequence[RawTransaction]
-RAW_TRANSACTION_ITERABLE = typing.Iterable[RawTransaction]
-RAW_TRANSACTION_GENERATOR = typing.Generator[RawTransaction, None, None]
-TEXT_LINE_GENERATOR = typing.Generator[str, None, None]
+RawTransactionSequence = typing.Sequence[RawTransaction]
+RawTransactionIterable = typing.Iterable[RawTransaction]
+RawTransactinGenerator = typing.Generator[RawTransaction, None, None]
+TextLineGenerator = typing.Generator[str, None, None]

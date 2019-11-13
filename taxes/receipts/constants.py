@@ -2,4 +2,4 @@
 Shared constants
 """
 
-UNKNOWN_VALUE = '*UNKNOWN*'
+UNKNOWN_VALUE = "*UNKNOWN*"

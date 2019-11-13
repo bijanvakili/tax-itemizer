@@ -26,6 +26,7 @@ if [ "${COMMAND}" == "test" ]; then
 elif [ "${COMMAND}" == "lint" ]; then
     flake8
     pylint taxes/
+    black --check taxes/
 elif [ "${COMMAND}" == "web" ]; then
     python manage.py runserver --insecure
 else

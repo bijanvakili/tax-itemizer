@@ -16,12 +16,10 @@ data:
 
 def test_load_yaml():
     expected_data = {
-        'data': {
-            'primitive': 'mystring',
-            'my_list': [1, 2, 3, 4],
-            'my_obj': {
-                'foo': 'bar'
-            }
+        "data": {
+            "primitive": "mystring",
+            "my_list": [1, 2, 3, 4],
+            "my_obj": {"foo": "bar"},
         }
     }
 

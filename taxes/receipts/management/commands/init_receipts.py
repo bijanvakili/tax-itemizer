@@ -8,11 +8,11 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Initializes the receipts application'
+    help = "Initializes the receipts application"
 
     def handle(self, *args, **kwargs):
-        LOGGER.info('Setting up database...')
-        call_command('migrate', *args, **kwargs)
+        LOGGER.info("Setting up database...")
+        call_command("migrate", *args, **kwargs)
 
-        LOGGER.info('Setting up admin accounts...')
-        call_command('createsuperuser', *args, **kwargs)
+        LOGGER.info("Setting up admin accounts...")
+        call_command("createsuperuser", *args, **kwargs)

@@ -17,13 +17,17 @@ def add_tax_adjustment(receipt: models.Transaction):
     return models.TaxAdjustment.objects.create(
         receipt=receipt,
         tax_type=tax_adjustment_type,
-        amount=_compute_tax_adjustment_amount(receipt, tax_adjustment_type)
+        amount=_compute_tax_adjustment_amount(receipt, tax_adjustment_type),
     )
 
 
-def _compute_tax_adjustment_amount(receipt: models.Transaction, tax_type: types.TaxType.HST) -> int:
+def _compute_tax_adjustment_amount(
+    receipt: models.Transaction, tax_type: types.TaxType.HST
+) -> int:
     if tax_type == types.TaxType.HST:
-        tax_amount = Decimal(receipt.total_amount) * (Decimal(1) - (Decimal(1) / Decimal(1.13)))
+        tax_amount = Decimal(receipt.total_amount) * (
+            Decimal(1) - (Decimal(1) / Decimal(1.13))
+        )
         return round(tax_amount)
 
-    raise ValueError('Unsupported tax type')
+    raise ValueError("Unsupported tax type")

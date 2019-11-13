@@ -1,6 +1,6 @@
 [flake8]
-max-line-length=120
-exclude = taxes/receipts/migrations
+max-line-length=88
+exclude=taxes/receipts/migrations
 
 # TODO can this be fixed in a newer version of flake8?
-ignore=E721
+ignore=E231,E721,W503
