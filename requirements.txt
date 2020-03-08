@@ -1,8 +1,9 @@
-Django==2.2.4 \
-    --hash=sha256:16a5d54411599780ac9dfe3b9b38f90f785c51259a584e0b24b6f14a7f69aae8 \
-    --hash=sha256:9a2f98211ab474c710fcdad29c82f30fc14ce9917c7a70c3682162a624de4035
-django-enumfields==0.10.1 \
-    --hash=sha256:6a69868afac1ce6153760fdcce74361dac7b74bdf0c5cf58c7456aa731cf2d4b
+Django==3.0.4 \
+    --hash=sha256:50b781f6cbeb98f673aa76ed8e572a019a45e52bdd4ad09001072dfd91ab07c8 \
+    --hash=sha256:89e451bfbb815280b137e33e454ddd56481fdaa6334054e6e031041ee1eda360
+django-enumfields==2.0.0 \
+    --hash=sha256:9bc0e2c410723c9592992155f32adadcedc11c841f6888dcf721f5f638d466e3 \
+    --hash=sha256:e94f6b39de7adc0716130101d75eede3834b42e2a895599c19354eb1bb7fbdd1
 dj-database-url==0.4.2 \
     --hash=sha256:a6832d8445ee9d788c5baa48aef8130bf61fdc442f7d9a548424d25cd85c9f08 \
     --hash=sha256:e16d94c382ea0564c48038fa7fe8d9c890ef1ab1a8ec4cb48e732c124b9482fd
