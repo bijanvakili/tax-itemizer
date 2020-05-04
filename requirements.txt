@@ -178,9 +178,6 @@ pip-api==0.0.5 \
 mccabe==0.6.1 \
     --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
     --hash=sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f
-dataclasses==0.6 \
-    --hash=sha256:454a69d788c7fda44efd71e259be79577822f5e3f53f029a22d08004e951dc9f \
-    --hash=sha256:6988bd2b895eef432d562370bb707d540f32f7360ab13da45340101bc2307d84
 sqlparse==0.3.0 \
     --hash=sha256:40afe6b8d4b1117e7dff5504d7a8ce07d9a1b15aeeade8a2d10f130a834f8177 \
     --hash=sha256:7c3dca29c022744e95b547e867cee89f4fce4373f3549ccd8797d8eb52cdb873
