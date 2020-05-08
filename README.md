@@ -8,7 +8,7 @@ Includes commands to scrape or import FX rates.
 
 ### Requirements
 
-* python 3.6.x
+* python 3.7.x
 * Packages in `requirements.txt`
 
 ### Setup
@@ -139,6 +139,17 @@ To run code linter:
 To set up git pre-commit hooks to run code linter, do this:
 
     cp scripts/pre-commit .git/hooks/pre-commit
+
+### Requirement updates
+
+Run the following:
+
+    # install developer requirements
+    pip install -r dev_requirements.txt
+
+    # regenerate hash dependencies
+    pip-compile --generate-hashes requirements.in --output-file requirements.txt
+    pip-compile --generate-hashes test_requirements.in --output-file test_requirements.txt
 
 ### References
 
