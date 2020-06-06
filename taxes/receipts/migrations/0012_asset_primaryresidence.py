@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='financialasset',
             name='type',
-            field=enumfields.fields.EnumField(enum=taxes.receipts.types.FinancialAssetType, max_length=17),
+            field=enumfields.fields.EnumField(enum=taxes.receipts.types.FinancialAssetTypeEnum, max_length=17),
         ),
     ]

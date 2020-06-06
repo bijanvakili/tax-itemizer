@@ -2,7 +2,7 @@ from enum import Enum, unique
 
 from django.core.management.base import BaseCommand
 
-from taxes.receipts.csv_exporters import dump_receipts, dump_forex
+from taxes.receipts.csv_exporters import dump_transactions, dump_forex
 from taxes.receipts.management.shared import DateRangeOutputMixin
 
 
@@ -12,12 +12,12 @@ class ExportType(Enum):
     Export type
     """
 
-    receipts = "receipts"
+    transactions = "transactions"
     forex = "forex"
 
 
 COMMAND_MAP = {
-    ExportType.receipts: dump_receipts,
+    ExportType.transactions: dump_transactions,
     ExportType.forex: dump_forex,
 }
 

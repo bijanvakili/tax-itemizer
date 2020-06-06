@@ -45,7 +45,7 @@ class FinancialAsset(SurrogateIdMixin):
         db_table = "financial_asset"
 
     name = models.CharField(max_length=200, unique=True, db_index=True)
-    asset_type = fields.enum_field(types.FinancialAssetType)
+    asset_type = fields.text_choice_field(types.FinancialAssetType)
 
     def __str__(self):
         return self.name
@@ -59,7 +59,7 @@ class Vendor(SurrogateIdMixin):
         db_table = "vendor"
 
     name = models.CharField(max_length=200, unique=True, db_index=True)
-    default_expense_type = fields.enum_field(
+    default_expense_type = fields.text_choice_field(
         types.ExpenseType, db_index=True, null=True, blank=True
     )
     # TODO should this be a DecimalField?
@@ -73,7 +73,7 @@ class Vendor(SurrogateIdMixin):
         default=None,
         blank=True,
     )
-    tax_adjustment_type = fields.enum_field(types.TaxType, null=True, blank=True)
+    tax_adjustment_type = fields.text_choice_field(types.TaxType, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -90,23 +90,23 @@ class VendorAliasPattern(SurrogateIdMixin):
         "Vendor", on_delete=models.CASCADE, db_index=True, related_name="alias_patterns"
     )
     pattern = models.CharField(max_length=200, unique=True, db_index=True)
-    match_operation = fields.enum_field(
+    match_operation = fields.text_choice_field(
         types.AliasMatchOperation,
         db_index=True,
         blank=False,
         default=types.AliasMatchOperation.LIKE,
     )
-    default_expense_type = fields.enum_field(
+    default_expense_type = fields.text_choice_field(
         types.ExpenseType, db_index=True, null=True, blank=True
     )
 
     def __str__(self):
-        return f'{self.match_operation.name}("{self.pattern}")'
+        return f'{self.match_operation}("{self.pattern}")'
 
     def __repr__(self):
         return (
-            f"<VendorAliasPattern({self.id}, {self.vendor.name}, {self.pattern}, "
-            f"{self.match_operation.name})>"
+            f"<VendorAliasPattern({self.id}, {self.vendor}, {self.pattern}, "
+            f"{self.match_operation})>"
         )
 
 
@@ -136,11 +136,11 @@ class PaymentMethod(SurrogateIdMixin):
 
     name = models.CharField(max_length=200, unique=True, db_index=True)
     description = models.TextField()
-    method_type = fields.enum_field(types.PaymentMethod)
+    method_type = fields.text_choice_field(types.PaymentMethod)
     safe_numeric_id = models.CharField(
         max_length=4, db_index=True, null=True, blank=True
     )
-    currency = fields.enum_field(types.Currency)
+    currency = fields.text_choice_field(types.Currency)
     file_prefix = models.CharField(max_length=255, db_index=True, null=True, blank=True)
     parser_class = models.CharField(max_length=50, db_index=True, null=True, blank=True)
 
@@ -161,18 +161,18 @@ class Transaction(SurrogateIdMixin):
         db_index=True,
         related_name="client_receipts",
     )
-    expense_type = fields.enum_field(types.ExpenseType, null=True)
+    expense_type = fields.text_choice_field(types.ExpenseType, null=True)
     transaction_date = models.DateField(db_index=True)
     payment_method = models.ForeignKey(
         "PaymentMethod", on_delete=models.PROTECT, db_index=True
     )
     # TODO should this be a DecimalField?
     total_amount = models.IntegerField()  # in cents
-    currency = fields.enum_field(types.Currency)
+    currency = fields.text_choice_field(types.Currency)
     description = models.TextField(default=UNKNOWN_VALUE)
 
     def __repr__(self):
-        return f"<Receipt({self.id}, {self.description}, {self.total_amount})>"
+        return f"<Transaction({self.id}, {self.description}, {self.total_amount})>"
 
 
 class PeriodicPayment(SurrogateIdMixin):
@@ -190,7 +190,7 @@ class PeriodicPayment(SurrogateIdMixin):
         db_index=True,
         related_name="periodic_payment",
     )
-    currency = fields.enum_field(types.Currency)
+    currency = fields.text_choice_field(types.Currency)
     amount = models.IntegerField()
 
     def __str__(self):
@@ -236,7 +236,7 @@ class TaxAdjustment(SurrogateIdMixin):
         db_index=True,
         related_name="tax_adjustments",
     )
-    tax_type = fields.enum_field(types.TaxType)
+    tax_type = fields.text_choice_field(types.TaxType)
     amount = models.IntegerField()  # in cents
 
     def __repr__(self):

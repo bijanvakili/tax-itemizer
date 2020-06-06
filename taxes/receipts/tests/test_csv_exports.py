@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from taxes.receipts.csv_exporters import dump_receipts, dump_forex
+from taxes.receipts.csv_exporters import dump_transactions, dump_forex
 from taxes.receipts import models
 from taxes.receipts.parsers_factory import ParserFactory
 from taxes.receipts.itemize import Itemizer, LOGGER as ITEMIZER_LOGGER
@@ -42,7 +42,7 @@ def test_receipt_dump_matched(t_file, transaction_fixture_dir):
     itemizer = Itemizer(filename)
     itemizer.process_transactions(parser.parse(filename))
 
-    dump_receipts(
+    dump_transactions(
         t_file, isodstr("2016-08-01"), isodstr("2016-09-01"), output_header=True
     )
 
@@ -127,7 +127,7 @@ def test_receipt_dump_unmatched(t_file, transaction_fixture_dir):
     itemizer.process_transactions(parser.parse(filename))
 
     ITEMIZER_LOGGER.setLevel(logging.CRITICAL)
-    dump_receipts(
+    dump_transactions(
         t_file, isodstr("2019-04-30"), isodstr("2019-05-31"), output_header=True
     )
 

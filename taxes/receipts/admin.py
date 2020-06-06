@@ -1,5 +1,5 @@
 from django.contrib import admin
-from enumfields.admin import EnumFieldListFilter
+from django.contrib.admin import filters
 
 from . import models
 
@@ -44,7 +44,7 @@ class VendorAdmin(admin.ModelAdmin):
     ordering = ("name",)
     search_fields = ("name",)
     list_filter = (
-        ("default_expense_type", EnumFieldListFilter,),
+        ("default_expense_type", filters.ChoicesFieldListFilter,),
         "assigned_asset",
     )
     inlines = [VendorAliasPatternInline]

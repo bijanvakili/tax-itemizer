@@ -1,10 +1,9 @@
 import uuid
 
 from django.db import models
-from enumfields.fields import EnumField
 
 
-__all__ = ["uuid_primary_key_field", "enum_field"]
+__all__ = ["uuid_primary_key_field", "text_choice_field"]
 
 
 def uuid_primary_key_field(**kwargs):
@@ -17,7 +16,14 @@ def uuid_primary_key_field(**kwargs):
     return models.UUIDField(**kwargs)
 
 
-def enum_field(enum_class, **kwargs):
+def text_choice_field(choice_class: models.TextChoices, **kwargs):
+    """
+    Convenience method for creating a CharField restricted to
+    the TextChoice enum-like class.
+
+    Default behavior is to automatically determine the max_length
+    based off the largest key name.
+    """
     kwargs = kwargs.copy()
-    kwargs["max_length"] = max(len(e.value) for e in enum_class)
-    return EnumField(enum_class, **kwargs)
+    kwargs.setdefault("max_length", max(len(e.name) for e in choice_class))
+    return models.CharField(choices=choice_class.choices, **kwargs)

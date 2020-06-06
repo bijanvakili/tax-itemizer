@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.UUIDField(blank=True, default=uuid.uuid4, editable=False, primary_key=True,
                                         serialize=False)),
-                ('tax_type', enumfields.fields.EnumField(enum=taxes.receipts.types.TaxType, max_length=3)),
+                ('tax_type', enumfields.fields.EnumField(enum=taxes.receipts.types.TaxTypeEnum, max_length=3)),
                 ('amount', models.IntegerField()),
                 ('receipt', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
                                               related_name='tax_adjustments', to='receipts.Receipt')),
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='periodicpayment',
             name='tax_adjustment_type',
-            field=enumfields.fields.EnumField(blank=True, enum=taxes.receipts.types.TaxType, max_length=3,
+            field=enumfields.fields.EnumField(blank=True, enum=taxes.receipts.types.TaxTypeEnum, max_length=3,
                                               null=True),
         ),
         migrations.AlterField(

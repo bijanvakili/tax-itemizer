@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='transaction',
             name='expense_type',
-            field=enumfields.fields.EnumField(enum=taxes.receipts.types.ExpenseType, max_length=14, null=True),
+            field=enumfields.fields.EnumField(enum=taxes.receipts.types.ExpenseTypeEnum, max_length=14, null=True),
         ),
         migrations.AlterField(
             model_name='transaction',

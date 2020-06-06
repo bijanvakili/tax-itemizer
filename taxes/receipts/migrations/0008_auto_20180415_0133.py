@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='vendor',
             name='tax_adjustment_type',
-            field=enumfields.fields.EnumField(blank=True, enum=taxes.receipts.types.TaxType,
+            field=enumfields.fields.EnumField(blank=True, enum=taxes.receipts.types.TaxTypeEnum,
                                               max_length=3, null=True),
         ),
         migrations.RunPython(

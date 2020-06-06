@@ -3,11 +3,12 @@ from enum import Enum, unique
 import typing
 
 from dataclasses import dataclass
+from django.db.models import TextChoices
 import enumfields
 
 
 @unique
-class PaymentMethod(enumfields.Enum):
+class PaymentMethodEnum(enumfields.Enum):
     CASH = "cash"
     CREDIT_CARD = "credit_card"
 
@@ -16,15 +17,25 @@ class PaymentMethod(enumfields.Enum):
         CREDIT_CARD = "Credit Card"
 
 
+class PaymentMethod(TextChoices):
+    CASH = "cash", "Cash"
+    CREDIT_CARD = "credit_card", "Credit Card"
+
+
 @unique
-class Currency(Enum):
+class CurrencyEnum(Enum):
     USD = "USD"
     CAD = "CAD"
 
 
+class Currency(TextChoices):
+    USD = "USD", "USD"
+    CAD = "CAD", "CAD"
+
+
 # taxable expense aggregation type
 @unique
-class ExpenseType(enumfields.Enum):
+class ExpenseTypeEnum(enumfields.Enum):
     IGNORE = "ignore"
     PROPERTY_TAX = "property_tax"
     INTEREST = "interest"
@@ -59,14 +70,37 @@ class ExpenseType(enumfields.Enum):
         DONATION = "Donations"
 
 
+class ExpenseType(TextChoices):
+    IGNORE = "ignore", "*IGNORE*"
+    PROPERTY_TAX = "property_tax", "Property Tax"
+    INTEREST = "interest", "Interest"
+    INSURANCE = "insurance", "Insurance"
+    UTILITY = "utility", "Telephone and Utilities"
+    ADMINISTRATIVE = "administrative", "Management and Administrative"
+    MAINTENANCE = "maintenance", "Repair and Maintenance"
+    TRAVEL = "travel", "Business Travel"
+    MEALS_AND_ENTERTAINMENT = "meals", "Meals and Entertainment"
+    SUPPLIES = "supplies", "Office Supplies"
+    RENT = "rent", "Gross Rent"
+    FOREIGN_INCOME = "foreign_income", "Foreign Income"
+    CAPITAL_GAINS = "capital_gains", "Capital Gains"
+    ADVERTISING = "advertising", "Advertising"
+    DONATION = "donation", "Donations"
+
+
 @unique
-class AliasMatchOperation(Enum):
+class AliasMatchOperationEnum(Enum):
+    EQUAL = "equal"
+    LIKE = "like"
+
+
+class AliasMatchOperation(TextChoices):
     EQUAL = "equal"
     LIKE = "like"
 
 
 @unique
-class FinancialAssetType(enumfields.Enum):
+class FinancialAssetTypeEnum(enumfields.Enum):
     RENTAL = "rental"
     EMPLOYMENT = "employment"
     PROPRIETORSHIP = "proprietorship"
@@ -79,9 +113,20 @@ class FinancialAssetType(enumfields.Enum):
         PRIMARY_RESIDENCE = "Primary Residence"
 
 
+class FinancialAssetType(TextChoices):
+    RENTAL = "rental", "Rental"
+    EMPLOYMENT = "employment", "Employment"
+    PROPRIETORSHIP = "proprietorship", "Proprietorship"
+    PRIMARY_RESIDENCE = "primary_residence", "Primary Residence"
+
+
 @unique
-class TaxType(enumfields.Enum):
+class TaxTypeEnum(enumfields.Enum):
     HST = "hst"
+
+
+class TaxType(TextChoices):
+    HST = "hst", "HST"
 
 
 @dataclass
@@ -93,10 +138,10 @@ class RawTransaction:
     line_number: int
     transaction_date: date
     amount: int
-    currency: Currency
+    currency: CurrencyEnum
     description: str = None
     misc: dict = None
-    payment_method: PaymentMethod = None
+    payment_method: PaymentMethodEnum = None
 
 
 class ProcessedTransactionRow(typing.NamedTuple):

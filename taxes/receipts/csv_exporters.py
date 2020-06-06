@@ -9,7 +9,7 @@ from taxes.receipts.models import (
 )
 
 
-def dump_receipts(
+def dump_transactions(
     fileobj: typing.io,
     start_timestamp: datetime.date,
     end_timestamp: datetime.date,

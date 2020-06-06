@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='vendoraliaspattern',
             name='default_expense_type',
-            field=enumfields.fields.EnumField(blank=True, db_index=True, enum=taxes.receipts.types.ExpenseType, max_length=14, null=True),
+            field=enumfields.fields.EnumField(blank=True, db_index=True, enum=taxes.receipts.types.ExpenseTypeEnum, max_length=14, null=True),
         ),
     ]

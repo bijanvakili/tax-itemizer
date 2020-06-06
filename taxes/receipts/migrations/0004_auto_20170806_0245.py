@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.UUIDField(blank=True, default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('name', models.CharField(db_index=True, max_length=200, unique=True)),
-                ('type', enumfields.fields.EnumField(enum=taxes.receipts.types.FinancialAssetType, max_length=14)),
+                ('type', enumfields.fields.EnumField(enum=taxes.receipts.types.FinancialAssetTypeEnum, max_length=14)),
             ],
             options={
                 'db_table': 'financial_asset',

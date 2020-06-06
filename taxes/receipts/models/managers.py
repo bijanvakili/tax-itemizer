@@ -6,7 +6,7 @@ from django.db import models
 
 from taxes.receipts.constants import UNKNOWN_VALUE
 from taxes.receipts.forex import CURRENCY_PAIR
-from taxes.receipts.types import ProcessedTransactionRow
+from taxes.receipts.types import ProcessedTransactionRow, ExpenseType
 from taxes.receipts.util.currency import cents_to_dollars
 
 
@@ -68,18 +68,19 @@ class TransactionManager(ReportMixinBase, models.Manager):
         for transaction in transactions:
             vendor = transaction.vendor
             financial_asset = vendor.assigned_asset if vendor else None
-            expense_type = transaction.expense_type
 
             yield ProcessedTransactionRow(
                 transaction.transaction_date.isoformat(),
                 financial_asset.name if financial_asset else UNKNOWN_VALUE,
-                transaction.currency.value,
+                transaction.currency,
                 cents_to_dollars(transaction.total_amount),
                 transaction.description,
                 cents_to_dollars(transaction.hst_amount)
                 if transaction.hst_amount
                 else "",
-                expense_type.label if expense_type else UNKNOWN_VALUE,
+                ExpenseType(transaction.expense_type).label
+                if transaction.expense_type
+                else UNKNOWN_VALUE,
                 transaction.payment_method.name,
                 "",
             )

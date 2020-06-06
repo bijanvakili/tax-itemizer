@@ -36,9 +36,9 @@ class Migration(migrations.Migration):
                 ('id', models.UUIDField(blank=True, default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('name', models.CharField(db_index=True, max_length=200, unique=True)),
                 ('description', models.TextField()),
-                ('type', enumfields.fields.EnumField(enum=taxes.receipts.types.PaymentMethod, max_length=11)),
+                ('type', enumfields.fields.EnumField(enum=taxes.receipts.types.PaymentMethodEnum, max_length=11)),
                 ('safe_numeric_id', models.CharField(db_index=True, max_length=4)),
-                ('currency', enumfields.fields.EnumField(enum=taxes.receipts.types.Currency, max_length=3)),
+                ('currency', enumfields.fields.EnumField(enum=taxes.receipts.types.CurrencyEnum, max_length=3)),
             ],
             options={
                 'db_table': 'payment_method',
@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.UUIDField(blank=True, default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=200, null=True)),
-                ('currency', enumfields.fields.EnumField(enum=taxes.receipts.types.Currency, max_length=3)),
+                ('currency', enumfields.fields.EnumField(enum=taxes.receipts.types.CurrencyEnum, max_length=3)),
                 ('amount', models.IntegerField()),
             ],
             options={
@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
                 ('id', models.UUIDField(blank=True, default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('purchased_at', models.DateField(db_index=True)),
                 ('total_amount', models.IntegerField()),
-                ('currency', enumfields.fields.EnumField(enum=taxes.receipts.types.Currency, max_length=3)),
+                ('currency', enumfields.fields.EnumField(enum=taxes.receipts.types.CurrencyEnum, max_length=3)),
                 ('payment_method', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='receipts.PaymentMethod')),
             ],
             options={
@@ -74,7 +74,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.UUIDField(blank=True, default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('name', models.CharField(db_index=True, max_length=200, unique=True)),
-                ('type', enumfields.fields.EnumField(db_index=True, enum=taxes.receipts.types.ExpenseType, max_length=14)),
+                ('type', enumfields.fields.EnumField(db_index=True, enum=taxes.receipts.types.ExpenseTypeEnum, max_length=14)),
                 ('fixed_amount', models.IntegerField(default=None, null=True)),
             ],
             options={
@@ -86,7 +86,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.UUIDField(blank=True, default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('pattern', models.CharField(db_index=True, max_length=200, unique=True)),
-                ('match_operation', enumfields.fields.EnumField(db_index=True, default='like', enum=taxes.receipts.types.AliasMatchOperation, max_length=5)),
+                ('match_operation', enumfields.fields.EnumField(db_index=True, default='like', enum=taxes.receipts.types.AliasMatchOperationEnum, max_length=5)),
                 ('vendor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='alias_patterns', to='receipts.Vendor')),
             ],
             options={
