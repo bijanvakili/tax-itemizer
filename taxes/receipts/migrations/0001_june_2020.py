@@ -8,8 +8,6 @@ import uuid
 
 class Migration(migrations.Migration):
 
-    replaces = [('receipts', '0001_initial'), ('receipts', '0002_blank_fields'), ('receipts', '0003_auto_20170708_1923'), ('receipts', '0004_auto_20170806_0245'), ('receipts', '0005_auto_20171113_0743'), ('receipts', '0006_auto_20180106_0612'), ('receipts', '0007_auto_20180221_1541'), ('receipts', '0008_auto_20180415_0133'), ('receipts', '0009_invert_fx_pairs'), ('receipts', '0010_expense_type'), ('receipts', '0011_vendoraliaspattern_default_expense_type'), ('receipts', '0012_asset_primaryresidence'), ('receipts', '0013_auto_20190313_0620'), ('receipts', '0014_auto_20190313_0655'), ('receipts', '0015_auto_20190422_0503'), ('receipts', '0016_rename_transaction_20190607_0624'), ('receipts', '0017_extend_transaction_20190609_0322'), ('receipts', '0018_auto_20190610_0355'), ('receipts', '0019_replace_enum_with_textchoice')]
-
     initial = True
 
     dependencies = [
