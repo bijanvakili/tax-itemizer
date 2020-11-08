@@ -89,7 +89,9 @@ class VendorAliasPattern(SurrogateIdMixin):
     vendor = models.ForeignKey(
         "Vendor", on_delete=models.CASCADE, db_index=True, related_name="alias_patterns"
     )
-    pattern = models.CharField(max_length=200, unique=True, db_index=True)
+    pattern = models.CharField(
+        max_length=200, unique=True, db_index=True, validators=[validate_uppercase]
+    )
     match_operation = fields.text_choice_field(
         types.AliasMatchOperation,
         db_index=True,

@@ -3,12 +3,9 @@ from enum import Enum, unique
 import logging
 import typing
 
-from oauth2client.service_account import ServiceAccountCredentials
 import pygsheets
-from pygsheets.client import SCOPES as PYGSHEETS_SCOPES
 
 from taxes.receipts import models
-from taxes.receipts.util import yaml
 
 
 LOGGER = logging.getLogger(__name__)
@@ -105,39 +102,29 @@ def upload_to_gsheet(
     end_timestamp: datetime.date,
 ):
     # connect to spreadsheet
-    gdrive_credentials = _load_credentials(config.credentials_file)
-    gsheet_client = pygsheets.authorize(credentials=gdrive_credentials)
+    gsheet_client = pygsheets.authorize(service_file=config.credentials_file,)
     spreadsheet = gsheet_client.open_by_key(config.id)
 
     # upload to data worksheets
     _upload_to_worksheet(
-        gsheet_client, spreadsheet, WorksheetType.forex, start_timestamp, end_timestamp
+        spreadsheet, WorksheetType.forex, start_timestamp, end_timestamp
     )
     _upload_to_worksheet(
-        gsheet_client, spreadsheet, WorksheetType.items, start_timestamp, end_timestamp
+        spreadsheet, WorksheetType.items, start_timestamp, end_timestamp
     )
 
     # refresh formula worksheets
     total_items = _get_first_empty_row(spreadsheet, WorksheetType.items) - 1
     total_rates = _get_first_empty_row(spreadsheet, WorksheetType.forex) - 1
     _refresh_aggregate_worksheet(
-        gsheet_client,
-        spreadsheet,
-        WorksheetType.aggregate_cad,
-        total_items,
-        total_rates,
+        spreadsheet, WorksheetType.aggregate_cad, total_items, total_rates,
     )
     _refresh_aggregate_worksheet(
-        gsheet_client,
-        spreadsheet,
-        WorksheetType.aggregate_usd,
-        total_items,
-        total_rates,
+        spreadsheet, WorksheetType.aggregate_usd, total_items, total_rates,
     )
 
 
 def _upload_to_worksheet(
-    gsheet_client,
     spreadsheet,
     worksheet_type: WorksheetType,
     start_timestamp: datetime.date,
@@ -160,7 +147,7 @@ def _upload_to_worksheet(
         worksheet.add_rows(num_rows)
 
     # upload the data into the target cell range
-    worksheet.update_cells(crange=(first_empty_row, 1), values=flattened_data)
+    worksheet.update_values(crange=(first_empty_row, 1), values=flattened_data)
 
     # format the columns
     format_requests = []
@@ -185,7 +172,7 @@ def _upload_to_worksheet(
         )
     )
 
-    gsheet_client.sh_batch_update(spreadsheet.id, format_requests)
+    spreadsheet.custom_request(format_requests, "*")
 
     LOGGER.info(
         "Finished uploading %d rows to %s worksheet", num_rows, worksheet_type.value
@@ -193,11 +180,7 @@ def _upload_to_worksheet(
 
 
 def _refresh_aggregate_worksheet(
-    gsheet_client,
-    spreadsheet,
-    aggregate_type: WorksheetType,
-    total_items: int,
-    total_rates: int,
+    spreadsheet, aggregate_type: WorksheetType, total_items: int, total_rates: int,
 ):
     worksheet = spreadsheet.worksheet_by_title(aggregate_type.value)
     batch_requests = []
@@ -258,16 +241,8 @@ def _refresh_aggregate_worksheet(
     )
     batch_requests.append(_make_batch_format_request(hst_range, AGGREGATE_FORMAT),)
 
-    gsheet_client.sh_batch_update(spreadsheet.id, batch_requests)
+    spreadsheet.custom_request(batch_requests, "*")
     LOGGER.info("Finished refreshing %s worksheet", aggregate_type.value)
-
-
-def _load_credentials(credentials_filename):
-    with open(credentials_filename) as credentials_file:
-        credentials_data = yaml.load(credentials_file)
-        return ServiceAccountCredentials.from_json_keyfile_dict(
-            credentials_data, PYGSHEETS_SCOPES
-        )
 
 
 def _get_first_empty_row(spreadsheet, worksheet):
@@ -340,6 +315,7 @@ def _make_conditional_format_request(grid_range: dict):
     return {
         "updateConditionalFormatRule": {
             "index": 0,
+            "sheetId": 0,
             "rule": {
                 "ranges": [grid_range],
                 "booleanRule": {

@@ -8,6 +8,10 @@ asgiref==3.2.7 \
     --hash=sha256:8036f90603c54e93521e5777b2b9a39ba1bad05773fcf2d208f0299d1df58ce5 \
     --hash=sha256:9ca8b952a0a9afa61d30aa6d3d9b570bb3fd6bafcf7ec9e6bed43b936133db1c \
     # via django
+cachetools==4.1.1 \
+    --hash=sha256:513d4ff98dd27f85743a8dc0e92f55ddb1b49e060c2d5961512855cda2c01a98 \
+    --hash=sha256:bbaa39c3dede00175df2dc2b03d0cf18dd2d32a7de7beb68072d13043c9edb20 \
+    # via google-auth
 certifi==2017.11.5 \
     --hash=sha256:244be0d93b71e93fc0a0a479862051414d0e00e16435707e5bf5000f92e04694 \
     --hash=sha256:5ec74291ca1136b40f0379e1128ff80e866597e4e2c1e755739a913bbc3613c0 \
@@ -28,9 +32,21 @@ google-api-python-client==1.6.4 \
     --hash=sha256:441d638e5fff7d9f97587aa99387efd0ee13f577c9d4d50820dfda4bb80d0e64 \
     --hash=sha256:bb1f27740f6596f8272a2e1033d93d68e27e8ed5d22d6ab957e3f1d3f8ce05f6 \
     # via pygsheets
+google-auth-httplib2==0.0.4 \
+    --hash=sha256:8d092cc60fb16517b12057ec0bba9185a96e3b7169d86ae12eae98e645b7bc39 \
+    --hash=sha256:aeaff501738b289717fac1980db9711d77908a6c227f60e4aa1923410b43e2ee \
+    # via -r requirements.in
+google-auth-oauthlib==0.4.2 \
+    --hash=sha256:65b65bc39ad8cab15039b35e5898455d3d66296d0584d96fe0e79d67d04c51d9 \
+    --hash=sha256:d4d98c831ea21d574699978827490a41b94f05d565c617fe1b420e88f1fc8d8d \
+    # via pygsheets
+google-auth==1.23.0 \
+    --hash=sha256:5176db85f1e7e837a646cd9cede72c3c404ccf2e3373d9ee14b2db88febad440 \
+    --hash=sha256:b728625ff5dfce8f9e56a499c8a4eb51443a67f20f6d28b67d5774c310ec4b6b \
+    # via -r requirements.in, google-auth-httplib2, google-auth-oauthlib
 httplib2==0.10.3 \
     --hash=sha256:e404d3b7bd86c1bc931906098e7c1305d6a3a6dcef141b8bb1059903abb3ceeb \
-    # via google-api-python-client, oauth2client
+    # via google-api-python-client, google-auth-httplib2, oauth2client
 idna==2.6 \
     --hash=sha256:2c6a5de3089009e3da7c5dde64a141dbc8551d5b7f6cf4ed7c2568d0cc520a8f \
     --hash=sha256:8c7309c718f94b3a625cb648ace320157ad16ff131ae0af362c9f21b80ef6ec4 \
@@ -38,7 +54,11 @@ idna==2.6 \
 oauth2client==4.1.2 \
     --hash=sha256:bd3062c06f8b10c6ef7a890b22c2740e5f87d61b6e1f4b1c90d069cdfc9dadb5 \
     --hash=sha256:cf061f52f75e91d489bf5c276498f8af2655fe331b454f10022441513cf445a6 \
-    # via -r requirements.in, google-api-python-client
+    # via google-api-python-client, pygsheets
+oauthlib==3.1.0 \
+    --hash=sha256:bee41cc35fcca6e988463cacc3bcb8a96224f470ca547e697b604cc697b2f889 \
+    --hash=sha256:df884cd6cbe20e32633f1db1072e9356f53638e4361bef4e8b03c9127c9328ea \
+    # via requests-oauthlib
 psycopg2-binary==2.8.4 \
     --hash=sha256:040234f8a4a8dfd692662a8308d78f63f31a97e1c42d2480e5e6810c48966a29 \
     --hash=sha256:086f7e89ec85a6704db51f68f0dcae432eff9300809723a6e8782c41c2f48e03 \
@@ -86,7 +106,7 @@ pyasn1-modules==0.2.1 \
     --hash=sha256:b1f395cae2d669e0830cb023aa86f9f283b7a9aa32317d7f80d8e78aa2745812 \
     --hash=sha256:c6747146e95d2b14cc2a8399b2b0bde3f93778f8f9ec704690d2b589c376c137 \
     --hash=sha256:f53fe5bcebdf318f51399b250fe8325ef3a26d927f012cc0c8e0f9e9af7f9deb \
-    # via oauth2client
+    # via google-auth, oauth2client
 pyasn1==0.4.2 \
     --hash=sha256:0d7f6e959fe53f3960a23d73f35e1fce61348b30915b6664309ca756de7c1f89 \
     --hash=sha256:5a0db897b311d265cde49615cf783f1c78613138605cdd0f907ecfa5b2aba3ee \
@@ -101,10 +121,10 @@ pyasn1==0.4.2 \
     --hash=sha256:e85895087905c65b5b594eb91f7522664c85545b147d5f4d4e7b1b07da8dcbdc \
     --hash=sha256:f81c96761fca60d64b1c9b79ec2e40cf9495a745cf570613079ef324aeb9672b \
     # via oauth2client, pyasn1-modules, rsa
-pygsheets==1.1.3 \
-    --hash=sha256:5216181fa5de444668a893849015057abd6875c22f9dc0ce262c7878a8bc0e0e \
-    --hash=sha256:78597058f9f9076bf598b7b02563de601bcd25ebe9051a7712b7d93274ac7a26 \
-    --hash=sha256:dbd253469ceba27594c0545039c85fd9d385592338acf14d09a9cf2d135a4d1c \
+pygsheets==2.0.3.1 \
+    --hash=sha256:3ac1e406891412fbd4faa0c5962725bc80499658f70c85c4d942541f08999549 \
+    --hash=sha256:7b67120a1dbaa767223109810214f5c5e6d4b9e0573bf4da81d238cbfa1157ed \
+    --hash=sha256:b84c73c897c8c6c60d15f8eaf7f599bbb3807e065cebbfe7411cd3207950ff87 \
     # via -r requirements.in
 pytz==2017.3 \
     --hash=sha256:59707844a9825589878236ff2f4e0dc9958511b7ffaae94dc615da07d4a68d33 \
@@ -130,18 +150,22 @@ pyyaml==5.1 \
     --hash=sha256:c68ea4d3ba1705da1e0d85da6684ac657912679a649e8868bd850d2c299cce13 \
     --hash=sha256:e23d0cc5299223dcc37885dae624f382297717e459ea24053709675a976a3e19 \
     # via -r requirements.in
+requests-oauthlib==1.3.0 \
+    --hash=sha256:7f71572defaecd16372f9006f33c2ec8c077c3cfa6f5911a9a90202beb513f3d \
+    --hash=sha256:b4261601a71fd721a8bd6d7aa1cc1d6a8a93b4a9f5e96626f8e4d91e8beeaa6a \
+    # via google-auth-oauthlib
 requests==2.22.0 \
     --hash=sha256:11e007a8a2aa0323f5a921e9e6a2d7e4e67d9877e85773fba9ba6419025cbeb4 \
     --hash=sha256:9cf5292fcd0f598c671cfc1e0d7d1a7f13bb8085e9a590f48c010551dc6c4b31 \
-    # via -r requirements.in
+    # via -r requirements.in, requests-oauthlib
 rsa==3.4.2 \
     --hash=sha256:25df4e10c263fb88b5ace923dd84bf9aa7f5019687b5e55382ffcdb8bede9db5 \
     --hash=sha256:43f682fea81c452c98d09fc316aae12de6d30c4b5c84226642cf8f8fd1c93abd \
-    # via oauth2client
+    # via google-auth, oauth2client
 six==1.14.0 \
     --hash=sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a \
     --hash=sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c \
-    # via google-api-python-client, oauth2client
+    # via google-api-python-client, google-auth, google-auth-httplib2, oauth2client
 sqlparse==0.3.0 \
     --hash=sha256:40afe6b8d4b1117e7dff5504d7a8ce07d9a1b15aeeade8a2d10f130a834f8177 \
     --hash=sha256:7c3dca29c022744e95b547e867cee89f4fce4373f3549ccd8797d8eb52cdb873 \
@@ -155,3 +179,7 @@ urllib3==1.25.3 \
     --hash=sha256:b246607a25ac80bedac05c6f282e3cdaf3afb65420fd024ac94435cabe6e18d1 \
     --hash=sha256:dbe59173209418ae49d485b87d1681aefa36252ee85884c31346debd19463232 \
     # via requests
+
+# WARNING: The following packages were not pinned, but pip requires them to be
+# pinned when the requirements file includes hashes. Consider using the --allow-unsafe flag.
+# setuptools

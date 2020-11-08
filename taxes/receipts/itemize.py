@@ -33,6 +33,7 @@ class VendorMatch:
 
 class Itemizer:
     def __init__(self, filename: str):
+        # TODO rename to "_pattern_mismatches"
         self._failures = 0
         self.filename = filename
         self.exclusion_filters = load_filters_from_modules(
