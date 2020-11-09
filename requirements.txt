@@ -44,8 +44,9 @@ google-auth==1.23.0 \
     --hash=sha256:5176db85f1e7e837a646cd9cede72c3c404ccf2e3373d9ee14b2db88febad440 \
     --hash=sha256:b728625ff5dfce8f9e56a499c8a4eb51443a67f20f6d28b67d5774c310ec4b6b \
     # via -r requirements.in, google-auth-httplib2, google-auth-oauthlib
-httplib2==0.10.3 \
-    --hash=sha256:e404d3b7bd86c1bc931906098e7c1305d6a3a6dcef141b8bb1059903abb3ceeb \
+httplib2==0.18.0 \
+    --hash=sha256:4f6988e6399a2546b525a037d56da34aed4d149bbdc0e78523018d5606c26e74 \
+    --hash=sha256:b0e1f3ed76c97380fe2485bc47f25235453b40ef33ca5921bb2897e257a49c4c \
     # via google-api-python-client, google-auth-httplib2, oauth2client
 idna==2.6 \
     --hash=sha256:2c6a5de3089009e3da7c5dde64a141dbc8551d5b7f6cf4ed7c2568d0cc520a8f \
