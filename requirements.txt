@@ -6,58 +6,67 @@
 #
 asgiref==3.2.7 \
     --hash=sha256:8036f90603c54e93521e5777b2b9a39ba1bad05773fcf2d208f0299d1df58ce5 \
-    --hash=sha256:9ca8b952a0a9afa61d30aa6d3d9b570bb3fd6bafcf7ec9e6bed43b936133db1c \
+    --hash=sha256:9ca8b952a0a9afa61d30aa6d3d9b570bb3fd6bafcf7ec9e6bed43b936133db1c
     # via django
 cachetools==4.1.1 \
     --hash=sha256:513d4ff98dd27f85743a8dc0e92f55ddb1b49e060c2d5961512855cda2c01a98 \
-    --hash=sha256:bbaa39c3dede00175df2dc2b03d0cf18dd2d32a7de7beb68072d13043c9edb20 \
+    --hash=sha256:bbaa39c3dede00175df2dc2b03d0cf18dd2d32a7de7beb68072d13043c9edb20
     # via google-auth
 certifi==2017.11.5 \
     --hash=sha256:244be0d93b71e93fc0a0a479862051414d0e00e16435707e5bf5000f92e04694 \
-    --hash=sha256:5ec74291ca1136b40f0379e1128ff80e866597e4e2c1e755739a913bbc3613c0 \
+    --hash=sha256:5ec74291ca1136b40f0379e1128ff80e866597e4e2c1e755739a913bbc3613c0
     # via requests
 chardet==3.0.2 \
     --hash=sha256:4f7832e7c583348a9eddd927ee8514b3bf717c061f57b21dbe7697211454d9bb \
-    --hash=sha256:6ebf56457934fdce01fb5ada5582762a84eed94cad43ed877964aebbdd8174c0 \
+    --hash=sha256:6ebf56457934fdce01fb5ada5582762a84eed94cad43ed877964aebbdd8174c0
     # via requests
 dj-database-url==0.4.2 \
     --hash=sha256:a6832d8445ee9d788c5baa48aef8130bf61fdc442f7d9a548424d25cd85c9f08 \
-    --hash=sha256:e16d94c382ea0564c48038fa7fe8d9c890ef1ab1a8ec4cb48e732c124b9482fd \
+    --hash=sha256:e16d94c382ea0564c48038fa7fe8d9c890ef1ab1a8ec4cb48e732c124b9482fd
     # via -r requirements.in
 django==3.0.4 \
     --hash=sha256:50b781f6cbeb98f673aa76ed8e572a019a45e52bdd4ad09001072dfd91ab07c8 \
-    --hash=sha256:89e451bfbb815280b137e33e454ddd56481fdaa6334054e6e031041ee1eda360 \
+    --hash=sha256:89e451bfbb815280b137e33e454ddd56481fdaa6334054e6e031041ee1eda360
     # via -r requirements.in
 google-api-python-client==1.6.4 \
     --hash=sha256:441d638e5fff7d9f97587aa99387efd0ee13f577c9d4d50820dfda4bb80d0e64 \
-    --hash=sha256:bb1f27740f6596f8272a2e1033d93d68e27e8ed5d22d6ab957e3f1d3f8ce05f6 \
+    --hash=sha256:bb1f27740f6596f8272a2e1033d93d68e27e8ed5d22d6ab957e3f1d3f8ce05f6
     # via pygsheets
 google-auth-httplib2==0.0.4 \
     --hash=sha256:8d092cc60fb16517b12057ec0bba9185a96e3b7169d86ae12eae98e645b7bc39 \
-    --hash=sha256:aeaff501738b289717fac1980db9711d77908a6c227f60e4aa1923410b43e2ee \
+    --hash=sha256:aeaff501738b289717fac1980db9711d77908a6c227f60e4aa1923410b43e2ee
     # via -r requirements.in
 google-auth-oauthlib==0.4.2 \
     --hash=sha256:65b65bc39ad8cab15039b35e5898455d3d66296d0584d96fe0e79d67d04c51d9 \
-    --hash=sha256:d4d98c831ea21d574699978827490a41b94f05d565c617fe1b420e88f1fc8d8d \
+    --hash=sha256:d4d98c831ea21d574699978827490a41b94f05d565c617fe1b420e88f1fc8d8d
     # via pygsheets
 google-auth==1.23.0 \
     --hash=sha256:5176db85f1e7e837a646cd9cede72c3c404ccf2e3373d9ee14b2db88febad440 \
-    --hash=sha256:b728625ff5dfce8f9e56a499c8a4eb51443a67f20f6d28b67d5774c310ec4b6b \
-    # via -r requirements.in, google-auth-httplib2, google-auth-oauthlib
-httplib2==0.10.3 \
-    --hash=sha256:e404d3b7bd86c1bc931906098e7c1305d6a3a6dcef141b8bb1059903abb3ceeb \
-    # via google-api-python-client, google-auth-httplib2, oauth2client
+    --hash=sha256:b728625ff5dfce8f9e56a499c8a4eb51443a67f20f6d28b67d5774c310ec4b6b
+    # via
+    #   -r requirements.in
+    #   google-auth-httplib2
+    #   google-auth-oauthlib
+httplib2==0.19.0 \
+    --hash=sha256:749c32603f9bf16c1277f59531d502e8f1c2ca19901ae653b49c4ed698f0820e \
+    --hash=sha256:e0d428dad43c72dbce7d163b7753ffc7a39c097e6788ef10f4198db69b92f08e
+    # via
+    #   google-api-python-client
+    #   google-auth-httplib2
+    #   oauth2client
 idna==2.6 \
     --hash=sha256:2c6a5de3089009e3da7c5dde64a141dbc8551d5b7f6cf4ed7c2568d0cc520a8f \
-    --hash=sha256:8c7309c718f94b3a625cb648ace320157ad16ff131ae0af362c9f21b80ef6ec4 \
+    --hash=sha256:8c7309c718f94b3a625cb648ace320157ad16ff131ae0af362c9f21b80ef6ec4
     # via requests
 oauth2client==4.1.2 \
     --hash=sha256:bd3062c06f8b10c6ef7a890b22c2740e5f87d61b6e1f4b1c90d069cdfc9dadb5 \
-    --hash=sha256:cf061f52f75e91d489bf5c276498f8af2655fe331b454f10022441513cf445a6 \
-    # via google-api-python-client, pygsheets
+    --hash=sha256:cf061f52f75e91d489bf5c276498f8af2655fe331b454f10022441513cf445a6
+    # via
+    #   google-api-python-client
+    #   pygsheets
 oauthlib==3.1.0 \
     --hash=sha256:bee41cc35fcca6e988463cacc3bcb8a96224f470ca547e697b604cc697b2f889 \
-    --hash=sha256:df884cd6cbe20e32633f1db1072e9356f53638e4361bef4e8b03c9127c9328ea \
+    --hash=sha256:df884cd6cbe20e32633f1db1072e9356f53638e4361bef4e8b03c9127c9328ea
     # via requests-oauthlib
 psycopg2-binary==2.8.4 \
     --hash=sha256:040234f8a4a8dfd692662a8308d78f63f31a97e1c42d2480e5e6810c48966a29 \
@@ -91,7 +100,7 @@ psycopg2-binary==2.8.4 \
     --hash=sha256:b8f490f5fad1767a1331df1259763b3bad7d7af12a75b950c2843ba319b2415f \
     --hash=sha256:dbc5cd56fff1a6152ca59445178652756f4e509f672e49ccdf3d79c1043113a4 \
     --hash=sha256:eac8a3499754790187bb00574ab980df13e754777d346f85e0ff6df929bcd964 \
-    --hash=sha256:eaed1c65f461a959284649e37b5051224f4db6ebdc84e40b5e65f2986f101a08 \
+    --hash=sha256:eaed1c65f461a959284649e37b5051224f4db6ebdc84e40b5e65f2986f101a08
     # via -r requirements.in
 pyasn1-modules==0.2.1 \
     --hash=sha256:041e9fbafac548d095f5b6c3b328b80792f006196e15a232b731a83c93d59493 \
@@ -105,8 +114,10 @@ pyasn1-modules==0.2.1 \
     --hash=sha256:af00ea8f2022b6287dc375b2c70f31ab5af83989fc6fe9eacd4976ce26cd7ccc \
     --hash=sha256:b1f395cae2d669e0830cb023aa86f9f283b7a9aa32317d7f80d8e78aa2745812 \
     --hash=sha256:c6747146e95d2b14cc2a8399b2b0bde3f93778f8f9ec704690d2b589c376c137 \
-    --hash=sha256:f53fe5bcebdf318f51399b250fe8325ef3a26d927f012cc0c8e0f9e9af7f9deb \
-    # via google-auth, oauth2client
+    --hash=sha256:f53fe5bcebdf318f51399b250fe8325ef3a26d927f012cc0c8e0f9e9af7f9deb
+    # via
+    #   google-auth
+    #   oauth2client
 pyasn1==0.4.2 \
     --hash=sha256:0d7f6e959fe53f3960a23d73f35e1fce61348b30915b6664309ca756de7c1f89 \
     --hash=sha256:5a0db897b311d265cde49615cf783f1c78613138605cdd0f907ecfa5b2aba3ee \
@@ -119,13 +130,20 @@ pyasn1==0.4.2 \
     --hash=sha256:d5cd6ed995dba16fad0c521cfe31cd2d68400b53fcc2bce93326829be73ab6d1 \
     --hash=sha256:d84c2aea3cf43780e9e6a19f4e4dddee9f6976519020e64e47c57e5c7a8c3dd2 \
     --hash=sha256:e85895087905c65b5b594eb91f7522664c85545b147d5f4d4e7b1b07da8dcbdc \
-    --hash=sha256:f81c96761fca60d64b1c9b79ec2e40cf9495a745cf570613079ef324aeb9672b \
-    # via oauth2client, pyasn1-modules, rsa
+    --hash=sha256:f81c96761fca60d64b1c9b79ec2e40cf9495a745cf570613079ef324aeb9672b
+    # via
+    #   oauth2client
+    #   pyasn1-modules
+    #   rsa
 pygsheets==2.0.3.1 \
     --hash=sha256:3ac1e406891412fbd4faa0c5962725bc80499658f70c85c4d942541f08999549 \
     --hash=sha256:7b67120a1dbaa767223109810214f5c5e6d4b9e0573bf4da81d238cbfa1157ed \
-    --hash=sha256:b84c73c897c8c6c60d15f8eaf7f599bbb3807e065cebbfe7411cd3207950ff87 \
+    --hash=sha256:b84c73c897c8c6c60d15f8eaf7f599bbb3807e065cebbfe7411cd3207950ff87
     # via -r requirements.in
+pyparsing==2.4.7 \
+    --hash=sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1 \
+    --hash=sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b
+    # via httplib2
 pytz==2017.3 \
     --hash=sha256:59707844a9825589878236ff2f4e0dc9958511b7ffaae94dc615da07d4a68d33 \
     --hash=sha256:699d18a2a56f19ee5698ab1123bbcc1d269d061996aeb1eda6d89248d3542b82 \
@@ -135,7 +153,7 @@ pytz==2017.3 \
     --hash=sha256:d0ef5ef55ed3d37854320d4926b04a4cb42a2e88f71da9ddfdacfde8e364f027 \
     --hash=sha256:dd2e4ca6ce3785c8dd342d1853dd9052b19290d5bf66060846e5dc6b8d6667f7 \
     --hash=sha256:fae4cffc040921b8a2d60c6cf0b5d662c1190fe54d718271db4eb17d44a185b7 \
-    --hash=sha256:feb2365914948b8620347784b6b6da356f31c9d03560259070b2f30cff3d469d \
+    --hash=sha256:feb2365914948b8620347784b6b6da356f31c9d03560259070b2f30cff3d469d
     # via django
 pyyaml==5.1 \
     --hash=sha256:1adecc22f88d38052fb787d959f003811ca858b799590a5eaa70e63dca50308c \
@@ -148,36 +166,44 @@ pyyaml==5.1 \
     --hash=sha256:aee5bab92a176e7cd034e57f46e9df9a9862a71f8f37cad167c6fc74c65f5b4e \
     --hash=sha256:c51f642898c0bacd335fc119da60baae0824f2cde95b0330b56c0553439f0673 \
     --hash=sha256:c68ea4d3ba1705da1e0d85da6684ac657912679a649e8868bd850d2c299cce13 \
-    --hash=sha256:e23d0cc5299223dcc37885dae624f382297717e459ea24053709675a976a3e19 \
+    --hash=sha256:e23d0cc5299223dcc37885dae624f382297717e459ea24053709675a976a3e19
     # via -r requirements.in
 requests-oauthlib==1.3.0 \
     --hash=sha256:7f71572defaecd16372f9006f33c2ec8c077c3cfa6f5911a9a90202beb513f3d \
-    --hash=sha256:b4261601a71fd721a8bd6d7aa1cc1d6a8a93b4a9f5e96626f8e4d91e8beeaa6a \
+    --hash=sha256:b4261601a71fd721a8bd6d7aa1cc1d6a8a93b4a9f5e96626f8e4d91e8beeaa6a
     # via google-auth-oauthlib
 requests==2.22.0 \
     --hash=sha256:11e007a8a2aa0323f5a921e9e6a2d7e4e67d9877e85773fba9ba6419025cbeb4 \
-    --hash=sha256:9cf5292fcd0f598c671cfc1e0d7d1a7f13bb8085e9a590f48c010551dc6c4b31 \
-    # via -r requirements.in, requests-oauthlib
+    --hash=sha256:9cf5292fcd0f598c671cfc1e0d7d1a7f13bb8085e9a590f48c010551dc6c4b31
+    # via
+    #   -r requirements.in
+    #   requests-oauthlib
 rsa==3.4.2 \
     --hash=sha256:25df4e10c263fb88b5ace923dd84bf9aa7f5019687b5e55382ffcdb8bede9db5 \
-    --hash=sha256:43f682fea81c452c98d09fc316aae12de6d30c4b5c84226642cf8f8fd1c93abd \
-    # via google-auth, oauth2client
+    --hash=sha256:43f682fea81c452c98d09fc316aae12de6d30c4b5c84226642cf8f8fd1c93abd
+    # via
+    #   google-auth
+    #   oauth2client
 six==1.14.0 \
     --hash=sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a \
-    --hash=sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c \
-    # via google-api-python-client, google-auth, google-auth-httplib2, oauth2client
+    --hash=sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c
+    # via
+    #   google-api-python-client
+    #   google-auth
+    #   google-auth-httplib2
+    #   oauth2client
 sqlparse==0.3.0 \
     --hash=sha256:40afe6b8d4b1117e7dff5504d7a8ce07d9a1b15aeeade8a2d10f130a834f8177 \
-    --hash=sha256:7c3dca29c022744e95b547e867cee89f4fce4373f3549ccd8797d8eb52cdb873 \
+    --hash=sha256:7c3dca29c022744e95b547e867cee89f4fce4373f3549ccd8797d8eb52cdb873
     # via django
 uritemplate==3.0.0 \
     --hash=sha256:01c69f4fe8ed503b2951bef85d996a9d22434d2431584b5b107b2981ff416fbd \
     --hash=sha256:1b9c467a940ce9fb9f50df819e8ddd14696f89b9a8cc87ac77952ba416e0a8fd \
-    --hash=sha256:c02643cebe23fc8adb5e6becffe201185bf06c40bda5c0b4028a93f1527d011d \
+    --hash=sha256:c02643cebe23fc8adb5e6becffe201185bf06c40bda5c0b4028a93f1527d011d
     # via google-api-python-client
 urllib3==1.25.3 \
     --hash=sha256:b246607a25ac80bedac05c6f282e3cdaf3afb65420fd024ac94435cabe6e18d1 \
-    --hash=sha256:dbe59173209418ae49d485b87d1681aefa36252ee85884c31346debd19463232 \
+    --hash=sha256:dbe59173209418ae49d485b87d1681aefa36252ee85884c31346debd19463232
     # via requests
 
 # WARNING: The following packages were not pinned, but pip requires them to be
