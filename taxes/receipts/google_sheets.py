@@ -77,13 +77,20 @@ HST_FORMULA = {
     LineItemType.cost: '=SUMIF(Items!$F$2:$F${total_items},"<0")',
 }
 
-HST_START_CELL = (17, 6)
+HST_START_CELL = (25, 1)
 
 EVEN_ROW_BACKGROUND = {"red": 0.8509804, "green": 0.91764706, "blue": 0.827451}
 
 # TODO avoid hardcoding these
-NUM_AGGREGATE_ASSETS = 5
-NUM_AGGREGATE_TAX_CATEGORIES = 15
+NUM_AGGREGATE_ASSETS = {
+    WorksheetType.aggregate_cad: 2,
+    WorksheetType.aggregate_usd: 5,
+}
+
+NUM_AGGREGATE_TAX_CATEGORIES = {
+    WorksheetType.aggregate_cad: 14,
+    WorksheetType.aggregate_usd: 18,
+}
 
 GoogleSheetConfig = typing.NamedTuple(
     "GoogleSheetConfig", [("id", str), ("credentials_file", str)]
@@ -122,6 +129,7 @@ def upload_to_gsheet(
     _refresh_aggregate_worksheet(
         spreadsheet, WorksheetType.aggregate_usd, total_items, total_rates,
     )
+    _refresh_aggregate_hst(spreadsheet, total_items)
 
 
 def _upload_to_worksheet(
@@ -192,9 +200,9 @@ def _refresh_aggregate_worksheet(
         total_rates=total_rates,
     )
 
-    for col in range(NUM_AGGREGATE_ASSETS):
+    for col in range(NUM_AGGREGATE_ASSETS[aggregate_type]):
         grid_range = _make_column_range(
-            worksheet, col + 1, 1, NUM_AGGREGATE_TAX_CATEGORIES + 1
+            worksheet, col + 1, 1, NUM_AGGREGATE_TAX_CATEGORIES[aggregate_type] + 1
         )
         rendered_formula = AGGREGATE_FORMULA.format(
             items=WorksheetType.items.value,
@@ -206,6 +214,16 @@ def _refresh_aggregate_worksheet(
             _make_batch_formula_request(grid_range, rendered_formula),
             _make_batch_format_request(grid_range, AGGREGATE_FORMAT),
         ]
+
+    spreadsheet.custom_request(batch_requests, "*")
+    LOGGER.info("Finished refreshing %s worksheet", aggregate_type.value)
+
+
+def _refresh_aggregate_hst(
+    spreadsheet, total_items: int,
+):
+    worksheet = spreadsheet.worksheet_by_title(WorksheetType.aggregate_cad.value)
+    batch_requests = []
 
     hst_range = _make_grid_range(
         worksheet,
@@ -242,7 +260,7 @@ def _refresh_aggregate_worksheet(
     batch_requests.append(_make_batch_format_request(hst_range, AGGREGATE_FORMAT),)
 
     spreadsheet.custom_request(batch_requests, "*")
-    LOGGER.info("Finished refreshing %s worksheet", aggregate_type.value)
+    LOGGER.info("Finished refreshing HST formulas")
 
 
 def _get_first_empty_row(spreadsheet, worksheet):
@@ -310,7 +328,7 @@ def _make_conditional_format_request(grid_range: dict):
     """
     Conditional formatting rule to color every other row
 
-    NOTE: This assumes that only 1 rule exists on the worksheep specified in the rnage
+    NOTE: This assumes that only 1 rule exists on the worksheep specified in the range
     """
     return {
         "updateConditionalFormatRule": {

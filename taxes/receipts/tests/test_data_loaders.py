@@ -69,7 +69,7 @@ def test_vendor_yaml_load():
 
     assert result
     assert result.name == "We Be Sushi"
-    assert result.default_expense_type == types.ExpenseType.MEALS_AND_ENTERTAINMENT
+    assert result.default_expense_type == types.ExpenseType.MEALS
     assert result.fixed_amount is None
     assert result.assigned_asset.name == "Sole Proprietorship"
 

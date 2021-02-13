@@ -125,13 +125,13 @@ vendors:
     assigned_asset: 5-699 Amber St
   -
     name: "MTCC 452"
-    default_expense_type: administrative
+    default_expense_type: hoa_fees
     aliases:
       - "MTCC 452        FEE/FRA"
     assigned_asset: 1001-25 Wellesley St
   -
     name: "YRCC 994"
-    default_expense_type: administrative
+    default_expense_type: hoa_fees
     aliases:
       - "YRCC994         FEE/FRA"
     assigned_asset: 5-699 Amber St

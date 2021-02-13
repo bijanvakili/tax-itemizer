@@ -143,7 +143,7 @@ class TestBmoBankAccountItemize(BaseTestItemize):
 
         results = _get_all_sorted_receipts()
         assert results == [
-            ("2016-08-02", "MTCC 452", -1133, ExpenseType.ADMINISTRATIVE),
+            ("2016-08-02", "MTCC 452", -1133, ExpenseType.HOA_FEES),
             ("2016-08-02", "Warren Smooth", 160000, ExpenseType.RENT),
             ("2016-08-15", "City of Toronto", -73300, ExpenseType.PROPERTY_TAX),
         ]
@@ -163,7 +163,7 @@ class TestBmoBankAccountItemize(BaseTestItemize):
 
         receipts = _get_all_sorted_receipts()
         assert receipts == [
-            ("2016-08-02", "YRCC 994", -200839, ExpenseType.ADMINISTRATIVE),
+            ("2016-08-02", "YRCC 994", -200839, ExpenseType.HOA_FEES),
             ("2016-08-03", "FootBlind Finance Analytic", 30890, ExpenseType.RENT),
         ]
 
@@ -240,7 +240,7 @@ class TestBmoCreditItemize(BaseTestItemize):
 
         receipts = _get_all_sorted_receipts()
         assert receipts == [
-            ("2016-05-12", "Tim Horton's", -150, ExpenseType.MEALS_AND_ENTERTAINMENT),
+            ("2016-05-12", "Tim Horton's", -150, ExpenseType.MEALS),
             ("2016-09-09", "BMO", -45377, ExpenseType.INTEREST),
         ]
 
@@ -270,7 +270,7 @@ class TestWellsFargoItemize(BaseTestItemize):
         # pylint:enable=invalid-name
 
         maven_vendor = VendorFactory.create(
-            name="Maven", default_expense_type=ExpenseType.MEALS_AND_ENTERTAINMENT
+            name="Maven", default_expense_type=ExpenseType.MEALS
         )
         models.VendorAliasPattern.objects.create(
             vendor=maven_vendor,
@@ -305,7 +305,7 @@ class TestWellsFargoItemize(BaseTestItemize):
 
         receipts = _get_all_sorted_receipts()
         assert receipts == [
-            ("2016-08-30", "Maven", -667, ExpenseType.MEALS_AND_ENTERTAINMENT),
+            ("2016-08-30", "Maven", -667, ExpenseType.MEALS),
             ("2016-08-31", "Liars", 16636, ExpenseType.FOREIGN_INCOME),
         ]
 

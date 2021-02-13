@@ -24,9 +24,10 @@ if [ "${COMMAND}" == "test" ]; then
     shift
     RECEIPTS_ENV=test pytest $@
 elif [ "${COMMAND}" == "lint" ]; then
-    flake8
-    pylint taxes/
-    black --check taxes/
+    SOURCE_FOLDERS="taxes/"
+    flake8 $SOURCE_FOLDERS
+    pylint $SOURCE_FOLDERS
+    black --check $SOURCE_FOLDERS
 elif [ "${COMMAND}" == "web" ]; then
     python manage.py runserver --insecure
 else

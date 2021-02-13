@@ -18,20 +18,23 @@ class Currency(TextChoices):
 # taxable expense aggregation type
 class ExpenseType(TextChoices):
     IGNORE = "ignore", "*IGNORE*"
-    PROPERTY_TAX = "property_tax", "Property Tax"
+
+    ADMINISTRATIVE = "administrative", "Management and Administrative"
+    ADVERTISING = "advertising", "Advertising"
+    CAPITAL_GAINS = "capital_gains", "Capital Gains"
+    DONATION = "donation", "Donations"
+    FOREIGN_INCOME = "foreign_income", "Foreign Income"
+    HOA_FEES = "hoa_fees", "HOA Fees"
     INTEREST = "interest", "Interest"
     INSURANCE = "insurance", "Insurance"
-    UTILITY = "utility", "Telephone and Utilities"
-    ADMINISTRATIVE = "administrative", "Management and Administrative"
     MAINTENANCE = "maintenance", "Repair and Maintenance"
-    TRAVEL = "travel", "Business Travel"
-    MEALS_AND_ENTERTAINMENT = "meals", "Meals and Entertainment"
-    SUPPLIES = "supplies", "Office Supplies"
+    MEALS = "meals", "Meals"
+    PROPERTY_TAX = "property_tax", "Property Tax"
     RENT = "rent", "Gross Rent"
-    FOREIGN_INCOME = "foreign_income", "Foreign Income"
-    CAPITAL_GAINS = "capital_gains", "Capital Gains"
-    ADVERTISING = "advertising", "Advertising"
-    DONATION = "donation", "Donations"
+    SUPPLIES = "supplies", "Office Supplies"
+    TELEPHONE = "telephone", "Telephone"
+    TRAVEL = "travel", "Business Travel"
+    UTILITY = "utility", "Utilities"
 
 
 class AliasMatchOperation(TextChoices):
@@ -65,6 +68,8 @@ class RawTransaction:
     payment_method: PaymentMethod = None
 
 
+# TODO: Remove once astroid is upgraded past v2.4.2
+# pylint:disable=inherit-non-class
 class ProcessedTransactionRow(typing.NamedTuple):
     """
     Fields to output in CSV format for an processed transaction
@@ -79,6 +84,9 @@ class ProcessedTransactionRow(typing.NamedTuple):
     tax_category: str
     payment_method: str
     notes: str
+
+
+# pylint:enable=inherit-non-class
 
 
 RawTransactionSequence = typing.Sequence[RawTransaction]

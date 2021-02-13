@@ -53,6 +53,8 @@ class Itemizer:
             and transaction.currency == Currency.CAD
         )
 
+    # TODO: Remove once astroid is upgraded past v2.4.2 (and pylin is upgraded too)
+    # pylint:disable=unsubscriptable-object
     def _find_vendor(self, transaction) -> typing.Optional[VendorMatch]:
         amount = transaction.amount
         if self._is_periodic_payment(transaction):
@@ -94,6 +96,8 @@ class Itemizer:
             expense_type=vendor_alias.default_expense_type
             or vendor.default_expense_type,
         )
+
+    # pylint:enable=unsubscriptable-object
 
     def process_transactions(self, raw_transactions: RawTransactionIterable):
         """

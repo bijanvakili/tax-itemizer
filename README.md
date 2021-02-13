@@ -8,7 +8,7 @@ Includes commands to scrape or import FX rates.
 
 ### Requirements
 
-* python 3.7.x
+* python 3.9.x
 * Packages in `requirements.txt`
 
 ### Setup

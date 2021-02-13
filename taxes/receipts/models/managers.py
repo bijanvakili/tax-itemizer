@@ -13,9 +13,14 @@ from taxes.receipts.util.currency import cents_to_dollars
 TupleGenerator = typing.Generator[typing.NamedTuple, None, None]
 
 
+# TODO: Remove once astroid is upgraded past v2.4.2
+# pylint:disable=inherit-non-class
 class ForexRateFields(typing.NamedTuple):
     date: str
     rate: str
+
+
+# pylint:enable=inherit-non-class
 
 
 class ReportMixinBase(metaclass=abc.ABCMeta):
