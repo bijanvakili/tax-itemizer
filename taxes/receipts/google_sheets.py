@@ -62,13 +62,6 @@ CONVERTER_SUBFORMULA = {
     "ARRAYFORMULA(1/VLOOKUP({items}!$A$2:$A${total_items},{fx}!$A$2:$B${total_rates},2,TRUE)))",
 }
 # pylint:enable=line-too-long
-
-AGGREGATE_FORMULA = (
-    "=SUM(IFERROR(FILTER(ARRAYFORMULA({items}!$D$2:$D${total_items} * "
-    + "{converter}), {items}!$B$2:$B${total_items} = "
-    + "{col_asset}$1, {items}!$G$2:$G${total_items} = $A2),0))"
-)
-
 AGGREGATE_FORMAT = {"type": "NUMBER", "pattern": "#,##0.00;(#,##0.00)"}
 
 # flake8: noqa: E241
@@ -187,6 +180,33 @@ def _upload_to_worksheet(
     )
 
 
+def _aggregate_formula(
+    start_row: int,
+    total_items: int,
+    converter_formula: str,
+    col_asset: str,
+    exclude_hst: bool,
+) -> str:
+    template = "=SUM(IFERROR(FILTER(ARRAYFORMULA("
+    if exclude_hst:
+        template += "({items}!$D$2:$D${total_items}-{items}!$F$2:$F${total_items})"
+    else:
+        template += "{items}!$D$2:$D${total_items}"
+
+    template += (
+        " * "
+        "{converter}), {items}!$B$2:$B${total_items} = "
+        "{col_asset}$1, {items}!$G$2:$G${total_items} = $A{start_row}),0))"
+    )
+    return template.format(
+        start_row=start_row,
+        items=WorksheetType.items.value,
+        total_items=total_items,
+        converter=converter_formula,
+        col_asset=col_asset,
+    )
+
+
 def _refresh_aggregate_worksheet(
     spreadsheet, aggregate_type: WorksheetType, total_items: int, total_rates: int,
 ):
@@ -200,15 +220,24 @@ def _refresh_aggregate_worksheet(
         total_rates=total_rates,
     )
 
+    # special behavior to exclude HST from Gross rent
+    for col in range(NUM_AGGREGATE_ASSETS[aggregate_type]):
+        grid_range = _make_column_range(worksheet, col + 1, 1, 2)
+        rendered_formula = _aggregate_formula(
+            2, total_items, converter_formula, chr(ord("B") + col), True,
+        )
+        batch_requests += [
+            _make_batch_formula_request(grid_range, rendered_formula),
+            _make_batch_format_request(grid_range, AGGREGATE_FORMAT),
+        ]
+
+    # include HST for all other tax categories
     for col in range(NUM_AGGREGATE_ASSETS[aggregate_type]):
         grid_range = _make_column_range(
-            worksheet, col + 1, 1, NUM_AGGREGATE_TAX_CATEGORIES[aggregate_type] + 1
+            worksheet, col + 1, 2, NUM_AGGREGATE_TAX_CATEGORIES[aggregate_type] + 1
         )
-        rendered_formula = AGGREGATE_FORMULA.format(
-            items=WorksheetType.items.value,
-            total_items=total_items,
-            converter=converter_formula,
-            col_asset=chr(ord("B") + col),
+        rendered_formula = _aggregate_formula(
+            3, total_items, converter_formula, chr(ord("B") + col), False,
         )
         batch_requests += [
             _make_batch_formula_request(grid_range, rendered_formula),
