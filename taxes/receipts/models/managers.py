@@ -56,7 +56,7 @@ class TransactionManager(ReportMixinBase, models.Manager):
     ) -> TupleGenerator:
         transactions = (
             self.get_queryset()
-            .select_related("vendor", "vendor__assigned_asset", "payment_method")
+            .select_related("payment_method")
             .filter(transaction_date__range=(start_date, end_date))
             .extra(
                 select={
@@ -71,12 +71,11 @@ class TransactionManager(ReportMixinBase, models.Manager):
         )
 
         for transaction in transactions:
-            vendor = transaction.vendor
-            financial_asset = vendor.assigned_asset if vendor else None
+            asset = transaction.asset
 
             yield ProcessedTransactionRow(
                 transaction.transaction_date.isoformat(),
-                financial_asset.name if financial_asset else UNKNOWN_VALUE,
+                asset.name if asset else UNKNOWN_VALUE,
                 transaction.currency,
                 cents_to_dollars(transaction.total_amount),
                 transaction.description,

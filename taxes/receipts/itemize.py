@@ -28,6 +28,7 @@ LOGGER = logging.getLogger(__name__)
 @dataclass
 class VendorMatch:
     vendor: models.Vendor
+    asset: models.FinancialAsset
     expense_type: ExpenseType
 
 
@@ -53,9 +54,9 @@ class Itemizer:
             and transaction.currency == Currency.CAD
         )
 
-    # TODO: Remove once astroid is upgraded past v2.4.2 (and pylin is upgraded too)
+    # TODO: Remove once astroid is upgraded past v2.4.2 (and pylint is upgraded too)
     # pylint:disable=unsubscriptable-object
-    def _find_vendor(self, transaction) -> typing.Optional[VendorMatch]:
+    def _find_vendor(self, transaction: RawTransaction) -> typing.Optional[VendorMatch]:
         amount = transaction.amount
         if self._is_periodic_payment(transaction):
             # TODO determine how to handle regular payments with the same amount and
@@ -70,8 +71,10 @@ class Itemizer:
                     "Pattern not found for amount: %.2f", cents_to_dollars(amount)
                 )
                 return None
+            vendor = periodic_payment.vendor
             return VendorMatch(
                 vendor=periodic_payment.vendor,
+                asset=vendor.default_asset if vendor else None,
                 expense_type=periodic_payment.vendor.default_expense_type,
             )
 
@@ -93,6 +96,7 @@ class Itemizer:
         vendor = vendor_alias.vendor
         return VendorMatch(
             vendor=vendor,
+            asset=vendor_alias.default_asset or vendor.default_asset,
             expense_type=vendor_alias.default_expense_type
             or vendor.default_expense_type,
         )
@@ -117,6 +121,7 @@ class Itemizer:
             vendor_match = self._find_vendor(raw_transaction)
             if vendor_match:
                 vendor = vendor_match.vendor
+                asset = vendor_match.asset
                 if vendor.fixed_amount:
                     total_amount = vendor.fixed_amount
                     LOGGER.info(
@@ -126,9 +131,11 @@ class Itemizer:
                     )
             else:
                 vendor = None
+                asset = None
 
             transaction = models.Transaction.objects.create(
                 vendor=vendor,
+                asset=asset,
                 transaction_date=raw_transaction.transaction_date,
                 expense_type=vendor_match.expense_type if vendor_match else None,
                 payment_method=raw_transaction.payment_method,

@@ -18,30 +18,30 @@ vendors:
     default_expense_type: meals
     aliases:
       - "CREPEVINE OAKLAND OAKLAND CA"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Gyro King"
     default_expense_type: meals
     aliases:
       - 'GYRO KING'
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "We Be Sushi"
     default_expense_type: meals
     aliases:
       - "WE BE SUSHI 5"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "The Market"
     default_expense_type: meals
     aliases:
       - 'MARKET ON MARKET LLC'
       - "AZALINA'S"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: CVS/pharmacy
     default_expense_type: meals
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: IHOP
     default_expense_type: meals
@@ -49,23 +49,23 @@ vendors:
       -
         pattern: 'IHOP%'
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Mike's Bikes"
     default_expense_type: ignore
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Barney's Burgers"
     default_expense_type: meals
     aliases:
       - "BARNEY'S MARINA"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Guaymas
     default_expense_type: meals
     aliases:
       - "GUAYMAS RESTAURANT TIBURON CA"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "The Gap"
     default_expense_type: ignore
@@ -76,17 +76,17 @@ vendors:
       -
         pattern: "FEDEXOFFICE%"
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: "Duc Loi Supermarket"
     default_expense_type: meals
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Yum Yum Hunan"
     default_expense_type: meals
     aliases:
       - "GRUBHUBYUMYUMHUNAN"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Jacks
     default_expense_type: ignore
@@ -98,7 +98,7 @@ vendors:
         name: "1001-25 Wellesley monthly rent"
         amount: 160000
         currency: CAD
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: "FootBlind Finance Analytic"
     default_expense_type: rent
@@ -107,14 +107,14 @@ vendors:
         name: "5-699 Amber St monthly rent"
         amount: 30890
         currency: CAD
-    assigned_asset: 5-699 Amber St
+    default_asset: 5-699 Amber St
     tax_adjustment_type: hst
   -
     name: "City of Toronto"
     default_expense_type: property_tax
     aliases:
       - "TORONTO TAX     TAX/TAX"
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: "City of Markham"
     default_expense_type: property_tax
@@ -122,44 +122,44 @@ vendors:
       -
         pattern: "MARKHAM TOWN OF TAX%"
         match_operation: like
-    assigned_asset: 5-699 Amber St
+    default_asset: 5-699 Amber St
   -
     name: "MTCC 452"
     default_expense_type: hoa_fees
     aliases:
       - "MTCC 452        FEE/FRA"
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: "YRCC 994"
     default_expense_type: hoa_fees
     aliases:
       - "YRCC994         FEE/FRA"
-    assigned_asset: 5-699 Amber St
+    default_asset: 5-699 Amber St
     tax_adjustment_type: hst
   -
     name: "Senior Sisig"
     default_expense_type: meals
     aliases:
       - "SQ *SENOR SISIG"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Saiwalks"
     default_expense_type: meals
     aliases:
       - "SAIWALKS"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Golden Kim Tar"
     default_expense_type: meals
     aliases:
       - "GRUBHUBGOLDENKIMTARRE"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Modern Thai"
     default_expense_type: meals
     aliases:
       - "GRUBHUBMODERNTHAI"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Bonita Taqueria"
     default_expense_type: meals
@@ -167,19 +167,19 @@ vendors:
       -
         pattern: "BONITA TAQUERIA Y ROTI%"
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Relay"
     default_expense_type: meals
     aliases:
       - "RELAY 4753 TORONTO ON"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Boccone Trattoria"
     default_expense_type: meals
     aliases:
       - 'YYZ BOCCONE PRONTO MISSISSAUGA ON'
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 'Air Canada'
     default_expense_type: travel
@@ -187,7 +187,7 @@ vendors:
       -
        pattern: 'AIR CAN%'
        match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: 'Aroma'
     default_expense_type: meals
@@ -195,25 +195,25 @@ vendors:
       -
         pattern: 'AROMA%TORONTO ON'
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Pizza Libretto"
     default_expense_type: meals
     aliases:
       - "PIZZERIA LIBRETTO - DA TORONTO ON"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Joe's Hamburgers"
     default_expense_type: meals
     aliases:
       - "JOE'S HAMBURGERS RICHMOND HILLON"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Real Mo-Mo's"
     default_expense_type: meals
     aliases:
       - "REAL MO MOS TORONTO ON"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Tim Horton's"
     default_expense_type: meals
@@ -221,19 +221,19 @@ vendors:
       -
         pattern: "TIM HORTONS%"
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Wine Rack"
     default_expense_type: meals
     aliases:
       - "WINE RACK 303 TORONTO ON"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Panera Bread"
     default_expense_type: meals
     aliases:
       - "PANERA BREAD CAFE# 620 NORTH YORK ON"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 'Intuit'
     default_expense_type: administrative
@@ -241,7 +241,7 @@ vendors:
       -
         pattern: "INTUIT%"
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: 'Liars'
     default_expense_type: foreign_income
@@ -252,7 +252,7 @@ vendors:
       -
         pattern: 'ATM CHECK DEPOSIT ON 09/09%'
         match_operation: like
-    assigned_asset: U.S. Employment
+    default_asset: U.S. Employment
   -
     name: 'Uber'
     default_expense_type: travel
@@ -260,19 +260,19 @@ vendors:
       -
         pattern: 'UBER%'
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: 'Freshbooks'
     default_expense_type: 'administrative'
     aliases:
       - 'FRESHBOOKS'
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: 'Taqueria El Buen Sabor'
     default_expense_type: meals
     aliases:
       - 'TAQUERIA EL BUEN SABOR'
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 'Glaze Teriyaki'
     default_expense_type: meals
@@ -280,7 +280,7 @@ vendors:
       -
         pattern: '%GLAZE TERIYAKI%'
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 'Pacific Catch'
     default_expense_type: meals
@@ -288,13 +288,13 @@ vendors:
       -
         pattern: 'PACIFIC CATCH%'
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 'Zipcar'
     default_expense_type: travel
     aliases:
       - 'ZIPCAR INC.'
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: 'The Sandwich Spot'
     default_expense_type: meals
@@ -305,13 +305,13 @@ vendors:
       -
         pattern: 'SQU%THE SANDWICH S%'
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 'Il Fornaio Caffe Del Mondo'
     default_expense_type: meals
     aliases:
       - 'CAFFE DEL MONDO'
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 'Squat and Gobble'
     default_expense_type: meals
@@ -319,20 +319,20 @@ vendors:
       -
         pattern: 'SQUAT AND GOBBLE%'
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 'Expedia'
     default_expense_type: travel
     aliases:
       - 'EXPEDIA'
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: 'Blackwood'
     default_expense_type: meals
     aliases:
       - 'BLACKWOOD THAI CUISINE'
       - 'GRUBHUBBLACKWOODTHAI'
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 'Github'
     default_expense_type: administrative
@@ -340,7 +340,7 @@ vendors:
       -
         pattern: 'GITHUB%'
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: "Shopper's Drug Mart"
     default_expense_type: supplies
@@ -348,25 +348,25 @@ vendors:
       -
         pattern: 'SHOPPERSDRUGMART%'
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: 'Shatter Abbas'
     default_expense_type: meals
     aliases:
       - 'SHATTER ABBAS THORNHILL ON'
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 'Duke of Kent'
     default_expense_type: meals
     aliases:
       - 'DUKE OF KENT TORONTO ON'
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 'Sip Wine Bar'
     default_expense_type: meals
     aliases:
       - 'SIP WINE BAR TORONTO ON'
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Jack Astor's"
     default_expense_type: meals
@@ -374,7 +374,7 @@ vendors:
       -
         pattern: "JACK ASTOR%"
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 'Toronto Duty Free'
     default_expense_type: meals
@@ -382,19 +382,19 @@ vendors:
       -
         pattern: 'TORONTO DUTY FREE%'
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 'The Hearth'
     default_expense_type: meals
     aliases:
       - 'HEARTH T1 US POST SECU MISSISSAUGA ON'
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 'University of Toronto'
     default_expense_type: administrative
     aliases:
       - 'TRANSCRIPT CENTRE - UO TORONTO ON'
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: 'Xoom'
     default_expense_type: administrative
@@ -403,7 +403,7 @@ vendors:
       -
         pattern: 'XOOM.COM DEBIT%'
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: 'Chariot'
     default_expense_type: travel
@@ -411,7 +411,7 @@ vendors:
       -
         pattern: 'CHARIOT TRANSIT INC%'
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: 'BMO'
     default_expense_type: interest
@@ -419,7 +419,7 @@ vendors:
       -
         pattern: 'INTEREST ADVANCES  @%'
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: 'Oasis Grill'
     default_expense_type: meals
@@ -427,7 +427,7 @@ vendors:
       -
         pattern: 'OASIS GRILL - %'
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Marina Deli
     default_expense_type: meals
@@ -435,25 +435,25 @@ vendors:
       -
         pattern: 'MARINA DELI%'
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: The Dorian
     default_expense_type: meals
     aliases:
       - "THE DORIAN"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: The Fly Trap
     default_expense_type: meals
     aliases:
       - "THE FLY TRAP RESTAURANT"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: El Toro Taqueria
     default_expense_type: meals
     aliases:
       - "EL TORO TAQUERIA"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Mel's Drive In
     default_expense_type: meals
@@ -461,13 +461,13 @@ vendors:
       -
         pattern: "MELS DRIVE-IN%"
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Mona Lisa San Francisco
     default_expense_type: meals
     aliases:
       - "MONA LISA"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Gus's Community Market"
     default_expense_type: meals
@@ -475,13 +475,13 @@ vendors:
       -
         pattern: "GUS'S COMMUNITY MAR%"
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: The Square Restaurant & Bar
     default_expense_type: meals
     aliases:
       - "THE SQUARE RESTAURANT"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Mau Restaurant
     default_expense_type: meals
@@ -489,7 +489,7 @@ vendors:
     -
       pattern: "MAU RESTAURANT%"
       match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Starbucks
     default_expense_type: meals
@@ -497,13 +497,13 @@ vendors:
       -
         pattern: "STARBUCKS STORE%"
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "Rose's Cafe"
     default_expense_type: meals
     aliases:
       - "ROSES CAFE"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Divisadero Touchless
     default_expense_type: travel
@@ -511,7 +511,7 @@ vendors:
       -
         pattern: "DIVISADERO TOUCHLESS%"
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: Hillstone
     default_expense_type: meals
@@ -519,7 +519,7 @@ vendors:
       -
         pattern: "HILLSTONE (415)%"
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: San Francisco International Airport
     default_expense_type: travel
@@ -527,7 +527,7 @@ vendors:
       -
         pattern: "%SFO PARKING IT%"
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: Poki Time
     default_expense_type: meals
@@ -535,19 +535,19 @@ vendors:
       -
         pattern: "%POKI TIME%"
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Lolo
     default_expense_type: meals
     aliases:
       - "LOLOS"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Park Gyros
     default_expense_type: meals
     aliases:
       - "PARK GYROS SAN FRANCISCOCA"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Safeway
     default_expense_type: meals
@@ -555,7 +555,7 @@ vendors:
       -
         pattern: "SAFEWAY%"
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Walgreens
     default_expense_type: meals
@@ -563,7 +563,7 @@ vendors:
       -
         pattern: "WALGREENS%"
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: "76"
     default_expense_type: travel
@@ -571,7 +571,7 @@ vendors:
       -
         pattern: "76 - GAWFCO ENTERPRISE%"
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: "Lee's Deli"
     default_expense_type: meals
@@ -582,13 +582,13 @@ vendors:
       -
         pattern: "LEES DELI%"
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: United Liquor
     default_expense_type: meals
     aliases:
       - "UNITED LIQUOR"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Beach Chalet
     default_expense_type: meals
@@ -596,7 +596,7 @@ vendors:
       -
         pattern: "BEACH CHALET%"
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Bay Area Fasttrak
     default_expense_type: travel
@@ -604,7 +604,7 @@ vendors:
       -
         pattern: "FASTRAK%"
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: Alamo Drafthouse
     default_expense_type: meals
@@ -612,13 +612,13 @@ vendors:
       -
         pattern: 'ALAMO NEW MISSION%'
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: The Willows
     default_expense_type: meals
     aliases:
       - 'THE WILLOWS'
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: The Beer Hall
     default_expense_type: meals
@@ -626,19 +626,19 @@ vendors:
       -
         pattern: '%THE BEER HALL'
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Burger House
     default_expense_type: meals
     aliases:
       - BURGER HOUSE
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Cask
     default_expense_type: meals
     aliases:
       - "CASK 3RD STREET"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: USPS
     default_expense_type: administrative
@@ -646,25 +646,25 @@ vendors:
       -
         pattern: "USPS KIOSK%"
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: Babu Ji
     default_expense_type: meals
     aliases:
       - BABU JI
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Pizzeria Avellino
     default_expense_type: meals
     aliases:
       - PIZZERIA AVELLINO
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: AAA
     default_expense_type: travel
     aliases:
       - AAA MEMBERSHIP
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: Arco
     default_expense_type: travel
@@ -672,7 +672,7 @@ vendors:
       -
         pattern: 'ARCO%'
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: Jetbrains
     default_expense_type: administrative
@@ -680,13 +680,13 @@ vendors:
       -
         pattern: 'JETBRAINS AMERICAS%'
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: Metreon
     default_expense_type: meals
     aliases:
       - SORABOL METREON LLC
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Country Sky Chinese
     default_expense_type: meals
@@ -694,19 +694,19 @@ vendors:
       -
         pattern: "%COUNTRY SKY CHINE%"
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Maykadeh
     default_expense_type: meals
     aliases:
       - MAYKADEH
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Fandango
     default_expense_type: meals
     aliases:
       - FANDANGO.COM
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: California Academy of Sciences
     default_expense_type: meals
@@ -714,7 +714,7 @@ vendors:
       -
         pattern: 'CALIFORNIA ACADEMY OF%'
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Eureka Berkeley
     default_expense_type: meals
@@ -722,19 +722,19 @@ vendors:
       -
         pattern: 'EUREKA BERKELEY%'
         match_operation: like
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Sharetea
     default_expense_type: meals
     aliases:
       - "SQ *SHARETEA METREON"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Marina Supermarket
     default_expense_type: meals
     aliases:
       - "MARINA SUPERMARKET"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 21st Century Insurance
     default_expense_type: insurance
@@ -742,25 +742,25 @@ vendors:
       -
         pattern: 'AUTOINSURANCE PNOT.DED.%'
         match_operation: like
-    assigned_asset: 1001-25 Wellesley St
+    default_asset: 1001-25 Wellesley St
   -
     name: "L'acajou Bakery"
     default_expense_type: meals
     aliases:
       - "SQUARE *SQ *L'ACAJOU"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: 83 Proof
     default_expense_type: meals
     aliases:
       - "83 PROOF"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Embarcadero Cinemas
     default_expense_type: meals
     aliases:
       - "EMBARCADERO CINEMA 224"
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
   -
     name: Wells Fargo
     aliases:
@@ -772,6 +772,7 @@ vendors:
         pattern: 'ANNUAL FEE FOR%'
         match_operation: like
         default_expense_type: administrative
+        default_asset: Sole Proprietorship
   -
     name: Ho Da La
     default_expense_type: meals
@@ -786,7 +787,20 @@ vendors:
       -
         pattern: 'MAINLAND MARKET'
         match_operation: equal
-    assigned_asset: Sole Proprietorship
+    default_asset: Sole Proprietorship
+  -
+    name: Jeepers
+    aliases:
+      -
+        pattern: JEEPERS *DOMAINS
+        match_operation: equal
+        default_expense_type: administrative
+        default_asset: Sole Proprietorship
+      -
+        pattern: JEEPERS LLC PAYROLL%
+        match_operation: like
+        default_expense_type: foreign_income
+        default_asset: U.S. Employment
 
 exclusions:
 - SAFEWAY

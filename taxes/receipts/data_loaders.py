@@ -76,7 +76,7 @@ class PaymentMethodYamlLoader(BaseYamlDataLoader):
 
 
 class VendorYamlLoader(BaseYamlDataLoader):
-    # pylint: disable=too-many-locals,too-many-branches
+    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     def load_data(self, data: dict):
         # NOTE: assumes all assets can fit into memory
         asset_map = {}
@@ -104,14 +104,14 @@ class VendorYamlLoader(BaseYamlDataLoader):
                 new_vendor_params["merchant_id"] = vendor["merchant_id"]
             if vendor.get("fixed_amount"):
                 new_vendor_params["fixed_amount"] = vendor["fixed_amount"]
-            if vendor.get("assigned_asset"):
+            if vendor.get("default_asset"):
                 try:
-                    new_vendor_params["assigned_asset"] = asset_map[
-                        vendor["assigned_asset"]
+                    new_vendor_params["default_asset"] = asset_map[
+                        vendor["default_asset"]
                     ]
                 except KeyError:
                     raise ValueError(
-                        f"Unable to locate financial asset: {vendor['assigned_asset']}"
+                        f"Unable to locate financial asset: {vendor['default_asset']}"
                     )
             if vendor.get("tax_adjustment_type"):
                 new_vendor_params["tax_adjustment_type"] = types.TaxType(
@@ -121,6 +121,7 @@ class VendorYamlLoader(BaseYamlDataLoader):
 
             for alias in vendor.get("aliases", []):
                 default_expense_type = None
+                default_asset = None
                 if isinstance(alias, str):
                     pattern = alias
                     match_operation = types.AliasMatchOperation.EQUAL
@@ -131,6 +132,8 @@ class VendorYamlLoader(BaseYamlDataLoader):
                         default_expense_type = types.ExpenseType(
                             alias["default_expense_type"]
                         )
+                    if alias.get("default_asset"):
+                        default_asset = asset_map[alias["default_asset"]]
                 else:
                     raise ValueError(f"Unable to parse alias: {alias}")
                 models.VendorAliasPattern.objects.create(
@@ -138,6 +141,7 @@ class VendorYamlLoader(BaseYamlDataLoader):
                     pattern=pattern,
                     match_operation=match_operation,
                     default_expense_type=default_expense_type,
+                    default_asset=default_asset,
                 )
 
             for payment in vendor.get("regular_payments", []):
@@ -166,7 +170,7 @@ class VendorYamlLoader(BaseYamlDataLoader):
 
             models.ExclusionCondition.objects.create(**exclusion_kwargs)
 
-    # pylint: enable=too-many-locals,too-many-branches
+    # pylint: enable=too-many-locals,too-many-branches,too-many-statements
 
 
 class ForexJsonLoader(BaseJsonDataLoader):

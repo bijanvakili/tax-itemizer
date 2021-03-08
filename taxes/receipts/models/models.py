@@ -64,11 +64,9 @@ class Vendor(SurrogateIdMixin):
     )
     # TODO should this be a DecimalField?
     fixed_amount = models.IntegerField(null=True, default=None, blank=True)
-    assigned_asset = models.ForeignKey(
+    default_asset = models.ForeignKey(
         "FinancialAsset",
         on_delete=models.SET_NULL,
-        db_index=True,
-        related_name="assigned_vendors",
         null=True,
         default=None,
         blank=True,
@@ -97,6 +95,13 @@ class VendorAliasPattern(SurrogateIdMixin):
         db_index=True,
         blank=False,
         default=types.AliasMatchOperation.LIKE,
+    )
+    default_asset = models.ForeignKey(
+        "FinancialAsset",
+        on_delete=models.SET_NULL,
+        null=True,
+        default=None,
+        blank=True,
     )
     default_expense_type = fields.text_choice_field(
         types.ExpenseType, db_index=True, null=True, blank=True
@@ -162,6 +167,13 @@ class Transaction(SurrogateIdMixin):
         on_delete=models.PROTECT,
         db_index=True,
         related_name="client_receipts",
+    )
+    asset = models.ForeignKey(
+        "FinancialAsset",
+        on_delete=models.SET_NULL,
+        null=True,
+        default=None,
+        blank=True,
     )
     expense_type = fields.text_choice_field(types.ExpenseType, null=True)
     transaction_date = models.DateField(db_index=True)

@@ -82,7 +82,7 @@ NUM_AGGREGATE_ASSETS = {
 
 NUM_AGGREGATE_TAX_CATEGORIES = {
     WorksheetType.aggregate_cad: 14,
-    WorksheetType.aggregate_usd: 18,
+    WorksheetType.aggregate_usd: 19,
 }
 
 GoogleSheetConfig = typing.NamedTuple(

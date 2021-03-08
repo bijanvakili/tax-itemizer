@@ -35,6 +35,7 @@ class ExpenseType(TextChoices):
     TELEPHONE = "telephone", "Telephone"
     TRAVEL = "travel", "Business Travel"
     UTILITY = "utility", "Utilities"
+    LICENSE = "license", "Taxes and Licenses"
 
 
 class AliasMatchOperation(TextChoices):

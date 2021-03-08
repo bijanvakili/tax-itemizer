@@ -38,17 +38,17 @@ class VendorAliasPatternInline(admin.StackedInline):
 class VendorAdmin(admin.ModelAdmin):
     list_display = (
         "name",
-        "assigned_asset",
+        "default_asset",
         "default_expense_type",
     )
     ordering = ("name",)
     search_fields = ("name",)
     list_filter = (
         ("default_expense_type", filters.ChoicesFieldListFilter,),
-        "assigned_asset",
+        "default_asset",
     )
     inlines = [VendorAliasPatternInline]
-    raw_id_fields = ("assigned_asset",)
+    raw_id_fields = ("default_asset",)
 
 
 @admin.register(models.PeriodicPayment)
@@ -63,6 +63,7 @@ class TransactionAdmin(admin.ModelAdmin):
     list_display = (
         "transaction_date",
         "expense_type",
+        "asset",
         "vendor",
         "total_amount",
         "currency",
@@ -70,11 +71,13 @@ class TransactionAdmin(admin.ModelAdmin):
     ordering = (
         "transaction_date",
         "expense_type",
+        "asset",
         "vendor",
         "total_amount",
     )
     raw_id_fields = (
         "vendor",
+        "asset",
         "payment_method",
     )
     search_fields = (

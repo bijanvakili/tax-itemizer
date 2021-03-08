@@ -56,7 +56,7 @@ def test_vendor_yaml_load():
     assert result.name == "Xoom"
     assert result.default_expense_type == types.ExpenseType.ADMINISTRATIVE
     assert result.fixed_amount == -499
-    assert result.assigned_asset.name == "1001-25 Wellesley St"
+    assert result.default_asset.name == "1001-25 Wellesley St"
 
     alias_patterns = result.alias_patterns.all()
     assert len(alias_patterns) == 1
@@ -71,7 +71,7 @@ def test_vendor_yaml_load():
     assert result.name == "We Be Sushi"
     assert result.default_expense_type == types.ExpenseType.MEALS
     assert result.fixed_amount is None
-    assert result.assigned_asset.name == "Sole Proprietorship"
+    assert result.default_asset.name == "Sole Proprietorship"
 
     alias_patterns = result.alias_patterns.all()
     assert len(alias_patterns) == 1
@@ -121,6 +121,20 @@ def test_vendor_yaml_load():
     assert results[1].pattern == "INTEREST PAYMENT"
     assert results[1].match_operation == types.AliasMatchOperation.EQUAL
     assert results[1].default_expense_type == types.ExpenseType.CAPITAL_GAINS
+
+    results = models.VendorAliasPattern.objects.filter(vendor__name="Jeepers").order_by(
+        "pattern"
+    )
+
+    assert results[0].pattern == "JEEPERS *DOMAINS"
+    assert results[0].match_operation == types.AliasMatchOperation.EQUAL
+    assert results[0].default_expense_type == types.ExpenseType.ADMINISTRATIVE
+    assert results[0].default_asset.name == "Sole Proprietorship"
+
+    assert results[1].pattern == "JEEPERS LLC PAYROLL%"
+    assert results[1].match_operation == types.AliasMatchOperation.LIKE
+    assert results[1].default_expense_type == types.ExpenseType.FOREIGN_INCOME
+    assert results[1].default_asset.name == "U.S. Employment"
 
 
 # pylint: enable=too-many-statements

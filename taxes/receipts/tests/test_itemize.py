@@ -85,10 +85,14 @@ def _get_all_sorted_receipts():
                 "transaction_date_isoformat": "to_char(transaction_date, 'YYYY-MM-DD')"
             }
         )
-        .select_related("vendor", "payment_method")
+        .select_related("vendor", "payment_method", "asset")
         .order_by("transaction_date", "vendor__name", "expense_type", "total_amount")
         .values_list(
-            "transaction_date_isoformat", "vendor__name", "total_amount", "expense_type"
+            "transaction_date_isoformat",
+            "vendor__name",
+            "total_amount",
+            "expense_type",
+            "asset__name",
         )
     )
     return list(q_receipts)
@@ -143,9 +147,27 @@ class TestBmoBankAccountItemize(BaseTestItemize):
 
         results = _get_all_sorted_receipts()
         assert results == [
-            ("2016-08-02", "MTCC 452", -1133, ExpenseType.HOA_FEES),
-            ("2016-08-02", "Warren Smooth", 160000, ExpenseType.RENT),
-            ("2016-08-15", "City of Toronto", -73300, ExpenseType.PROPERTY_TAX),
+            (
+                "2016-08-02",
+                "MTCC 452",
+                -1133,
+                ExpenseType.HOA_FEES,
+                "1001-25 Wellesley St",
+            ),
+            (
+                "2016-08-02",
+                "Warren Smooth",
+                160000,
+                ExpenseType.RENT,
+                "1001-25 Wellesley St",
+            ),
+            (
+                "2016-08-15",
+                "City of Toronto",
+                -73300,
+                ExpenseType.PROPERTY_TAX,
+                "1001-25 Wellesley St",
+            ),
         ]
 
     def test_hst_adjustments(self):
@@ -163,8 +185,14 @@ class TestBmoBankAccountItemize(BaseTestItemize):
 
         receipts = _get_all_sorted_receipts()
         assert receipts == [
-            ("2016-08-02", "YRCC 994", -200839, ExpenseType.HOA_FEES),
-            ("2016-08-03", "FootBlind Finance Analytic", 30890, ExpenseType.RENT),
+            ("2016-08-02", "YRCC 994", -200839, ExpenseType.HOA_FEES, "5-699 Amber St"),
+            (
+                "2016-08-03",
+                "FootBlind Finance Analytic",
+                30890,
+                ExpenseType.RENT,
+                "5-699 Amber St",
+            ),
         ]
 
         # verify HST adjustment
@@ -240,8 +268,14 @@ class TestBmoCreditItemize(BaseTestItemize):
 
         receipts = _get_all_sorted_receipts()
         assert receipts == [
-            ("2016-05-12", "Tim Horton's", -150, ExpenseType.MEALS),
-            ("2016-09-09", "BMO", -45377, ExpenseType.INTEREST),
+            (
+                "2016-05-12",
+                "Tim Horton's",
+                -150,
+                ExpenseType.MEALS,
+                "Sole Proprietorship",
+            ),
+            ("2016-09-09", "BMO", -45377, ExpenseType.INTEREST, "1001-25 Wellesley St"),
         ]
 
         assert log_contains_message(
@@ -305,8 +339,14 @@ class TestWellsFargoItemize(BaseTestItemize):
 
         receipts = _get_all_sorted_receipts()
         assert receipts == [
-            ("2016-08-30", "Maven", -667, ExpenseType.MEALS),
-            ("2016-08-31", "Liars", 16636, ExpenseType.FOREIGN_INCOME),
+            ("2016-08-30", "Maven", -667, ExpenseType.MEALS, None),
+            (
+                "2016-08-31",
+                "Liars",
+                16636,
+                ExpenseType.FOREIGN_INCOME,
+                "U.S. Employment",
+            ),
         ]
 
         assert log_contains_message(
@@ -339,9 +379,45 @@ class TestWellsFargoItemize(BaseTestItemize):
 
         receipts = _get_all_sorted_receipts()
         assert receipts == [
-            ("2016-09-01", "Wells Fargo", -2500, ExpenseType.ADMINISTRATIVE),
+            (
+                "2016-09-01",
+                "Wells Fargo",
+                -2500,
+                ExpenseType.ADMINISTRATIVE,
+                "Sole Proprietorship",
+            ),
         ]
 
         assert log_contains_message(
             self.mock_logger, "Skipping transaction:.*", level=logging.INFO
         )
+
+    def test_match_asset_on_alias(self):
+        # pylint:disable=invalid-name
+        _T = self._make_transaction()
+        # pylint:enable=invalid-name
+
+        transactions = [
+            _T(2, "2016-09-27", -3000, "JEEPERS *DOMAINS", {}),
+            _T(3, "2016-09-28", 290000, "JEEPERS LLC PAYROLL FEBRUARY", {},),
+        ]
+
+        self._run_itemizer(transactions)
+
+        receipts = _get_all_sorted_receipts()
+        assert receipts == [
+            (
+                "2016-09-27",
+                "Jeepers",
+                -3000,
+                ExpenseType.ADMINISTRATIVE,
+                "Sole Proprietorship",
+            ),
+            (
+                "2016-09-28",
+                "Jeepers",
+                290000,
+                ExpenseType.FOREIGN_INCOME,
+                "U.S. Employment",
+            ),
+        ]
