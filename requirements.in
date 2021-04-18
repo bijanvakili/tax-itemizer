@@ -1,12 +1,13 @@
-Django==3.0.7
+Django==3.0.14
 dj-database-url==0.4.2
-google-auth==1.26.1
+google-auth==1.29.0
 google-auth-httplib2==0.0.4
+rsa~=4.7
 
 # due to https://github.com/advisories/GHSA-93xj-8mrv-444m
 httplib2~=0.19.0
 
 pygsheets==2.0.3.1
-PyYAML==5.1
+PyYAML==5.4
 requests==2.22.0
 psycopg2-binary==2.8.6
