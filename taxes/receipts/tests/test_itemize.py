@@ -17,7 +17,7 @@ from taxes.receipts.types import (
     RawTransaction,
     Currency,
     PaymentMethod,
-    ExpenseType,
+    TransactionType,
     TaxType,
     RawTransactionIterable,
     AliasMatchOperation,
@@ -86,12 +86,14 @@ def _get_all_sorted_receipts():
             }
         )
         .select_related("vendor", "payment_method", "asset")
-        .order_by("transaction_date", "vendor__name", "expense_type", "total_amount")
+        .order_by(
+            "transaction_date", "vendor__name", "transaction_type", "total_amount"
+        )
         .values_list(
             "transaction_date_isoformat",
             "vendor__name",
             "total_amount",
-            "expense_type",
+            "transaction_type",
             "asset__name",
         )
     )
@@ -151,21 +153,21 @@ class TestBmoBankAccountItemize(BaseTestItemize):
                 "2016-08-02",
                 "MTCC 452",
                 -1133,
-                ExpenseType.HOA_FEES,
+                TransactionType.HOA_FEES,
                 "1001-25 Wellesley St",
             ),
             (
                 "2016-08-02",
                 "Warren Smooth",
                 160000,
-                ExpenseType.RENT,
+                TransactionType.RENT,
                 "1001-25 Wellesley St",
             ),
             (
                 "2016-08-15",
                 "City of Toronto",
                 -73300,
-                ExpenseType.PROPERTY_TAX,
+                TransactionType.PROPERTY_TAX,
                 "1001-25 Wellesley St",
             ),
         ]
@@ -178,19 +180,25 @@ class TestBmoBankAccountItemize(BaseTestItemize):
 
         transactions = [
             _T(1, "2016-08-02", -200839, "YRCC994         FEE/FRA", _m("DS")),
-            _T(2, "2016-08-03", 30890, "", _m("CD")),
+            _T(2, "2016-08-03", 30890, "", _m("IB")),
         ]
 
         self._run_itemizer(transactions)
 
         receipts = _get_all_sorted_receipts()
         assert receipts == [
-            ("2016-08-02", "YRCC 994", -200839, ExpenseType.HOA_FEES, "5-699 Amber St"),
+            (
+                "2016-08-02",
+                "YRCC 994",
+                -200839,
+                TransactionType.HOA_FEES,
+                "5-699 Amber St",
+            ),
             (
                 "2016-08-03",
                 "FootBlind Finance Analytic",
                 30890,
-                ExpenseType.RENT,
+                TransactionType.RENT,
                 "5-699 Amber St",
             ),
         ]
@@ -272,10 +280,16 @@ class TestBmoCreditItemize(BaseTestItemize):
                 "2016-05-12",
                 "Tim Horton's",
                 -150,
-                ExpenseType.MEALS,
+                TransactionType.MEALS,
                 "Sole Proprietorship",
             ),
-            ("2016-09-09", "BMO", -45377, ExpenseType.INTEREST, "1001-25 Wellesley St"),
+            (
+                "2016-09-09",
+                "BMO",
+                -45377,
+                TransactionType.INTEREST,
+                "1001-25 Wellesley St",
+            ),
         ]
 
         assert log_contains_message(
@@ -304,7 +318,7 @@ class TestWellsFargoItemize(BaseTestItemize):
         # pylint:enable=invalid-name
 
         maven_vendor = VendorFactory.create(
-            name="Maven", default_expense_type=ExpenseType.MEALS
+            name="Maven", default_expense_type=TransactionType.MEALS
         )
         models.VendorAliasPattern.objects.create(
             vendor=maven_vendor,
@@ -339,12 +353,12 @@ class TestWellsFargoItemize(BaseTestItemize):
 
         receipts = _get_all_sorted_receipts()
         assert receipts == [
-            ("2016-08-30", "Maven", -667, ExpenseType.MEALS, None),
+            ("2016-08-30", "Maven", -667, TransactionType.MEALS, None),
             (
                 "2016-08-31",
                 "Liars",
                 16636,
-                ExpenseType.FOREIGN_INCOME,
+                TransactionType.FOREIGN_INCOME,
                 "U.S. Employment",
             ),
         ]
@@ -383,7 +397,7 @@ class TestWellsFargoItemize(BaseTestItemize):
                 "2016-09-01",
                 "Wells Fargo",
                 -2500,
-                ExpenseType.ADMINISTRATIVE,
+                TransactionType.ADMINISTRATIVE,
                 "Sole Proprietorship",
             ),
         ]
@@ -410,14 +424,14 @@ class TestWellsFargoItemize(BaseTestItemize):
                 "2016-09-27",
                 "Jeepers",
                 -3000,
-                ExpenseType.ADMINISTRATIVE,
+                TransactionType.ADMINISTRATIVE,
                 "Sole Proprietorship",
             ),
             (
                 "2016-09-28",
                 "Jeepers",
                 290000,
-                ExpenseType.FOREIGN_INCOME,
+                TransactionType.FOREIGN_INCOME,
                 "U.S. Employment",
             ),
         ]

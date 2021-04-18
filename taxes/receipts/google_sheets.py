@@ -70,7 +70,7 @@ HST_FORMULA = {
     LineItemType.cost: '=SUMIF(Items!$F$2:$F${total_items},"<0")',
 }
 
-HST_START_CELL = (25, 1)
+HST_START_CELL = (27, 1)
 
 EVEN_ROW_BACKGROUND = {"red": 0.8509804, "green": 0.91764706, "blue": 0.827451}
 
@@ -81,8 +81,8 @@ NUM_AGGREGATE_ASSETS = {
 }
 
 NUM_AGGREGATE_TAX_CATEGORIES = {
-    WorksheetType.aggregate_cad: 14,
-    WorksheetType.aggregate_usd: 19,
+    WorksheetType.aggregate_cad: 16,
+    WorksheetType.aggregate_usd: 21,
 }
 
 GoogleSheetConfig = typing.NamedTuple(

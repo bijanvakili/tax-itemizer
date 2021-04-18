@@ -60,7 +60,7 @@ class Vendor(SurrogateIdMixin):
 
     name = models.CharField(max_length=200, unique=True, db_index=True)
     default_expense_type = fields.text_choice_field(
-        types.ExpenseType, db_index=True, null=True, blank=True
+        types.TransactionType, db_index=True, null=True, blank=True
     )
     # TODO should this be a DecimalField?
     fixed_amount = models.IntegerField(null=True, default=None, blank=True)
@@ -104,7 +104,7 @@ class VendorAliasPattern(SurrogateIdMixin):
         blank=True,
     )
     default_expense_type = fields.text_choice_field(
-        types.ExpenseType, db_index=True, null=True, blank=True
+        types.TransactionType, db_index=True, null=True, blank=True
     )
 
     def __str__(self):
@@ -175,7 +175,7 @@ class Transaction(SurrogateIdMixin):
         default=None,
         blank=True,
     )
-    expense_type = fields.text_choice_field(types.ExpenseType, null=True)
+    transaction_type = fields.text_choice_field(types.TransactionType, null=True)
     transaction_date = models.DateField(db_index=True)
     payment_method = models.ForeignKey(
         "PaymentMethod", on_delete=models.PROTECT, db_index=True

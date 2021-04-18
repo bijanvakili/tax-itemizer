@@ -16,22 +16,27 @@ class Currency(TextChoices):
 
 
 # taxable expense aggregation type
-class ExpenseType(TextChoices):
+class TransactionType(TextChoices):
     IGNORE = "ignore", "*IGNORE*"
 
     ADMINISTRATIVE = "administrative", "Management and Administrative"
     ADVERTISING = "advertising", "Advertising"
+    BANK = "bank", "Bank Charges"
     CAPITAL_GAINS = "capital_gains", "Capital Gains"
     DONATION = "donation", "Donations"
     FOREIGN_INCOME = "foreign_income", "Foreign Income"
     HOA_FEES = "hoa_fees", "HOA Fees"
     INTEREST = "interest", "Interest"
     INSURANCE = "insurance", "Insurance"
+    LEASE = "lease", "Lease Fees"
     MAINTENANCE = "maintenance", "Repair and Maintenance"
     MEALS = "meals", "Meals"
+    PROFESSIONAL_SERVICES = "professional_services", "Professional Services"
     PROPERTY_TAX = "property_tax", "Property Tax"
     RENT = "rent", "Gross Rent"
+    REVENUE = "revenue", "Gross Revenue"
     SUPPLIES = "supplies", "Office Supplies"
+    TAXES = "taxes", "Taxes"
     TELEPHONE = "telephone", "Telephone"
     TRAVEL = "travel", "Business Travel"
     UTILITY = "utility", "Utilities"

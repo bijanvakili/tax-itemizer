@@ -14,7 +14,7 @@ from taxes.receipts import models
 from taxes.receipts.types import (
     AliasMatchOperation,
     Currency,
-    ExpenseType,
+    TransactionType,
     RawTransaction,
     RawTransactionIterable,
 )
@@ -29,7 +29,7 @@ LOGGER = logging.getLogger(__name__)
 class VendorMatch:
     vendor: models.Vendor
     asset: models.FinancialAsset
-    expense_type: ExpenseType
+    expense_type: TransactionType
 
 
 class Itemizer:
@@ -49,7 +49,7 @@ class Itemizer:
         misc = transaction.misc
         # TODO extend to inspect payment method
         return (
-            misc.get("transaction_code") == "CD"
+            misc.get("transaction_code") in ["CD", "IB"]
             and transaction.description == ""
             and transaction.currency == Currency.CAD
         )
@@ -137,7 +137,7 @@ class Itemizer:
                 vendor=vendor,
                 asset=asset,
                 transaction_date=raw_transaction.transaction_date,
-                expense_type=vendor_match.expense_type if vendor_match else None,
+                transaction_type=vendor_match.expense_type if vendor_match else None,
                 payment_method=raw_transaction.payment_method,
                 total_amount=total_amount,
                 currency=raw_transaction.currency,

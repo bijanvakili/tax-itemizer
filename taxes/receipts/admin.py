@@ -62,7 +62,7 @@ class PeriodicPaymentAdmin(admin.ModelAdmin):
 class TransactionAdmin(admin.ModelAdmin):
     list_display = (
         "transaction_date",
-        "expense_type",
+        "transaction_type",
         "asset",
         "vendor",
         "total_amount",
@@ -70,7 +70,7 @@ class TransactionAdmin(admin.ModelAdmin):
     )
     ordering = (
         "transaction_date",
-        "expense_type",
+        "transaction_type",
         "asset",
         "vendor",
         "total_amount",

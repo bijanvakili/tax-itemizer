@@ -54,7 +54,7 @@ def test_vendor_yaml_load():
 
     assert result
     assert result.name == "Xoom"
-    assert result.default_expense_type == types.ExpenseType.ADMINISTRATIVE
+    assert result.default_expense_type == types.TransactionType.ADMINISTRATIVE
     assert result.fixed_amount == -499
     assert result.default_asset.name == "1001-25 Wellesley St"
 
@@ -69,7 +69,7 @@ def test_vendor_yaml_load():
 
     assert result
     assert result.name == "We Be Sushi"
-    assert result.default_expense_type == types.ExpenseType.MEALS
+    assert result.default_expense_type == types.TransactionType.MEALS
     assert result.fixed_amount is None
     assert result.default_asset.name == "Sole Proprietorship"
 
@@ -87,7 +87,7 @@ def test_vendor_yaml_load():
     assert result.amount == 160000
     assert result.currency == types.Currency.CAD
     assert result.vendor
-    assert result.vendor.default_expense_type == types.ExpenseType.RENT
+    assert result.vendor.default_expense_type == types.TransactionType.RENT
     assert result.vendor.tax_adjustment_type is None
 
     # verify some sample exclusions
@@ -116,11 +116,11 @@ def test_vendor_yaml_load():
 
     assert results[0].pattern == "ANNUAL FEE FOR%"
     assert results[0].match_operation == types.AliasMatchOperation.LIKE
-    assert results[0].default_expense_type == types.ExpenseType.ADMINISTRATIVE
+    assert results[0].default_expense_type == types.TransactionType.ADMINISTRATIVE
 
     assert results[1].pattern == "INTEREST PAYMENT"
     assert results[1].match_operation == types.AliasMatchOperation.EQUAL
-    assert results[1].default_expense_type == types.ExpenseType.CAPITAL_GAINS
+    assert results[1].default_expense_type == types.TransactionType.CAPITAL_GAINS
 
     results = models.VendorAliasPattern.objects.filter(vendor__name="Jeepers").order_by(
         "pattern"
@@ -128,12 +128,12 @@ def test_vendor_yaml_load():
 
     assert results[0].pattern == "JEEPERS *DOMAINS"
     assert results[0].match_operation == types.AliasMatchOperation.EQUAL
-    assert results[0].default_expense_type == types.ExpenseType.ADMINISTRATIVE
+    assert results[0].default_expense_type == types.TransactionType.ADMINISTRATIVE
     assert results[0].default_asset.name == "Sole Proprietorship"
 
     assert results[1].pattern == "JEEPERS LLC PAYROLL%"
     assert results[1].match_operation == types.AliasMatchOperation.LIKE
-    assert results[1].default_expense_type == types.ExpenseType.FOREIGN_INCOME
+    assert results[1].default_expense_type == types.TransactionType.FOREIGN_INCOME
     assert results[1].default_asset.name == "U.S. Employment"
 
 

@@ -6,7 +6,7 @@ from django.db import models
 
 from taxes.receipts.constants import UNKNOWN_VALUE
 from taxes.receipts.forex import CURRENCY_PAIR
-from taxes.receipts.types import ProcessedTransactionRow, ExpenseType
+from taxes.receipts.types import ProcessedTransactionRow, TransactionType
 from taxes.receipts.util.currency import cents_to_dollars
 
 
@@ -82,8 +82,8 @@ class TransactionManager(ReportMixinBase, models.Manager):
                 cents_to_dollars(transaction.hst_amount)
                 if transaction.hst_amount
                 else "",
-                ExpenseType(transaction.expense_type).label
-                if transaction.expense_type
+                TransactionType(transaction.transaction_type).label
+                if transaction.transaction_type
                 else UNKNOWN_VALUE,
                 transaction.payment_method.name,
                 "",

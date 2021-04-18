@@ -97,7 +97,7 @@ class VendorYamlLoader(BaseYamlDataLoader):
             new_vendor_params = {}
             new_vendor_params["name"] = vendor["name"]
             if vendor.get("default_expense_type"):
-                new_vendor_params["default_expense_type"] = types.ExpenseType(
+                new_vendor_params["default_expense_type"] = types.TransactionType(
                     vendor["default_expense_type"]
                 )
             if vendor.get("merchant_id"):
@@ -129,7 +129,7 @@ class VendorYamlLoader(BaseYamlDataLoader):
                     pattern = alias["pattern"]
                     match_operation = alias["match_operation"]
                     if alias.get("default_expense_type"):
-                        default_expense_type = types.ExpenseType(
+                        default_expense_type = types.TransactionType(
                             alias["default_expense_type"]
                         )
                     if alias.get("default_asset"):

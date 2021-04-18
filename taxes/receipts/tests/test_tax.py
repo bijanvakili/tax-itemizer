@@ -18,7 +18,7 @@ def test_hst_adjustment_basic(total_amount, expected_tax_adjustment):
     payment_method = factories.PaymentMethodFactory.create(currency=types.Currency.CAD)
     receipt = models.Transaction(
         vendor=vendor,
-        expense_type=vendor.default_expense_type,
+        transaction_type=vendor.default_expense_type,
         transaction_date=datetime.date.today(),
         payment_method=payment_method,
         total_amount=total_amount,
@@ -48,7 +48,7 @@ def test_hst_adjustment_periodic(total_amount, expected_tax_adjustment):
     payment_method = factories.PaymentMethodFactory.create(currency=types.Currency.CAD)
     receipt = models.Transaction(
         vendor=vendor,
-        expense_type=vendor.default_expense_type,
+        transaction_type=vendor.default_expense_type,
         transaction_date=datetime.date.today(),
         payment_method=payment_method,
         total_amount=periodic_payment.amount,
