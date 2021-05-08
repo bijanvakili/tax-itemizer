@@ -27,7 +27,7 @@ def mock_logger(monkeypatch):
 
 @pytest.mark.usefixtures("payment_methods")
 def test_payment_method_yaml_load():
-    # verify sample payment method
+    # verify credit card payment method
     result = models.PaymentMethod.objects.get(name="BMO Paypass Mastercard")
 
     assert result.name == "BMO Paypass Mastercard"
@@ -35,6 +35,21 @@ def test_payment_method_yaml_load():
     assert result.method_type == types.PaymentMethod.CREDIT_CARD
     assert result.currency == types.Currency.CAD
     assert result.safe_numeric_id == "0004"
+    assert result.file_prefix == "bmo_mastercard"
+    assert result.parser_class == "BMOCSVCreditParser"
+    assert not result.allow_periodic_payments
+
+    # verify bank account payment method
+    result = models.PaymentMethod.objects.get(name="BMO Savings")
+
+    assert result.name == "BMO Savings"
+    assert result.description == "BMO Debit card and Savings account"
+    assert result.method_type == types.PaymentMethod.CREDIT_CARD
+    assert result.currency == types.Currency.CAD
+    assert result.safe_numeric_id == "0066"
+    assert result.file_prefix == "bmo_savings"
+    assert result.parser_class == "BMOCSVBankAccountParser"
+    assert result.allow_periodic_payments
 
     # verify total number of methods loaded
     assert models.PaymentMethod.objects.count() == 10

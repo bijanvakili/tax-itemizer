@@ -46,6 +46,7 @@ payment_methods:
       safe_numeric_id: '0066'
       file_prefix: bmo_savings
       parser_class: BMOCSVBankAccountParser
+      allow_periodic_payments: true
     -
       description: "Line of credit backed by property"
       name: "BMO Readiline"

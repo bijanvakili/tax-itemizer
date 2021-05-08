@@ -150,6 +150,7 @@ class PaymentMethod(SurrogateIdMixin):
     currency = fields.text_choice_field(types.Currency)
     file_prefix = models.CharField(max_length=255, db_index=True, null=True, blank=True)
     parser_class = models.CharField(max_length=50, db_index=True, null=True, blank=True)
+    allow_periodic_payments = models.BooleanField(default=False)
 
     def __repr__(self):
         return "<PaymentMethod({id}, {name})>".format(**self.__dict__)

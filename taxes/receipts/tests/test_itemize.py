@@ -142,7 +142,7 @@ class TestBmoBankAccountItemize(BaseTestItemize):
 
         transactions = [
             _T(7, "2016-08-02", -1133, "MTCC 452        FEE/FRA", _m("DS")),
-            _T(8, "2016-08-02", 160000, "", _m("CD")),
+            _T(8, "2016-08-02", 160000, "877 LAWRENCE A", _m("CD")),  # periodic payment
             _T(15, "2016-08-15", -73300, "TORONTO TAX     TAX/TAX", _m("DS")),
         ]
         self._run_itemizer(transactions)
@@ -180,7 +180,7 @@ class TestBmoBankAccountItemize(BaseTestItemize):
 
         transactions = [
             _T(1, "2016-08-02", -200839, "YRCC994         FEE/FRA", _m("DS")),
-            _T(2, "2016-08-03", 30890, "", _m("IB")),
+            _T(2, "2016-08-03", 30890, "", _m("IB")),  # periodic payment
         ]
 
         self._run_itemizer(transactions)

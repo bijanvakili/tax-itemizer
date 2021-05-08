@@ -46,11 +46,9 @@ class Itemizer:
 
     @staticmethod
     def _is_periodic_payment(transaction: RawTransaction):
-        misc = transaction.misc
-        # TODO extend to inspect payment method
         return (
-            misc.get("transaction_code") in ["CD", "IB"]
-            and transaction.description == ""
+            transaction.payment_method.allow_periodic_payments
+            and transaction.misc.get("transaction_code") in ["CD", "IB"]
             and transaction.currency == Currency.CAD
         )
 
